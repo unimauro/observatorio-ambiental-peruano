@@ -1,0 +1,56 @@
+{
+  "nota": "Catálogo de fuentes que el Observatorio rastrea o integrará de forma continua. Objetivo: centralizar toda la información ambiental relevante del Perú y del mundo. Estado: integrado (ya en uso) | planificado (en hoja de ruta).",
+  "grupos": [
+    {
+      "categoria": "Fiscalización y regulación (Perú)",
+      "fuentes": [
+        { "sigla": "OEFA", "nombre": "Organismo de Evaluación y Fiscalización Ambiental — derrames, supervisiones, PAS, SINADA (denuncias)", "url": "https://www.oefa.gob.pe/", "estado": "integrado" },
+        { "sigla": "OSINERGMIN", "nombre": "Supervisión de energía y minería", "url": "https://www.osinergmin.gob.pe/", "estado": "integrado" },
+        { "sigla": "ANA", "nombre": "Autoridad Nacional del Agua — cuencas y calidad de agua", "url": "https://www.gob.pe/ana", "estado": "planificado" },
+        { "sigla": "SERNANP", "nombre": "Áreas Naturales Protegidas (SINANPE, ACR, ACP)", "url": "https://www.gob.pe/sernanp", "estado": "planificado" },
+        { "sigla": "SERFOR", "nombre": "Servicio Nacional Forestal y de Fauna Silvestre", "url": "https://www.gob.pe/serfor", "estado": "planificado" },
+        { "sigla": "SENACE", "nombre": "Certificación ambiental — Estudios de Impacto Ambiental (EIA)", "url": "https://www.gob.pe/senace", "estado": "planificado" },
+        { "sigla": "INGEMMET", "nombre": "Catastro minero, geología y pasivos", "url": "https://www.gob.pe/ingemmet", "estado": "planificado" },
+        { "sigla": "SENAMHI", "nombre": "Meteorología, clima e hidrología", "url": "https://www.senamhi.gob.pe/", "estado": "planificado" }
+      ]
+    },
+    {
+      "categoria": "Ministerios y Estado",
+      "fuentes": [
+        { "sigla": "MINAM", "nombre": "Ministerio del Ambiente — SINIA, Geobosques, Geoservidor", "url": "https://www.minam.gob.pe/", "estado": "integrado" },
+        { "sigla": "MINEM", "nombre": "Ministerio de Energía y Minas", "url": "https://www.gob.pe/minem", "estado": "planificado" },
+        { "sigla": "MIDAGRI", "nombre": "Desarrollo Agrario y Riego — cobertura y uso de suelo", "url": "https://www.gob.pe/midagri", "estado": "planificado" },
+        { "sigla": "MINCUL — BDPI", "nombre": "Base de Datos de Pueblos Indígenas u Originarios", "url": "https://bdpi.cultura.gob.pe/", "estado": "planificado" },
+        { "sigla": "Defensoría", "nombre": "Defensoría del Pueblo — reporte de conflictos socioambientales", "url": "https://www.defensoria.gob.pe/", "estado": "planificado" },
+        { "sigla": "INEI", "nombre": "Estadística e indicadores socioeconómicos", "url": "https://www.inei.gob.pe/", "estado": "planificado" },
+        { "sigla": "Datos Abiertos", "nombre": "Plataforma Nacional de Datos Abiertos", "url": "https://www.datosabiertos.gob.pe/", "estado": "integrado" }
+      ]
+    },
+    {
+      "categoria": "Organizaciones ambientales y sociedad civil",
+      "fuentes": [
+        { "sigla": "SPDA", "nombre": "Sociedad Peruana de Derecho Ambiental — Actualidad Ambiental", "url": "https://www.actualidadambiental.pe/", "estado": "planificado" },
+        { "sigla": "DAR", "nombre": "Derecho, Ambiente y Recursos Naturales", "url": "https://dar.org.pe/", "estado": "planificado" },
+        { "sigla": "CooperAcción", "nombre": "Observatorio de conflictos mineros", "url": "https://cooperaccion.org.pe/", "estado": "planificado" },
+        { "sigla": "IBC", "nombre": "Instituto del Bien Común — territorios y comunidades", "url": "https://ibcperu.org/", "estado": "planificado" },
+        { "sigla": "EarthRights", "nombre": "EarthRights International — derrames amazónicos", "url": "https://earthrights.org/", "estado": "integrado" },
+        { "sigla": "CNDDHH", "nombre": "Coordinadora Nacional de Derechos Humanos", "url": "https://derechoshumanos.pe/", "estado": "integrado" },
+        { "sigla": "MAAP", "nombre": "Monitoring of the Andean Amazon Project (ACA/Conservación Amazónica)", "url": "https://maaproject.org/", "estado": "planificado" },
+        { "sigla": "Mongabay Latam", "nombre": "Periodismo ambiental independiente", "url": "https://es.mongabay.com/", "estado": "integrado" }
+      ]
+    },
+    {
+      "categoria": "Organizaciones internacionales y datasets globales",
+      "fuentes": [
+        { "sigla": "Global Forest Watch", "nombre": "World Resources Institute — alertas y pérdida de bosque", "url": "https://www.globalforestwatch.org/", "estado": "planificado" },
+        { "sigla": "RAISG", "nombre": "Red Amazónica de Información Socioambiental Georreferenciada", "url": "https://www.raisg.org/", "estado": "planificado" },
+        { "sigla": "NASA FIRMS", "nombre": "Focos de calor e incendios (satelital, casi en tiempo real)", "url": "https://firms.modaps.eosdis.nasa.gov/", "estado": "planificado" },
+        { "sigla": "PNUMA/UNEP", "nombre": "Programa de las Naciones Unidas para el Medio Ambiente", "url": "https://www.unep.org/es", "estado": "planificado" },
+        { "sigla": "FAO", "nombre": "Organización para la Alimentación y la Agricultura — bosques y suelos", "url": "https://www.fao.org/", "estado": "planificado" },
+        { "sigla": "Banco Mundial", "nombre": "World Bank Open Data — indicadores ambientales", "url": "https://datos.bancomundial.org/", "estado": "planificado" },
+        { "sigla": "UICN/IUCN", "nombre": "Unión Internacional para la Conservación de la Naturaleza", "url": "https://www.iucn.org/es", "estado": "planificado" },
+        { "sigla": "WWF", "nombre": "World Wide Fund for Nature", "url": "https://www.wwf.org.pe/", "estado": "planificado" }
+      ]
+    }
+  ]
+}

@@ -43,6 +43,14 @@ Base navegable con datos oficiales sembrados y procedencia marcada.
 - 🧭 **Calidad de agua y aire (ECA)** — SINIA / estaciones de monitoreo.
 - 💡 **Cartografía de pueblos indígenas / comunidades** — BDPI (Ministerio de Cultura).
 
+### Monitoreo continuo de fuentes (objetivo: rastrear "todo")
+> Centralizar toda la información ambiental relevante del Perú y del mundo. Catálogo completo en la app (Acerca → "Fuentes que monitoreamos") y en `public/data/fuentes-monitoreo.json`.
+- 🔜 **Fiscalización y regulación (Perú):** OEFA (derrames, PAS, SINADA), OSINERGMIN, ANA, SERNANP, SERFOR, SENACE, INGEMMET, SENAMHI.
+- 🧭 **Ministerios y Estado:** MINAM (SINIA, Geobosques, Geoservidor), MINEM, MIDAGRI, MINCUL-BDPI, Defensoría del Pueblo, INEI, Datos Abiertos.
+- 🧭 **Organizaciones ambientales y sociedad civil:** SPDA, DAR, CooperAcción, IBC, EarthRights, CNDDHH, MAAP, Mongabay.
+- 🧭 **Organismos internacionales y datasets globales:** Global Forest Watch, RAISG, NASA FIRMS, PNUMA/UNEP, FAO, Banco Mundial, UICN, WWF.
+- 💡 Rastreo automatizado (scrapers/APIs + cron) con marca de fecha y estado por fuente.
+
 ### Calidad y confianza
 - 🔜 Mejorar geometría de la capa base (límites distritales: ya existe `distritos.geojson`, 1,834 distritos).
 - 🧭 Validación cruzada de cada cifra con su fuente primaria (no solo prensa).

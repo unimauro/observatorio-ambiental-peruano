@@ -1,16 +1,41 @@
-const fuentes = [
-  ['OEFA', 'Organismo de Evaluación y Fiscalización Ambiental', 'https://www.oefa.gob.pe/'],
-  ['MINAM', 'Ministerio del Ambiente', 'https://www.minam.gob.pe/'],
-  ['Geobosques', 'Monitoreo de bosques (MINAM)', 'https://geobosques.minam.gob.pe/'],
-  ['SINIA', 'Sistema Nacional de Información Ambiental', 'https://sinia.minam.gob.pe/'],
-  ['ANA', 'Autoridad Nacional del Agua', 'https://www.gob.pe/ana'],
-  ['SERNANP', 'Servicio Nacional de Áreas Naturales Protegidas', 'https://www.gob.pe/sernanp'],
-  ['INEI', 'Instituto Nacional de Estadística e Informática', 'https://www.inei.gob.pe/'],
-  ['Datos Abiertos', 'Plataforma Nacional de Datos Abiertos', 'https://www.datosabiertos.gob.pe/'],
-  ['OSINERGMIN', 'Organismo Supervisor de la Inversión en Energía y Minería', 'https://www.osinergmin.gob.pe/'],
-]
+import { useEffect, useState } from 'react'
+import { loadJSON } from '../lib/data'
+
+interface Fuente {
+  sigla: string
+  nombre: string
+  url: string
+  estado: 'integrado' | 'planificado'
+}
+interface Grupo {
+  categoria: string
+  fuentes: Fuente[]
+}
+interface Monitoreo {
+  nota: string
+  grupos: Grupo[]
+}
+
+function EstadoFuente({ estado }: { estado: string }) {
+  const ok = estado === 'integrado'
+  return (
+    <span
+      className={`shrink-0 text-[10px] uppercase tracking-wide font-semibold px-1.5 py-0.5 rounded ${
+        ok ? 'bg-green-100 text-green-800' : 'bg-slate-200 text-slate-600'
+      }`}
+    >
+      {estado}
+    </span>
+  )
+}
 
 export default function Acerca() {
+  const [mon, setMon] = useState<Monitoreo | null>(null)
+
+  useEffect(() => {
+    loadJSON<Monitoreo>('fuentes-monitoreo.json').then(setMon).catch(console.error)
+  }, [])
+
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
@@ -43,23 +68,47 @@ export default function Acerca() {
         </p>
       </section>
 
+      {/* Fuentes que monitoreamos */}
       <section>
-        <h2 className="font-bold mb-3">Fuentes oficiales</h2>
-        <div className="grid sm:grid-cols-2 gap-2">
-          {fuentes.map(([sigla, nombre, url]) => (
-            <a key={sigla} href={url} target="_blank" rel="noreferrer noopener"
-              className="bg-white border border-slate-200 rounded-lg px-3 py-2 hover:border-forest transition">
-              <div className="font-semibold text-forest-dark text-sm">{sigla}</div>
-              <div className="text-xs text-slate-500">{nombre}</div>
-            </a>
+        <h2 className="font-bold mb-1">Fuentes que monitoreamos</h2>
+        <p className="text-sm text-slate-500 mb-3">
+          El Observatorio rastrea —o integrará progresivamente— información de
+          organismos de fiscalización, ministerios, organizaciones ambientales y
+          organismos internacionales. <span className="font-medium text-green-700">integrado</span> = ya en uso;
+          {' '}<span className="font-medium text-slate-600">planificado</span> = en hoja de ruta.
+        </p>
+        <div className="space-y-5">
+          {mon?.grupos.map((g) => (
+            <div key={g.categoria}>
+              <h3 className="text-sm font-semibold text-forest-dark mb-2">{g.categoria}</h3>
+              <div className="grid sm:grid-cols-2 gap-2">
+                {g.fuentes.map((f) => (
+                  <a
+                    key={f.sigla}
+                    href={f.url}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="bg-white border border-slate-200 rounded-lg px-3 py-2 hover:border-forest transition flex items-start gap-2"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-forest-dark text-sm">{f.sigla}</div>
+                      <div className="text-xs text-slate-500 leading-snug">{f.nombre}</div>
+                    </div>
+                    <EstadoFuente estado={f.estado} />
+                  </a>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       </section>
 
-      <p className="text-xs text-slate-400">
-        Proyecto abierto y sin fines de lucro. Las contribuciones de datos y validación
-        científica son bienvenidas vía el repositorio.
-      </p>
+      <section className="bg-white border border-slate-200 rounded-xl p-5">
+        <h2 className="font-bold mb-1">Créditos</h2>
+        <p className="text-sm text-slate-700">
+          Dirección, tecnología y datos: <strong>Carlos Cárdenas Fernández</strong>.
+        </p>
+      </section>
     </div>
   )
 }

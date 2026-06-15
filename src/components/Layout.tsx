@@ -47,8 +47,7 @@ export default function Layout() {
       <footer className="bg-ink text-slate-300 text-sm">
         <div className="max-w-6xl mx-auto px-4 py-6 flex flex-col sm:flex-row gap-3 justify-between">
           <p>
-            Proyecto abierto y sin fines de lucro. Las cifras citan su fuente y estado
-            (verificado / estimado / referencial).
+            Dirección, tecnología y datos: <strong className="text-white">Carlos Cárdenas Fernández</strong>
           </p>
           <p className="text-slate-400">
             Código y datos: open source · Fase 1 — Observatorio
