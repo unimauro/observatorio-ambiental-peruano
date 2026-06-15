@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#14532d"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg2)"/>
+  <circle cx="120" cy="80" r="220" fill="#22c55e" opacity="0.05"/>
+  <circle cx="1100" cy="560" r="200" fill="#0e7490" opacity="0.08"/>
+
+  <!-- header -->
+  <text x="60" y="78" fill="#a7f3d0" font-size="20" font-weight="700" letter-spacing="4">DATOS ABIERTOS PARA EL PERÚ</text>
+  <text x="58" y="128" fill="#ffffff" font-size="46" font-weight="800">Ecosistema de Observatorios</text>
+  <text x="60" y="160" fill="#cbd5e1" font-size="20">Plataformas públicas que centralizan y visualizan datos del Estado y el territorio</text>
+
+  <!-- grid 3x3 -->
+  <g font-family="Helvetica, Arial, sans-serif">
+    <!-- fila 1 -->
+    <g transform="translate(60,185)">
+      <rect width="340" height="108" rx="14" fill="#ffffff" opacity="0.07"/>
+      <circle cx="26" cy="34" r="8" fill="#22c55e"/>
+      <text x="46" y="40" fill="#ffffff" font-size="23" font-weight="700">Ambiental Peruano</text>
+      <text x="22" y="72" fill="#94e6c0" font-size="15">Derrames · deforestación · ANP</text>
+      <text x="22" y="94" fill="#7dd3fc" font-size="14">/observatorio-ambiental-peruano</text>
+    </g>
+    <g transform="translate(430,185)">
+      <rect width="340" height="108" rx="14" fill="#ffffff" opacity="0.07"/>
+      <circle cx="26" cy="34" r="8" fill="#38bdf8"/>
+      <text x="46" y="40" fill="#ffffff" font-size="23" font-weight="700">Empresas Públicas</text>
+      <text x="22" y="72" fill="#cbd5e1" font-size="15">FONAFE · gasto y gobierno</text>
+      <text x="22" y="94" fill="#7dd3fc" font-size="14">/observatorio-fonafe</text>
+    </g>
+    <g transform="translate(800,185)">
+      <rect width="340" height="108" rx="14" fill="#ffffff" opacity="0.07"/>
+      <circle cx="26" cy="34" r="8" fill="#f59e0b"/>
+      <text x="46" y="40" fill="#ffffff" font-size="23" font-weight="700">Defensa e Interior</text>
+      <text x="22" y="72" fill="#cbd5e1" font-size="15">Presupuesto · pensiones</text>
+      <text x="22" y="94" fill="#7dd3fc" font-size="14">/observatorio-defensa-interior</text>
+    </g>
+
+    <!-- fila 2 -->
+    <g transform="translate(60,309)">
+      <rect width="340" height="108" rx="14" fill="#ffffff" opacity="0.07"/>
+      <circle cx="26" cy="34" r="8" fill="#a78bfa"/>
+      <text x="46" y="40" fill="#ffffff" font-size="23" font-weight="700">Poder Económico</text>
+      <text x="22" y="72" fill="#cbd5e1" font-size="15">Grafo de grupos y directorios</text>
+      <text x="22" y="94" fill="#7dd3fc" font-size="14">/observatorio-poder-economico</text>
+    </g>
+    <g transform="translate(430,309)">
+      <rect width="340" height="108" rx="14" fill="#ffffff" opacity="0.07"/>
+      <circle cx="26" cy="34" r="8" fill="#34d399"/>
+      <text x="46" y="40" fill="#ffffff" font-size="23" font-weight="700">Perú Transparente</text>
+      <text x="22" y="72" fill="#cbd5e1" font-size="15">Servidores · sueldos · poder</text>
+      <text x="22" y="94" fill="#7dd3fc" font-size="14">/peru-transparente</text>
+    </g>
+    <g transform="translate(800,309)">
+      <rect width="340" height="108" rx="14" fill="#ffffff" opacity="0.07"/>
+      <circle cx="26" cy="34" r="8" fill="#f472b6"/>
+      <text x="46" y="40" fill="#ffffff" font-size="23" font-weight="700">Gemelo Digital · INTI</text>
+      <text x="22" y="72" fill="#cbd5e1" font-size="15">Inteligencia territorial distrital</text>
+      <text x="22" y="94" fill="#7dd3fc" font-size="14">/proyecto-inti</text>
+    </g>
+
+    <!-- fila 3 -->
+    <g transform="translate(60,433)">
+      <rect width="340" height="108" rx="14" fill="#ffffff" opacity="0.07"/>
+      <circle cx="26" cy="34" r="8" fill="#fbbf24"/>
+      <text x="46" y="40" fill="#ffffff" font-size="23" font-weight="700">Idoneidad del Estado</text>
+      <text x="22" y="72" fill="#cbd5e1" font-size="15">Índice mérito y capacidad</text>
+      <text x="22" y="94" fill="#7dd3fc" font-size="14">/observatorio-idoneidad-estado</text>
+    </g>
+    <g transform="translate(430,433)">
+      <rect width="340" height="108" rx="14" fill="#ffffff" opacity="0.07"/>
+      <circle cx="26" cy="34" r="8" fill="#22d3ee"/>
+      <text x="46" y="40" fill="#ffffff" font-size="23" font-weight="700">Smartphones &amp; Niñez</text>
+      <text x="22" y="72" fill="#cbd5e1" font-size="15">Evidencia global adolescentes</text>
+      <text x="22" y="94" fill="#7dd3fc" font-size="14">/observatorio-smartphones-adolescentes</text>
+    </g>
+    <g transform="translate(800,433)">
+      <rect width="340" height="108" rx="14" fill="#ffffff" opacity="0.07"/>
+      <circle cx="26" cy="34" r="8" fill="#4ade80"/>
+      <text x="46" y="40" fill="#ffffff" font-size="23" font-weight="700">Plan Perú 2050</text>
+      <text x="22" y="72" fill="#cbd5e1" font-size="15">64 comisiones temáticas</text>
+      <text x="22" y="94" fill="#7dd3fc" font-size="14">/plan-peru-2050</text>
+    </g>
+  </g>
+
+  <!-- pie -->
+  <text x="60" y="595" fill="#e2e8f0" font-size="22" font-weight="700">unimauro.github.io</text>
+  <text x="1140" y="595" fill="#94a3b8" font-size="16" text-anchor="end">Carlos Cárdenas · código y datos abiertos</text>
+</svg>

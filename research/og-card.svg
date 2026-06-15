@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#14532d"/>
+      <stop offset="0.55" stop-color="#155e75"/>
+      <stop offset="1" stop-color="#0e7490"/>
+    </linearGradient>
+    <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22c55e"/>
+      <stop offset="1" stop-color="#16a34a"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- motivo geográfico sutil -->
+  <circle cx="1040" cy="120" r="240" fill="#ffffff" opacity="0.05"/>
+  <circle cx="1120" cy="540" r="160" fill="#ffffff" opacity="0.05"/>
+
+  <!-- globo / hoja -->
+  <g transform="translate(70,70)">
+    <circle cx="34" cy="34" r="33" fill="none" stroke="#22c55e" stroke-width="3"/>
+    <path d="M34 6 C16 24 16 44 34 62 C52 44 52 24 34 6 Z" fill="url(#leaf)" opacity="0.9"/>
+    <line x1="34" y1="6" x2="34" y2="62" stroke="#0b3d22" stroke-width="2"/>
+  </g>
+
+  <text x="158" y="98" fill="#a7f3d0" font-size="22" font-weight="700" letter-spacing="4">OBSERVATORIO ABIERTO · PERÚ</text>
+  <text x="156" y="120" fill="#d1fae5" font-size="16" letter-spacing="2">datos abiertos · mapas · inteligencia artificial</text>
+
+  <!-- título -->
+  <text x="70" y="232" fill="#ffffff" font-size="78" font-weight="800" letter-spacing="-1">Observatorio Ambiental</text>
+  <text x="70" y="318" fill="#ffffff" font-size="78" font-weight="800" letter-spacing="-1">Peruano</text>
+
+  <!-- lema -->
+  <text x="72" y="372" fill="#bbf7d0" font-size="27" font-style="italic">Datos abiertos para comprender el territorio y proteger el futuro.</text>
+
+  <!-- stats -->
+  <g transform="translate(70,420)">
+    <rect x="0"   y="0" width="330" height="120" rx="16" fill="#ffffff" opacity="0.10"/>
+    <rect x="358" y="0" width="330" height="120" rx="16" fill="#ffffff" opacity="0.10"/>
+    <rect x="716" y="0" width="344" height="120" rx="16" fill="#ffffff" opacity="0.10"/>
+
+    <text x="24"  y="62" fill="#ffffff" font-size="52" font-weight="800">474</text>
+    <text x="24"  y="92" fill="#a7f3d0" font-size="19">derrames petroleros</text>
+    <text x="24"  y="113" fill="#86efac" font-size="15">2000–2019 · OEFA</text>
+
+    <text x="382" y="62" fill="#ffffff" font-size="52" font-weight="800">132<tspan font-size="30">k</tspan></text>
+    <text x="382" y="92" fill="#a7f3d0" font-size="19">ha deforestadas</text>
+    <text x="382" y="113" fill="#86efac" font-size="15">2023 · Geobosques/MINAM</text>
+
+    <text x="740" y="62" fill="#ffffff" font-size="52" font-weight="800">76</text>
+    <text x="740" y="92" fill="#a7f3d0" font-size="19">áreas protegidas</text>
+    <text x="740" y="113" fill="#86efac" font-size="15">25.7 M ha · SERNANP</text>
+  </g>
+
+  <!-- pie -->
+  <rect x="0" y="588" width="1200" height="42" fill="#06281a" opacity="0.55"/>
+  <text x="70" y="615" fill="#ffffff" font-size="22" font-weight="700">unimauro.github.io/observatorio-ambiental-peruano</text>
+  <text x="1130" y="615" fill="#a7f3d0" font-size="16" text-anchor="end">open source · cada dato cita su fuente</text>
+</svg>
