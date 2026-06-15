@@ -1,5 +1,5 @@
 {
-  "generado": "2026-06-15T22:55:57Z",
+  "generado": "2026-06-15T23:17:42Z",
   "capas": [
     {
       "archivo": "anp-sernanp.geojson",
@@ -14,21 +14,16 @@
       "titulo": "Minería ilegal en ámbito de ANP",
       "fuente": "SERNANP — ArcGIS REST servicios_ogc/peru_sernanp_0201",
       "url": "https://geoservicios.sernanp.gob.pe/arcgis/rest/services/servicios_ogc/peru_sernanp_0201/MapServer/1"
-    },
+    }
+  ],
+  "errores": [
     {
       "archivo": "relaves-oefa-puntos.geojson",
-      "features": 107,
-      "titulo": "Depósitos de relaves fiscalizados",
-      "fuente": "OEFA — PIFA, RIESGOS/SERV_RIESGO_HIDROM_RELAVES_WMS",
-      "url": "https://pifa.oefa.gob.pe/arcgis/rest/services/RIESGOS/SERV_RIESGO_HIDROM_RELAVES_WMS/MapServer/4"
+      "error": "fallo al consultar https://pifa.oefa.gob.pe/arcgis/rest/services/RIESGOS/SERV_RIESGO_HIDROM_RELAVES_WMS/MapServer/4: HTTP Error 403: Forbidden"
     },
     {
       "archivo": "riesgo-ambiental-oefa.geojson",
-      "features": 195,
-      "titulo": "Unidades fiscalizables con riesgo ambiental Muy alto / Alto",
-      "fuente": "OEFA — PIFA, RIESGOS/SERV_RIES_AMB_UF",
-      "url": "https://pifa.oefa.gob.pe/arcgis/rest/services/RIESGOS/SERV_RIES_AMB_UF/MapServer/5"
+      "error": "fallo al consultar https://pifa.oefa.gob.pe/arcgis/rest/services/RIESGOS/SERV_RIES_AMB_UF/MapServer/5: HTTP Error 403: Forbidden"
     }
-  ],
-  "errores": []
+  ]
 }
