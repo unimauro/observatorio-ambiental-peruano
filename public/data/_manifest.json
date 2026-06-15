@@ -1,0 +1,34 @@
+{
+  "generado": "2026-06-15T22:55:57Z",
+  "capas": [
+    {
+      "archivo": "anp-sernanp.geojson",
+      "features": 103,
+      "titulo": "Áreas Naturales Protegidas (administración nacional)",
+      "fuente": "SERNANP — ArcGIS REST servicios_ogc/peru_sernanp_0102",
+      "url": "https://geoservicios.sernanp.gob.pe/arcgis/rest/services/servicios_ogc/peru_sernanp_0102/MapServer/0"
+    },
+    {
+      "archivo": "mineria-ilegal-anp.geojson",
+      "features": 179,
+      "titulo": "Minería ilegal en ámbito de ANP",
+      "fuente": "SERNANP — ArcGIS REST servicios_ogc/peru_sernanp_0201",
+      "url": "https://geoservicios.sernanp.gob.pe/arcgis/rest/services/servicios_ogc/peru_sernanp_0201/MapServer/1"
+    },
+    {
+      "archivo": "relaves-oefa-puntos.geojson",
+      "features": 107,
+      "titulo": "Depósitos de relaves fiscalizados",
+      "fuente": "OEFA — PIFA, RIESGOS/SERV_RIESGO_HIDROM_RELAVES_WMS",
+      "url": "https://pifa.oefa.gob.pe/arcgis/rest/services/RIESGOS/SERV_RIESGO_HIDROM_RELAVES_WMS/MapServer/4"
+    },
+    {
+      "archivo": "riesgo-ambiental-oefa.geojson",
+      "features": 195,
+      "titulo": "Unidades fiscalizables con riesgo ambiental Muy alto / Alto",
+      "fuente": "OEFA — PIFA, RIESGOS/SERV_RIES_AMB_UF",
+      "url": "https://pifa.oefa.gob.pe/arcgis/rest/services/RIESGOS/SERV_RIES_AMB_UF/MapServer/5"
+    }
+  ],
+  "errores": []
+}

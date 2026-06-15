@@ -18,6 +18,14 @@ Este documento registra el origen y el estado de cada dato del observatorio.
   - `https://pifa.oefa.gob.pe/arcgis/rest/services/RIESGOS/SERV_RIESGO_HIDROM_RELAVES_WMS/MapServer/4` (layer "Depósitos de Relaves"). Puntos = centroide de cada polígono.
 - **Nota:** la capa hosted "Emergencias Ambientales - Hidrocarburos" (services5.arcgis.com) figura como pública pero el servicio está huérfano (Invalid URL). Pendiente ubicar la capa de derrames vigente en PIFA (carpeta EMER_HIDRO no expone servicios públicos).
 
+## Riesgo ambiental por unidad fiscalizable (OEFA)
+
+- **Capa oficial integrada (verificado):** `riesgo-ambiental-oefa.geojson` — 195 unidades fiscalizables con riesgo ambiental Muy alto/Alto (de 19,181 evaluadas), con administrado, subsector, nivel de peligro/vulnerabilidad y banderas de pasivo minero/hidrocarburo y conflicto socioambiental. Por subsector: 127 minería, 32 electricidad, 29 hidrocarburos, 7 otros. Fuente: OEFA — PIFA `RIESGOS/SERV_RIES_AMB_UF/MapServer/5`. Puntos = centroide.
+
+## Automatización (ETL)
+
+- `etl/build_data.py` descarga las capas oficiales (SERNANP + OEFA) sin dependencias externas y escribe GeoJSON + `_manifest.json`. El workflow `update-data.yml` lo corre cada lunes y commitea los cambios. Cada capa lleva `metadata.actualizado` con la fecha de descarga.
+
 ## Deforestación
 
 - **2022: 146,575 ha · 2023: 132,216 ha · acumulado 2001–2023: 3,053,354 ha (4.3% de la cobertura amazónica).** — **Geobosques**, Programa Nacional de Conservación de Bosques (MINAM).

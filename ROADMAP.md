@@ -66,9 +66,9 @@ Base navegable con datos oficiales sembrados y procedencia marcada.
 > Profundidad histórica y analítica. Convierte el observatorio en herramienta de consulta.
 
 ### ETL reproducible
-- 🧭 Pipeline Python (`etl/`) que descarga de fuentes oficiales → genera `public/data/*.json`.
-- 🧭 GitHub Action programada (cron) para refrescar datos periódicamente.
-- 🧭 `PROVENANCE.md` por dataset (patrón de petroperu-analytics).
+- ✅ Pipeline Python (`etl/build_data.py`, solo stdlib) que descarga capas oficiales de SERNANP y OEFA → `public/data/*.geojson` + `_manifest.json` con fecha y conteo.
+- ✅ GitHub Action programada (cron semanal, `update-data.yml`) que refresca los datos y commitea cambios automáticamente.
+- 🧭 Sumar al ETL: ecorregiones (SERNANP), conflictos socioambientales y derrames (OEFA), deforestación por depto (Geobosques), catastro minero (MINEM/INGEMMET).
 
 ### Análisis y narrativa
 - 🧭 **Línea de tiempo histórica 1970 → hoy** (navegable, filtrable por eje).

@@ -96,6 +96,16 @@
       "estado": "verificado",
       "fuente": "OEFA — PIFA, capa Depósitos de Relaves (ArcGIS REST).",
       "detalle": "74 en operación, 18 inoperativos, 8 cerrados, 2 registrados como pasivo ambiental minero."
+    },
+    {
+      "id": "riesgo_alto_oefa",
+      "etiqueta": "Unidades fiscalizables con riesgo ambiental alto",
+      "valor": 195,
+      "unidad": "unidades",
+      "categoria": "mineria",
+      "estado": "verificado",
+      "fuente": "OEFA — PIFA, capa de riesgo ambiental por unidad fiscalizable (ArcGIS REST).",
+      "detalle": "Riesgo Muy alto/Alto: 127 minería, 32 electricidad, 29 hidrocarburos, 7 otros."
     }
   ]
 }

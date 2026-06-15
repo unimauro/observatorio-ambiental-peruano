@@ -9,12 +9,13 @@ const iconUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png'
 const iconRetinaUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png'
 const shadowUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png'
 
-type CapaId = 'eventos' | 'departamentos' | 'anp' | 'mineria' | 'relaves'
+type CapaId = 'eventos' | 'departamentos' | 'anp' | 'mineria' | 'relaves' | 'riesgo'
 
 const capasMeta: { id: CapaId; label: string }[] = [
   { id: 'anp', label: 'Áreas protegidas (SERNANP)' },
   { id: 'mineria', label: 'Minería ilegal en ANP' },
   { id: 'relaves', label: 'Depósitos de relaves (OEFA)' },
+  { id: 'riesgo', label: 'Riesgo ambiental alto (OEFA)' },
   { id: 'eventos', label: 'Eventos (derrames/minería)' },
   { id: 'departamentos', label: 'Departamentos' },
 ]
@@ -28,6 +29,7 @@ export default function Mapa() {
     anp: true,
     mineria: true,
     relaves: true,
+    riesgo: true,
     eventos: true,
     departamentos: false,
   })
@@ -118,6 +120,43 @@ export default function Mapa() {
           },
         }).addTo(group)
         layersRef.current.relaves = group
+        group.addTo(map)
+      })
+
+    // Riesgo ambiental alto (oficial OEFA)
+    fetch(`${base}data/riesgo-ambiental-oefa.geojson`)
+      .then((r) => r.json())
+      .then((gj) => {
+        const group = L.layerGroup()
+        L.geoJSON(gj, {
+          pointToLayer: (feat, latlng) => {
+            const muyAlto = feat.properties?.riesgo === 'Muy alto'
+            return L.circleMarker(latlng, {
+              radius: muyAlto ? 8 : 6, color: '#fff', weight: 1.5,
+              fillColor: muyAlto ? '#6d28d9' : '#a78bfa', fillOpacity: 0.9,
+            })
+          },
+          onEachFeature: (f, l) => {
+            const p = f.properties ?? {}
+            const flag = (v?: string) => (v && v !== '0' && v !== 'Sin pasivo' && v !== 'Sin conflicto')
+            const extras = [
+              flag(p.pasivo_minero) ? 'pasivo minero' : '',
+              flag(p.pasivo_hidrocarburo) ? 'pasivo hidrocarburo' : '',
+              flag(p.conflicto_socioamb) ? 'conflicto socioambiental' : '',
+            ].filter(Boolean).join(' · ')
+            l.bindPopup(`
+              <div style="min-width:230px">
+                <strong style="color:#6d28d9">Riesgo ambiental: ${p.riesgo ?? ''}</strong>
+                <div style="font-size:12px;margin-top:4px"><b>Administrado:</b> ${p.administrado ?? 's/d'}</div>
+                <div style="font-size:12px"><b>Unidad fiscalizable:</b> ${p.unidad ?? 's/d'}</div>
+                <div style="font-size:12px"><b>Subsector:</b> ${p.subsector ?? 's/d'}</div>
+                <div style="font-size:12px"><b>Peligro:</b> ${p.peligro ?? 's/d'} · <b>Vulnerabilidad:</b> ${p.vulnerabilidad ?? 's/d'}</div>
+                ${extras ? `<div style="font-size:12px;color:#b91c1c;margin-top:3px">⚠ ${extras}</div>` : ''}
+                <div style="font-size:11px;color:#6d28d9;margin-top:4px">Fuente: OEFA · PIFA (oficial)</div>
+              </div>`)
+          },
+        }).addTo(group)
+        layersRef.current.riesgo = group
         group.addTo(map)
       })
 
@@ -212,6 +251,7 @@ export default function Mapa() {
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded" style={{ background: '#22c55e' }} /> Área protegida</span>
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded" style={{ background: '#dc2626' }} /> Minería ilegal en ANP</span>
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full" style={{ background: '#b45309' }} /> Depósito de relaves (OEFA)</span>
+        <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full" style={{ background: '#a78bfa' }} /> Riesgo ambiental alto (OEFA)</span>
         {Object.values(cats).filter((c) => ['derrames', 'mineria'].includes(c.id)).map((c) => (
           <span key={c.id} className="flex items-center gap-1.5">
             <span className="inline-block w-3 h-3 rounded-full" style={{ background: c.color }} /> {c.nombre}
