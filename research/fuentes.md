@@ -12,6 +12,12 @@ Este documento registra el origen y el estado de cada dato del observatorio.
 - **+2,000 sitios impactados/contaminados** en la Amazonía Norte.
 - Eventos del mapa (Cuninico 2014, Chiriaco/Imaza 2016, Morona 2016, La Pampilla/Repsol 2022): documentados públicamente; **coordenadas aproximadas/referenciales** — reemplazar con registros georeferenciados oficiales de OEFA.
 
+## Pasivos y depósitos de relaves (OEFA)
+
+- **Capa oficial integrada (verificado):** `relaves-oefa-puntos.geojson` — 107 depósitos de relaves fiscalizados, con administrado (empresa), unidad fiscalizable, estado y área. Estados: 74 en operación, 18 inoperativos, 8 cerrados, 4 revegetados, 2 pasivo ambiental minero. Fuente: OEFA — PIFA, servidor ArcGIS:
+  - `https://pifa.oefa.gob.pe/arcgis/rest/services/RIESGOS/SERV_RIESGO_HIDROM_RELAVES_WMS/MapServer/4` (layer "Depósitos de Relaves"). Puntos = centroide de cada polígono.
+- **Nota:** la capa hosted "Emergencias Ambientales - Hidrocarburos" (services5.arcgis.com) figura como pública pero el servicio está huérfano (Invalid URL). Pendiente ubicar la capa de derrames vigente en PIFA (carpeta EMER_HIDRO no expone servicios públicos).
+
 ## Deforestación
 
 - **2022: 146,575 ha · 2023: 132,216 ha · acumulado 2001–2023: 3,053,354 ha (4.3% de la cobertura amazónica).** — **Geobosques**, Programa Nacional de Conservación de Bosques (MINAM).

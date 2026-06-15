@@ -9,11 +9,12 @@ const iconUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png'
 const iconRetinaUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png'
 const shadowUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png'
 
-type CapaId = 'eventos' | 'departamentos' | 'anp' | 'mineria'
+type CapaId = 'eventos' | 'departamentos' | 'anp' | 'mineria' | 'relaves'
 
 const capasMeta: { id: CapaId; label: string }[] = [
   { id: 'anp', label: 'Áreas protegidas (SERNANP)' },
   { id: 'mineria', label: 'Minería ilegal en ANP' },
+  { id: 'relaves', label: 'Depósitos de relaves (OEFA)' },
   { id: 'eventos', label: 'Eventos (derrames/minería)' },
   { id: 'departamentos', label: 'Departamentos' },
 ]
@@ -26,6 +27,7 @@ export default function Mapa() {
   const [capas, setCapas] = useState<Record<CapaId, boolean>>({
     anp: true,
     mineria: true,
+    relaves: true,
     eventos: true,
     departamentos: false,
   })
@@ -90,6 +92,33 @@ export default function Mapa() {
         })
         layersRef.current.mineria = layer
         layer.addTo(map)
+      })
+
+    // Depósitos de relaves (oficial OEFA — PIFA)
+    fetch(`${base}data/relaves-oefa-puntos.geojson`)
+      .then((r) => r.json())
+      .then((gj) => {
+        const group = L.layerGroup()
+        L.geoJSON(gj, {
+          pointToLayer: (_f, latlng) =>
+            L.circleMarker(latlng, {
+              radius: 6, color: '#fff', weight: 1.5, fillColor: '#b45309', fillOpacity: 0.9,
+            }),
+          onEachFeature: (f, l) => {
+            const p = f.properties ?? {}
+            l.bindPopup(`
+              <div style="min-width:220px">
+                <strong style="color:#b45309">Depósito de relaves</strong>
+                <div style="font-size:12px;margin-top:4px"><b>Administrado:</b> ${p.administrado ?? 's/d'}</div>
+                <div style="font-size:12px"><b>Unidad fiscalizable:</b> ${p.unidad ?? 's/d'}</div>
+                <div style="font-size:12px"><b>Estado:</b> ${p.estado_dr ?? 's/d'}</div>
+                <div style="font-size:12px"><b>Área:</b> ${p.area_m2 ? fmt(p.area_m2) + ' m²' : 's/d'}</div>
+                <div style="font-size:11px;color:#b45309;margin-top:4px">Fuente: OEFA · PIFA (oficial)</div>
+              </div>`)
+          },
+        }).addTo(group)
+        layersRef.current.relaves = group
+        group.addTo(map)
       })
 
     // Departamentos (capa base)
@@ -182,6 +211,7 @@ export default function Mapa() {
       <div className="flex flex-wrap gap-4 text-xs text-slate-600">
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded" style={{ background: '#22c55e' }} /> Área protegida</span>
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded" style={{ background: '#dc2626' }} /> Minería ilegal en ANP</span>
+        <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full" style={{ background: '#b45309' }} /> Depósito de relaves (OEFA)</span>
         {Object.values(cats).filter((c) => ['derrames', 'mineria'].includes(c.id)).map((c) => (
           <span key={c.id} className="flex items-center gap-1.5">
             <span className="inline-block w-3 h-3 rounded-full" style={{ background: c.color }} /> {c.nombre}

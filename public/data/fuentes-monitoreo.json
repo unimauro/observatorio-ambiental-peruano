@@ -4,7 +4,7 @@
     {
       "categoria": "Fiscalización y regulación (Perú)",
       "fuentes": [
-        { "sigla": "OEFA", "nombre": "Organismo de Evaluación y Fiscalización Ambiental — derrames, supervisiones, PAS, SINADA (denuncias)", "url": "https://www.oefa.gob.pe/", "estado": "integrado" },
+        { "sigla": "OEFA", "nombre": "Organismo de Evaluación y Fiscalización Ambiental — capa oficial de Depósitos de Relaves (PIFA) integrada en el mapa; derrames, PAS y SINADA en hoja de ruta", "url": "https://publico.oefa.gob.pe/Portalpifa/", "estado": "integrado" },
         { "sigla": "OSINERGMIN", "nombre": "Supervisión de energía y minería", "url": "https://www.osinergmin.gob.pe/", "estado": "integrado" },
         { "sigla": "ANA", "nombre": "Autoridad Nacional del Agua — cuencas y calidad de agua", "url": "https://www.gob.pe/ana", "estado": "planificado" },
         { "sigla": "SERNANP", "nombre": "Áreas Naturales Protegidas (SINANPE) y minería ilegal — capas oficiales del servidor ArcGIS integradas en el mapa", "url": "https://www.gob.pe/sernanp", "estado": "integrado" },

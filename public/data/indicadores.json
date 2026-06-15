@@ -86,6 +86,16 @@
       "categoria": "mineria",
       "estado": "verificado",
       "fuente": "SERNANP — capa de minería ilegal en ámbito de ANP (ArcGIS REST)."
+    },
+    {
+      "id": "relaves_oefa",
+      "etiqueta": "Depósitos de relaves fiscalizados (OEFA)",
+      "valor": 107,
+      "unidad": "depósitos",
+      "categoria": "pasivos",
+      "estado": "verificado",
+      "fuente": "OEFA — PIFA, capa Depósitos de Relaves (ArcGIS REST).",
+      "detalle": "74 en operación, 18 inoperativos, 8 cerrados, 2 registrados como pasivo ambiental minero."
     }
   ]
 }
