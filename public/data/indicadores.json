@@ -67,7 +67,25 @@
       "categoria": "anp",
       "estado": "verificado",
       "fuente": "SERNANP (al 2021).",
-      "detalle": "25,684,523 ha bajo administración nacional, más 25 ACR y 141 ACP."
+      "detalle": "25,684,523 ha bajo administración nacional, más 25 ACR y 141 ACP. El mapa carga la capa oficial de polígonos del SERNANP."
+    },
+    {
+      "id": "anp_superficie",
+      "etiqueta": "Superficie protegida (capa oficial SERNANP)",
+      "valor": 25372083,
+      "unidad": "ha",
+      "categoria": "anp",
+      "estado": "verificado",
+      "fuente": "SERNANP — capa ANP de administración nacional (ArcGIS REST), descargada 2026-06-15."
+    },
+    {
+      "id": "mineria_ilegal_anp",
+      "etiqueta": "Sitios de minería ilegal registrados en ANP",
+      "valor": 179,
+      "unidad": "sitios",
+      "categoria": "mineria",
+      "estado": "verificado",
+      "fuente": "SERNANP — capa de minería ilegal en ámbito de ANP (ArcGIS REST)."
     }
   ]
 }

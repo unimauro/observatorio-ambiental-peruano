@@ -1,0 +1,53 @@
+{
+  "fuente": "SERNANP — ArcGIS REST servicios_ogc/peru_sernanp_0102 (ANP de administración nacional, definitivas). Descargado 2026-06-15.",
+  "estado": "verificado",
+  "totalPoligonos": 103,
+  "superficieLegalHa": 25372082.59,
+  "porCategoria": [
+    {
+      "categoria": "Reserva Nacional",
+      "n": 48,
+      "ha": 11044283.97
+    },
+    {
+      "categoria": "Parque Nacional",
+      "n": 16,
+      "ha": 10394644.34
+    },
+    {
+      "categoria": "Reserva Comunal",
+      "n": 11,
+      "ha": 2327192.85
+    },
+    {
+      "categoria": "Reserva Paisajistica",
+      "n": 2,
+      "ha": 711818.48
+    },
+    {
+      "categoria": "Bosque de Protección",
+      "n": 6,
+      "ha": 389986.99
+    },
+    {
+      "categoria": "Santuario Nacional",
+      "n": 9,
+      "ha": 317366.47
+    },
+    {
+      "categoria": "Coto de Caza",
+      "n": 2,
+      "ha": 124735.0
+    },
+    {
+      "categoria": "Santuario Histórico",
+      "n": 4,
+      "ha": 41279.38
+    },
+    {
+      "categoria": "Refugio de Vida Silvestre",
+      "n": 5,
+      "ha": 20775.11
+    }
+  ]
+}

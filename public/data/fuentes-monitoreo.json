@@ -7,7 +7,7 @@
         { "sigla": "OEFA", "nombre": "Organismo de Evaluación y Fiscalización Ambiental — derrames, supervisiones, PAS, SINADA (denuncias)", "url": "https://www.oefa.gob.pe/", "estado": "integrado" },
         { "sigla": "OSINERGMIN", "nombre": "Supervisión de energía y minería", "url": "https://www.osinergmin.gob.pe/", "estado": "integrado" },
         { "sigla": "ANA", "nombre": "Autoridad Nacional del Agua — cuencas y calidad de agua", "url": "https://www.gob.pe/ana", "estado": "planificado" },
-        { "sigla": "SERNANP", "nombre": "Áreas Naturales Protegidas (SINANPE, ACR, ACP)", "url": "https://www.gob.pe/sernanp", "estado": "planificado" },
+        { "sigla": "SERNANP", "nombre": "Áreas Naturales Protegidas (SINANPE) y minería ilegal — capas oficiales del servidor ArcGIS integradas en el mapa", "url": "https://www.gob.pe/sernanp", "estado": "integrado" },
         { "sigla": "SERFOR", "nombre": "Servicio Nacional Forestal y de Fauna Silvestre", "url": "https://www.gob.pe/serfor", "estado": "planificado" },
         { "sigla": "SENACE", "nombre": "Certificación ambiental — Estudios de Impacto Ambiental (EIA)", "url": "https://www.gob.pe/senace", "estado": "planificado" },
         { "sigla": "INGEMMET", "nombre": "Catastro minero, geología y pasivos", "url": "https://www.gob.pe/ingemmet", "estado": "planificado" },

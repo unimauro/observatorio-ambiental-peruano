@@ -7,15 +7,24 @@ import { loadJSON, fmt } from '../lib/data'
 import type { Indicadores, Categoria, Deforestacion } from '../lib/data'
 import Estado from '../components/Estado'
 
+interface AnpResumen {
+  fuente: string
+  totalPoligonos: number
+  superficieLegalHa: number
+  porCategoria: { categoria: string; n: number; ha: number }[]
+}
+
 export default function Dashboard() {
   const [ind, setInd] = useState<Indicadores | null>(null)
   const [cats, setCats] = useState<Categoria[]>([])
   const [defo, setDefo] = useState<Deforestacion | null>(null)
+  const [anp, setAnp] = useState<AnpResumen | null>(null)
 
   useEffect(() => {
     loadJSON<Indicadores>('indicadores.json').then(setInd).catch(console.error)
     loadJSON<Categoria[]>('categorias.json').then(setCats).catch(console.error)
     loadJSON<Deforestacion>('deforestacion.json').then(setDefo).catch(console.error)
+    loadJSON<AnpResumen>('anp-resumen.json').then(setAnp).catch(console.error)
   }, [])
 
   return (
@@ -97,6 +106,30 @@ export default function Dashboard() {
         <p className="text-xs text-slate-400 mt-2">
           Barras verde oscuro = cifra oficial verificada; verde claro = referencia Geobosques. {defo?.nota}
         </p>
+      </section>
+
+      {/* ANP por categoría (oficial SERNANP) */}
+      <section className="bg-white rounded-xl border border-slate-200 p-5">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <h2 className="text-lg font-bold">Áreas Naturales Protegidas por categoría</h2>
+          <span className="text-xs text-green-700 font-medium">capa oficial SERNANP · verificado</span>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2 mt-4">
+          {anp?.porCategoria.map((c) => (
+            <div key={c.categoria} className="border border-slate-200 rounded-lg p-3">
+              <div className="flex items-baseline justify-between">
+                <span className="font-semibold text-sm text-forest-dark">{c.categoria}</span>
+                <span className="text-xs bg-green-100 text-green-800 rounded px-1.5 py-0.5">{c.n}</span>
+              </div>
+              <div className="text-sm text-slate-600 mt-1">{fmt(Math.round(c.ha))} ha</div>
+            </div>
+          ))}
+        </div>
+        {anp && (
+          <p className="text-xs text-slate-400 mt-3">
+            {fmt(anp.totalPoligonos)} polígonos · {fmt(Math.round(anp.superficieLegalHa))} ha. {anp.fuente}
+          </p>
+        )}
       </section>
     </div>
   )

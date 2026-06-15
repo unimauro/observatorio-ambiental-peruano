@@ -23,7 +23,10 @@ Este documento registra el origen y el estado de cada dato del observatorio.
 ## Áreas Naturales Protegidas
 
 - **76 ANP del SINANPE (25,684,523 ha)** + 25 ACR (3,245,188 ha) + 141 ACP (384,918 ha). — **SERNANP** (al 2021).
-  - https://www.gob.pe/sernanp · https://geo.sernanp.gob.pe/ (GeoJSON/WFS oficial)
+- **Capa oficial integrada (verificado):** `anp-sernanp.geojson` — 103 polígonos de ANP de administración nacional (definitivas), 25,372,083 ha de superficie legal, con nombre, categoría, categoría UICN y base legal. Descargado del servidor ArcGIS REST del SERNANP (2026-06-15):
+  - `https://geoservicios.sernanp.gob.pe/arcgis/rest/services/servicios_ogc/peru_sernanp_0102/MapServer/0` (geometría generalizada a ~0.005°, outSR 4326).
+- **Minería ilegal en ANP (verificado):** `mineria-ilegal-anp.geojson` — 179 sitios con descripción, tipo de actividad, ubicación y estado. Servidor ArcGIS REST SERNANP `servicios_ogc/peru_sernanp_0201/MapServer/1`.
+  - https://www.gob.pe/sernanp · https://geo.sernanp.gob.pe/
 
 ## Capa geográfica base
 
