@@ -5,6 +5,7 @@ import './index.css'
 import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import Mapa from './pages/Mapa'
+import Temas from './pages/Temas'
 import Biblioteca from './pages/Biblioteca'
 import Acerca from './pages/Acerca'
 
@@ -15,6 +16,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path="mapa" element={<Mapa />} />
+          <Route path="temas" element={<Temas />} />
           <Route path="biblioteca" element={<Biblioteca />} />
           <Route path="acerca" element={<Acerca />} />
         </Route>

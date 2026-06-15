@@ -1,0 +1,92 @@
+[
+  {
+    "id": "deforestacion",
+    "icono": "🌳",
+    "nombre": "Bosques y deforestación",
+    "color": "#15803d",
+    "estado": "con-datos",
+    "queEs": "La deforestación es la pérdida permanente de cobertura de bosque, principalmente amazónico. En el Perú su principal motor es el cambio de uso del suelo para agricultura migratoria, además de minería, cultivos ilícitos y vías informales.",
+    "explicacion": "El Perú perdió 132,216 ha de bosque en 2023 y más de 3 millones de ha entre 2001 y 2023. Seis regiones —Ucayali, Loreto, Madre de Dios, San Martín, Huánuco y Junín— concentran el 86% de la pérdida.",
+    "fuentes": ["Geobosques — MINAM"]
+  },
+  {
+    "id": "derrames",
+    "icono": "🛢️",
+    "nombre": "Derrames petroleros",
+    "color": "#1f2937",
+    "estado": "con-datos",
+    "queEs": "Un derrame petrolero es la liberación no controlada de hidrocarburos al ambiente, por fallas en ductos, instalaciones o transporte. Afectan ríos, suelos, fauna y la salud de comunidades, sobre todo en la Amazonía y el litoral.",
+    "explicacion": "Entre 2000 y 2019 se registraron 474 derrames en lotes amazónicos y el Oleoducto Norperuano. El 65% se debió a corrosión y fallas operativas, y el 28% a terceros. OEFA abrió 229 procedimientos sancionadores.",
+    "fuentes": ["OEFA", "OSINERGMIN", "CNDDHH / EarthRights"]
+  },
+  {
+    "id": "mineria",
+    "icono": "⛏️",
+    "nombre": "Minería y pasivos ambientales",
+    "color": "#b45309",
+    "estado": "con-datos",
+    "queEs": "Incluye la minería formal fiscalizada por OEFA y la minería ilegal/informal. Los depósitos de relaves (residuos del procesamiento de mineral) y los pasivos ambientales mineros son sus principales riesgos para el agua y los suelos.",
+    "explicacion": "OEFA fiscaliza 107 depósitos de relaves y ha clasificado 195 unidades fiscalizables con riesgo ambiental alto, mayormente del subsector minería. El SERNANP registra 179 sitios de minería ilegal dentro de áreas naturales protegidas.",
+    "fuentes": ["OEFA — PIFA", "SERNANP"]
+  },
+  {
+    "id": "pasivos",
+    "icono": "☣️",
+    "nombre": "Pasivos ambientales",
+    "color": "#92400e",
+    "estado": "con-datos",
+    "queEs": "Un pasivo ambiental es una instalación, efluente o residuo abandonado que representa un riesgo permanente para la salud y el ambiente, sin un responsable que lo remedie. Los más críticos provienen de minería e hidrocarburos.",
+    "explicacion": "De los depósitos de relaves fiscalizados, algunos ya están registrados como pasivo ambiental minero. La capa de riesgo de OEFA marca, por unidad fiscalizable, la presencia de pasivos mineros e hidrocarburíferos.",
+    "fuentes": ["OEFA — PIFA"]
+  },
+  {
+    "id": "agua",
+    "icono": "💧",
+    "nombre": "Agua y cuencas",
+    "color": "#0e7490",
+    "estado": "en-integracion",
+    "queEs": "El estado del agua se evalúa por cuencas hidrográficas y estándares de calidad ambiental (ECA-Agua). La contaminación por metales, vertimientos y derrames compromete el agua para consumo, pesca y agricultura.",
+    "explicacion": "Integraremos las cuencas hidrográficas y los puntos de monitoreo de calidad de agua de la Autoridad Nacional del Agua (ANA) y del SINIA.",
+    "fuentes": ["ANA", "SINIA — MINAM"]
+  },
+  {
+    "id": "clima",
+    "icono": "🌎",
+    "nombre": "Cambio climático",
+    "color": "#0369a1",
+    "estado": "en-integracion",
+    "queEs": "El cambio climático altera temperaturas, lluvias y glaciares. El Perú es altamente vulnerable: retroceso glaciar, estrés hídrico y eventos extremos amenazan agua, agricultura y ciudades.",
+    "explicacion": "Sumaremos indicadores climáticos de SENAMHI, el inventario de gases de efecto invernadero (INFOCARBONO/MINAM) y series de organismos internacionales.",
+    "fuentes": ["SENAMHI", "MINAM", "Banco Mundial", "Climate Watch"]
+  },
+  {
+    "id": "incendios",
+    "icono": "🔥",
+    "nombre": "Incendios forestales",
+    "color": "#dc2626",
+    "estado": "en-integracion",
+    "queEs": "Los incendios forestales —muchos provocados por quemas agrícolas— destruyen bosque, biodiversidad y suelos, y agravan la deforestación y las emisiones. Se detectan por focos de calor satelitales.",
+    "explicacion": "Integraremos focos de calor casi en tiempo real de NASA FIRMS y los reportes de incendios del MINAM/SERFOR e INDECI.",
+    "fuentes": ["NASA FIRMS", "MINAM", "INDECI"]
+  },
+  {
+    "id": "anp",
+    "icono": "🏞️",
+    "nombre": "Áreas naturales protegidas",
+    "color": "#059669",
+    "estado": "con-datos",
+    "queEs": "Las Áreas Naturales Protegidas (ANP) conservan ecosistemas representativos del país. El SINANPE agrupa las de administración nacional (parques, reservas, santuarios), más áreas regionales (ACR) y privadas (ACP).",
+    "explicacion": "El SERNANP administra una red que supera los 25 millones de hectáreas: 48 Reservas Nacionales, 16 Parques Nacionales, 11 Reservas Comunales y otras categorías, todas mapeadas en el observatorio.",
+    "fuentes": ["SERNANP"]
+  },
+  {
+    "id": "indigenas",
+    "icono": "👥",
+    "nombre": "Pueblos indígenas",
+    "color": "#7c3aed",
+    "estado": "en-integracion",
+    "queEs": "Los pueblos indígenas u originarios habitan y gestionan gran parte de la Amazonía. Muchos impactos ambientales —derrames, deforestación, minería— recaen directamente sobre sus territorios y su salud.",
+    "explicacion": "Cruzaremos la Base de Datos de Pueblos Indígenas (BDPI) del Ministerio de Cultura con las capas de derrames y deforestación para visualizar afectaciones a comunidades.",
+    "fuentes": ["BDPI — Ministerio de Cultura"]
+  }
+]

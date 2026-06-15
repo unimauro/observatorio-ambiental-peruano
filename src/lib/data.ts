@@ -61,3 +61,34 @@ export interface Deforestacion {
 export function fmt(n: number): string {
   return n.toLocaleString('es-PE')
 }
+
+export interface Eje {
+  id: string
+  icono: string
+  nombre: string
+  color: string
+  estado: 'con-datos' | 'en-integracion'
+  queEs: string
+  explicacion: string
+  fuentes: string[]
+}
+
+interface GeoJSONLike {
+  features: { properties: Record<string, unknown> }[]
+}
+
+/** Cuenta features de un GeoJSON agrupando por una propiedad. */
+export async function aggregateGeo(
+  file: string,
+  prop: string,
+): Promise<{ name: string; value: number }[]> {
+  const gj = await loadJSON<GeoJSONLike>(file)
+  const counts = new Map<string, number>()
+  for (const f of gj.features) {
+    const k = String(f.properties?.[prop] ?? 's/d')
+    counts.set(k, (counts.get(k) ?? 0) + 1)
+  }
+  return [...counts.entries()]
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value)
+}

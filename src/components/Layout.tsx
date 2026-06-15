@@ -1,8 +1,10 @@
 import { NavLink, Outlet, Link } from 'react-router-dom'
+import Asistente from './Asistente'
 
 const nav = [
   { to: '/', label: 'Dashboard', end: true },
   { to: '/mapa', label: 'Mapa' },
+  { to: '/temas', label: 'Temas' },
   { to: '/biblioteca', label: 'Biblioteca' },
   { to: '/acerca', label: 'Acerca' },
 ]
@@ -43,6 +45,8 @@ export default function Layout() {
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-6">
         <Outlet />
       </main>
+
+      <Asistente />
 
       <footer className="bg-ink text-slate-300 text-sm">
         <div className="max-w-6xl mx-auto px-4 py-6 flex flex-col sm:flex-row gap-3 justify-between">
