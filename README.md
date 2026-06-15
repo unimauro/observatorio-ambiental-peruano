@@ -19,9 +19,12 @@ ambiental del Perú mediante datos abiertos, mapas interactivos e inteligencia a
 
 | Fase | Alcance |
 |------|---------|
-| **1 — Observatorio** *(actual)* | Mapa nacional, derrames, deforestación, ANP, dashboard de indicadores |
-| **2 — Investigación** | Biblioteca documental, línea de tiempo 1970–hoy, estadísticas regionales |
+| **1 — Observatorio** *(desplegado)* | Mapa nacional, derrames, deforestación, ANP, dashboard de indicadores |
+| **1.5 — Consolidación de datos** | Reemplazar capas estimadas/referenciales por descargas oficiales georeferenciadas |
+| **2 — Investigación** | ETL reproducible, biblioteca ampliada, línea de tiempo 1970–hoy, estadísticas regionales |
 | **3 — IA Ambiental** | Chat con documentos (RAG), reportes automáticos, detección de patrones y alertas |
+
+Detalle completo en [`ROADMAP.md`](ROADMAP.md).
 
 ## Stack
 
