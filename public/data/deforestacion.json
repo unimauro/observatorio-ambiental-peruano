@@ -1,0 +1,21 @@
+{
+  "fuente": "Geobosques — Programa Nacional de Conservación de Bosques, MINAM.",
+  "nota": "Serie anual nacional. Los años 2022 y 2023 son cifras oficiales verificadas; los años intermedios mostrados como tendencia provienen de reportes Geobosques y deben tomarse como referencia.",
+  "serieAnual": [
+    { "anio": 2018, "ha": 154766, "estado": "referencia" },
+    { "anio": 2019, "ha": 148426, "estado": "referencia" },
+    { "anio": 2020, "ha": 203272, "estado": "referencia" },
+    { "anio": 2021, "ha": 137976, "estado": "referencia" },
+    { "anio": 2022, "ha": 146575, "estado": "verificado" },
+    { "anio": 2023, "ha": 132216, "estado": "verificado" }
+  ],
+  "porRegion2023": [
+    { "region": "Ucayali", "ha": 35000, "estado": "estimado" },
+    { "region": "Loreto", "ha": 33000, "estado": "estimado" },
+    { "region": "Madre de Dios", "ha": 16000, "estado": "estimado" },
+    { "region": "San Martín", "ha": 14000, "estado": "estimado" },
+    { "region": "Huánuco", "ha": 12000, "estado": "estimado" },
+    { "region": "Junín", "ha": 8000, "estado": "estimado" }
+  ],
+  "notaRegional": "Ucayali, Loreto, Madre de Dios, San Martín, Huánuco y Junín concentran el 86% de la pérdida amazónica (MINAM). Los valores por región son una distribución estimada del total 2023 y se reemplazarán con la descarga oficial Geobosques por departamento."
+}

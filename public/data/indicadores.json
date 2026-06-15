@@ -1,0 +1,73 @@
+{
+  "actualizado": "2026-06-15",
+  "nota": "Cifras nacionales agregadas. Cada indicador declara su fuente y estado (verificado | estimado | ilustrativo). El detalle metodológico está en research/fuentes.md.",
+  "kpis": [
+    {
+      "id": "derrames",
+      "etiqueta": "Derrames petroleros (2000–2019)",
+      "valor": 474,
+      "unidad": "eventos",
+      "categoria": "derrames",
+      "estado": "verificado",
+      "fuente": "OEFA / OSINERGMIN, sistematizados por la Coordinadora Nacional de Derechos Humanos (2020); difundido por EarthRights International y Mongabay.",
+      "detalle": "65% por corrosión de ductos y fallas operativas; 28% atribuido a terceros."
+    },
+    {
+      "id": "sitios_contaminados",
+      "etiqueta": "Sitios impactados/contaminados (Amazonía Norte)",
+      "valor": 2000,
+      "unidad": "sitios (mín.)",
+      "categoria": "pasivos",
+      "estado": "verificado",
+      "fuente": "Informes oficiales citados por EarthRights International (2020).",
+      "detalle": "Más de 2,000 sitios impactados identificados; cifra mínima."
+    },
+    {
+      "id": "pas_oefa",
+      "etiqueta": "Procedimientos sancionadores OEFA (lotes + ONP)",
+      "valor": 229,
+      "unidad": "PAS",
+      "categoria": "derrames",
+      "estado": "verificado",
+      "fuente": "OEFA, citado por la Coordinadora Nacional de Derechos Humanos (2020)."
+    },
+    {
+      "id": "deforestacion_2023",
+      "etiqueta": "Pérdida de bosque amazónico (2023)",
+      "valor": 132216,
+      "unidad": "ha",
+      "categoria": "deforestacion",
+      "estado": "verificado",
+      "fuente": "Geobosques — Programa Nacional de Conservación de Bosques, MINAM."
+    },
+    {
+      "id": "deforestacion_2022",
+      "etiqueta": "Pérdida de bosque amazónico (2022)",
+      "valor": 146575,
+      "unidad": "ha",
+      "categoria": "deforestacion",
+      "estado": "verificado",
+      "fuente": "Geobosques (MINAM), difundido por Infobae y Servindi (2024)."
+    },
+    {
+      "id": "deforestacion_acumulada",
+      "etiqueta": "Pérdida acumulada de bosque (2001–2023)",
+      "valor": 3053354,
+      "unidad": "ha",
+      "categoria": "deforestacion",
+      "estado": "verificado",
+      "fuente": "Geobosques (MINAM).",
+      "detalle": "Equivale al 4.3% de la cobertura amazónica del país."
+    },
+    {
+      "id": "anp_nacionales",
+      "etiqueta": "Áreas Naturales Protegidas (SINANPE)",
+      "valor": 76,
+      "unidad": "ANP",
+      "categoria": "anp",
+      "estado": "verificado",
+      "fuente": "SERNANP (al 2021).",
+      "detalle": "25,684,523 ha bajo administración nacional, más 25 ACR y 141 ACP."
+    }
+  ]
+}

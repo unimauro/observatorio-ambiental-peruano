@@ -1,0 +1,11 @@
+[
+  { "id": "deforestacion", "nombre": "Bosques y deforestación", "icono": "🌳", "color": "#15803d" },
+  { "id": "derrames", "nombre": "Derrames petroleros", "icono": "🛢️", "color": "#1f2937" },
+  { "id": "mineria", "nombre": "Minería y pasivos ambientales", "icono": "⛏️", "color": "#b45309" },
+  { "id": "pasivos", "nombre": "Pasivos ambientales", "icono": "☣️", "color": "#92400e" },
+  { "id": "agua", "nombre": "Agua y cuencas", "icono": "💧", "color": "#0e7490" },
+  { "id": "clima", "nombre": "Cambio climático", "icono": "🌎", "color": "#0369a1" },
+  { "id": "incendios", "nombre": "Incendios forestales", "icono": "🔥", "color": "#dc2626" },
+  { "id": "anp", "nombre": "Áreas naturales protegidas", "icono": "🏞️", "color": "#059669" },
+  { "id": "indigenas", "nombre": "Pueblos indígenas", "icono": "👥", "color": "#7c3aed" }
+]

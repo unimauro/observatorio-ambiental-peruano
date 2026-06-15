@@ -1,0 +1,84 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "fuente": "Eventos documentados públicamente (OEFA, prensa, ONG). Las coordenadas son APROXIMADAS y referenciales para visualización; deben reemplazarse con los puntos oficiales de OEFA antes de cualquier uso analítico.",
+    "estado": "referencial"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-77.155, -11.935] },
+      "properties": {
+        "nombre": "Derrame Refinería La Pampilla (Repsol) — Ventanilla",
+        "categoria": "derrames",
+        "fecha": "2022-01-15",
+        "ubicacion": "Mar de Ventanilla, Callao",
+        "magnitud": "≈ 11,900 barriles (cifra discutida)",
+        "responsable": "Repsol / Refinería La Pampilla",
+        "estado_dato": "referencial",
+        "descripcion": "Uno de los mayores desastres ambientales en el litoral peruano. Afectó playas, fauna marina y pescadores artesanales.",
+        "fuente": "OEFA, prensa nacional (2022)."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-74.62, -4.28] },
+      "properties": {
+        "nombre": "Derrame Cuninico — Oleoducto Norperuano (Lote 8)",
+        "categoria": "derrames",
+        "fecha": "2014-06-30",
+        "ubicacion": "Cuninico, río Marañón, Loreto",
+        "magnitud": "≈ 2,500 barriles",
+        "responsable": "Petroperú (Oleoducto Norperuano)",
+        "estado_dato": "referencial",
+        "descripcion": "Contaminación del río Marañón cercano a comunidades kukama. Litigio emblemático sobre derecho al agua.",
+        "fuente": "OEFA, EarthRights International."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-78.27, -5.13] },
+      "properties": {
+        "nombre": "Derrame Chiriaco / Imaza — Oleoducto Norperuano",
+        "categoria": "derrames",
+        "fecha": "2016-01-25",
+        "ubicacion": "Chiriaco, Imaza, Amazonas",
+        "magnitud": "≈ 3,000 barriles",
+        "responsable": "Petroperú",
+        "estado_dato": "referencial",
+        "descripcion": "Afectó a comunidades awajún; participación de menores en labores de limpieza generó alarma.",
+        "fuente": "OEFA, Defensoría del Pueblo (2016)."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-77.55, -3.10] },
+      "properties": {
+        "nombre": "Derrame Mayuriaga / Morona — Oleoducto Ramal Norte",
+        "categoria": "derrames",
+        "fecha": "2016-02-03",
+        "ubicacion": "Morona, Datem del Marañón, Loreto",
+        "magnitud": "no determinada",
+        "responsable": "Petroperú",
+        "estado_dato": "referencial",
+        "descripcion": "Segundo derrame mayor de 2016 en el ramal norte del oleoducto.",
+        "fuente": "OEFA (2016)."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-70.55, -12.85] },
+      "properties": {
+        "nombre": "Frente de minería ilegal — La Pampa (referencial)",
+        "categoria": "mineria",
+        "fecha": "2019-02-19",
+        "ubicacion": "La Pampa, Tambopata, Madre de Dios",
+        "magnitud": "miles de ha deforestadas y contaminadas con mercurio",
+        "responsable": "Minería ilegal (Operación Mercurio 2019)",
+        "estado_dato": "referencial",
+        "descripcion": "Zona emblemática de deforestación por minería aurífera ilegal y contaminación por mercurio.",
+        "fuente": "MINAM, SERNANP, prensa (2019)."
+      }
+    }
+  ]
+}

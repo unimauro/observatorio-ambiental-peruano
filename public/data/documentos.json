@@ -1,0 +1,55 @@
+{
+  "nota": "Biblioteca documental semilla. Estructura lista para integración futura con búsqueda inteligente (RAG). Agregar nuevas entradas con: titulo, tipo, anio, fuente, url, categoria, resumen.",
+  "documentos": [
+    {
+      "id": "doc-earthrights-2020",
+      "titulo": "La sombra del petróleo: informe sobre derrames en la Amazonía peruana (2000–2019)",
+      "tipo": "Informe",
+      "anio": 2020,
+      "fuente": "EarthRights International / CNDDHH",
+      "categoria": "derrames",
+      "url": "https://earthrights.org/media_release/470-derrames-petroleros-amazonia-peruana-2000-2019/",
+      "resumen": "Sistematiza 474 derrames y sus causas a partir de datos de OEFA y OSINERGMIN."
+    },
+    {
+      "id": "doc-oxfam-sombra",
+      "titulo": "La sombra del petróleo",
+      "tipo": "Publicación",
+      "anio": 2020,
+      "fuente": "Oxfam en Perú",
+      "categoria": "derrames",
+      "url": "https://peru.oxfam.org/lo-%C3%BAltimo/publicaciones/la-sombra-del-petroleo",
+      "resumen": "Análisis de impactos sociales y ambientales de la actividad petrolera en la Amazonía."
+    },
+    {
+      "id": "doc-geobosques",
+      "titulo": "Geobosques — Plataforma de monitoreo de bosques y pérdida de cobertura",
+      "tipo": "Plataforma / Datos",
+      "anio": 2024,
+      "fuente": "MINAM — Programa Nacional de Conservación de Bosques",
+      "categoria": "deforestacion",
+      "url": "https://geobosques.minam.gob.pe/",
+      "resumen": "Fuente oficial de pérdida anual de bosque amazónico por departamento y distrito."
+    },
+    {
+      "id": "doc-ceplan-t50",
+      "titulo": "Mayor pérdida de los bosques (ficha de tendencia)",
+      "tipo": "Ficha",
+      "anio": 2024,
+      "fuente": "CEPLAN — Observatorio Nacional de Prospectiva",
+      "categoria": "deforestacion",
+      "url": "https://observatorio.ceplan.gob.pe/ficha/t50",
+      "resumen": "Tendencia de largo plazo sobre pérdida de bosques en el Perú."
+    },
+    {
+      "id": "doc-sernanp-anp",
+      "titulo": "Áreas Naturales Protegidas del Perú: conservación para el desarrollo sostenible",
+      "tipo": "Documento técnico",
+      "anio": 2016,
+      "fuente": "MINAM / SERNANP",
+      "categoria": "anp",
+      "url": "https://www.minam.gob.pe/wp-content/uploads/2016/06/ANP240516.pdf",
+      "resumen": "Panorama del SINANPE y la gestión de áreas naturales protegidas."
+    }
+  ]
+}

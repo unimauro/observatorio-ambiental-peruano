@@ -1,0 +1,39 @@
+# Fuentes y metodología — Observatorio Ambiental Peruano
+
+Este documento registra el origen y el estado de cada dato del observatorio.
+**Estados:** `verificado` (cifra oficial citada) · `estimado` (derivado de oficiales) · `referencial` (aproximado para visualización).
+
+## Derrames petroleros
+
+- **474 derrames (2000–2019)** en lotes amazónicos y el Oleoducto Norperuano. Causas: 65% corrosión/fallas operativas, 28% terceros. — Datos de OEFA y OSINERGMIN sistematizados por el Subgrupo sobre Derrames Petroleros de la **Coordinadora Nacional de Derechos Humanos** (2020).
+  - https://earthrights.org/media_release/470-derrames-petroleros-amazonia-peruana-2000-2019/
+  - https://es.mongabay.com/2020/08/informe-derrames-petroleo-amazonia-peruana/
+- **229 procedimientos administrativos sancionadores (PAS)** de OEFA.
+- **+2,000 sitios impactados/contaminados** en la Amazonía Norte.
+- Eventos del mapa (Cuninico 2014, Chiriaco/Imaza 2016, Morona 2016, La Pampilla/Repsol 2022): documentados públicamente; **coordenadas aproximadas/referenciales** — reemplazar con registros georeferenciados oficiales de OEFA.
+
+## Deforestación
+
+- **2022: 146,575 ha · 2023: 132,216 ha · acumulado 2001–2023: 3,053,354 ha (4.3% de la cobertura amazónica).** — **Geobosques**, Programa Nacional de Conservación de Bosques (MINAM).
+  - https://geobosques.minam.gob.pe/
+  - https://www.infobae.com/peru/2024/03/21/peru-entre-los-paises-con-mayor-deforestacion-en-latinoamerica-perdio-mas-de-146-mil-hectareas-de-bosques-en-2022/
+  - https://www.servindi.org/actualidad-informes/12/04/2024/2022-peru-perdio-mas-de-146-mil-ha-de-bosques-amazonicos
+- **Ucayali, Loreto, Madre de Dios, San Martín, Huánuco y Junín = 86%** de la pérdida. La distribución por región en `deforestacion.json` es **estimada** (reemplazar con descarga oficial por departamento).
+
+## Áreas Naturales Protegidas
+
+- **76 ANP del SINANPE (25,684,523 ha)** + 25 ACR (3,245,188 ha) + 141 ACP (384,918 ha). — **SERNANP** (al 2021).
+  - https://www.gob.pe/sernanp · https://geo.sernanp.gob.pe/ (GeoJSON/WFS oficial)
+
+## Capa geográfica base
+
+- `peru-departamentos.geojson`: 24 departamentos (campo `NOMBDEP`). Reutilizado de un proyecto previo del autor; geometría simplificada.
+
+## Pendientes / próximas integraciones
+
+- [ ] Puntos oficiales de derrames OEFA (georeferenciados).
+- [ ] Deforestación por departamento/distrito desde Geobosques.
+- [ ] Cuencas hidrográficas (ANA) y ANP (SERNANP WFS).
+- [ ] Concesiones mineras y pasivos (MINEM / INGEMMET).
+- [ ] Calidad de agua/aire (ECA, SINIA).
+- [ ] Cartografía de comunidades y pueblos indígenas.
