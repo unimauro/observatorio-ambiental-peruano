@@ -11,6 +11,12 @@ const KEY_LS = 'oap_openrouter_key'
 const MODEL_LS = 'oap_openrouter_model'
 const DEFAULT_MODEL = 'openrouter/auto'
 
+// Gateway central de IA (ai.tunky.net): permite que cualquier visitante use el bot
+// SIN poner su propia key. El token de cliente NO es secreto (scope/revocable por proyecto).
+const GATEWAY_URL = 'https://ai.tunky.net/v1/chat'
+const GATEWAY_PROJECT = 'observatorio'
+const GATEWAY_CLIENT_TOKEN = 'obs_5356ba138c2761b3c84faf38bd82e4e4'
+
 const SUGERENCIAS = [
   '¿Qué es un pasivo ambiental minero?',
   '¿Por qué hay tantos derrames en la Amazonía?',
@@ -71,10 +77,7 @@ export default function Asistente() {
   }, [])
 
   useEffect(() => {
-    if (!open) return
-    if (!ctx) buildContext().then(setCtx)
-    // Si aún no hay key guardada, abrimos ajustes para guiar al usuario.
-    if (!localStorage.getItem(KEY_LS)?.trim()) setShowCfg(true)
+    if (open && !ctx) buildContext().then(setCtx)
   }, [open, ctx])
 
   useEffect(() => {
@@ -91,40 +94,47 @@ export default function Asistente() {
   async function send(text: string) {
     const q = text.trim()
     if (!q || loading) return
-    if (!key.trim()) {
-      setShowCfg(true)
-      setError('Primero agrega tu API key de OpenRouter.')
-      return
-    }
     setError('')
     const next: Msg[] = [...msgs, { role: 'user', content: q }]
+    const payloadMsgs = [
+      { role: 'system' as const, content: systemPrompt(ctx) },
+      ...next.map((m) => ({ role: m.role, content: m.content })),
+    ]
     setMsgs(next)
     setInput('')
     setLoading(true)
     try {
-      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${key.trim()}`,
-          'HTTP-Referer': location.origin,
-          'X-Title': 'Observatorio Ambiental Peruano',
-        },
-        body: JSON.stringify({
-          model: model.trim() || DEFAULT_MODEL,
-          messages: [
-            { role: 'system', content: systemPrompt(ctx) },
-            ...next.map((m) => ({ role: m.role, content: m.content })),
-          ],
-        }),
-      })
-      if (!res.ok) {
-        const t = await res.text()
-        throw new Error(`OpenRouter ${res.status}: ${t.slice(0, 160)}`)
+      let reply: string | null = null
+      // 1) Gateway central (sin key del usuario).
+      try {
+        const r = await fetch(GATEWAY_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Client-Token': GATEWAY_CLIENT_TOKEN },
+          body: JSON.stringify({ project: GATEWAY_PROJECT, messages: payloadMsgs }),
+        })
+        if (r.ok) reply = (await r.json()).reply ?? null
+      } catch { /* gateway no disponible → intentamos respaldo */ }
+
+      // 2) Respaldo: API key propia del usuario (si la configuró).
+      if (reply == null && key.trim()) {
+        const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${key.trim()}`,
+            'HTTP-Referer': location.origin,
+            'X-Title': 'Observatorio Ambiental Peruano',
+          },
+          body: JSON.stringify({ model: model.trim() || DEFAULT_MODEL, messages: payloadMsgs }),
+        })
+        if (!r.ok) throw new Error(`OpenRouter ${r.status}: ${(await r.text()).slice(0, 140)}`)
+        reply = (await r.json()).choices?.[0]?.message?.content ?? null
       }
-      const data = await res.json()
-      const reply = data.choices?.[0]?.message?.content ?? '(sin respuesta)'
-      setMsgs((m) => [...m, { role: 'assistant', content: reply }])
+
+      if (reply == null) {
+        throw new Error('El asistente no está disponible por ahora. Puedes usar tu propia API key en ⚙️.')
+      }
+      setMsgs((m) => [...m, { role: 'assistant', content: reply! }])
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error al consultar el modelo.')
     } finally {
@@ -149,9 +159,7 @@ export default function Asistente() {
           <div className="bg-forest-dark text-white px-4 py-3 flex items-center justify-between">
             <div>
               <div className="font-bold text-sm">Asistente ambiental</div>
-              <div className="text-[11px] text-forest-light/90">
-                {key.trim() ? '✓ API key configurada' : '⚠ Falta tu API key — toca ⚙️'}
-              </div>
+              <div className="text-[11px] text-forest-light/90">Explica los datos del observatorio</div>
             </div>
             <button onClick={() => setShowCfg((s) => !s)} className="text-white/90 hover:text-white text-lg" title="Ajustes" aria-label="Ajustes">⚙️</button>
           </div>
@@ -159,7 +167,9 @@ export default function Asistente() {
           {showCfg && (
             <div className="p-3 bg-slate-50 border-b border-slate-200 text-sm space-y-2">
               <p className="text-xs text-slate-600">
-                Tu clave se guarda solo en este navegador. Consíguela gratis en{' '}
+                El asistente ya funciona sin configurar nada (usa el servicio del observatorio).
+                Opcional: usa tu propia API key de OpenRouter como respaldo — se guarda solo en este
+                navegador. Consíguela en{' '}
                 <a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer noopener" className="text-water underline">openrouter.ai/keys</a>.
               </p>
               <input
