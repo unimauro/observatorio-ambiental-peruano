@@ -18,11 +18,14 @@ const SUGERENCIAS = [
   '¿Cómo se mide la deforestación en el Perú?',
 ]
 
+interface FaqCtx { grupos: { tema: string; items: { q: string; a: string }[] }[] }
+
 async function buildContext(): Promise<string> {
   try {
-    const [ind, ejes] = await Promise.all([
+    const [ind, ejes, faq] = await Promise.all([
       loadJSON<Indicadores>('indicadores.json'),
       loadJSON<Eje[]>('ejes.json'),
+      loadJSON<FaqCtx>('faq.json').catch(() => ({ grupos: [] }) as FaqCtx),
     ])
     const kpis = ind.kpis
       .map((k) => `- ${k.etiqueta}: ${k.valor.toLocaleString('es-PE')} ${k.unidad} (${k.estado}; ${k.fuente})`)
@@ -30,7 +33,10 @@ async function buildContext(): Promise<string> {
     const temas = ejes
       .map((e) => `- ${e.nombre}: ${e.queEs} ${e.explicacion} [Fuentes: ${e.fuentes.join(', ')}]`)
       .join('\n')
-    return `INDICADORES NACIONALES ACTUALES:\n${kpis}\n\nEJES TEMÁTICOS:\n${temas}`
+    const faqs = faq.grupos
+      .flatMap((g) => g.items.map((it) => `- P: ${it.q}\n  R: ${it.a}`))
+      .join('\n')
+    return `INDICADORES NACIONALES ACTUALES:\n${kpis}\n\nEJES TEMÁTICOS:\n${temas}\n\nPREGUNTAS FRECUENTES:\n${faqs}`
   } catch {
     return '(No se pudo cargar el contexto de datos.)'
   }

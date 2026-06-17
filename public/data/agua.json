@@ -1,0 +1,27 @@
+{
+  "embalses": {
+    "titulo": "Principales embalses — capacidad y llenado",
+    "fuente": "Autoridad Nacional del Agua (ANA).",
+    "estado": "referencia",
+    "nota": "Capacidad en millones de m³ (MMC) y nivel de llenado de referencia; se reemplazará con la serie operativa oficial de ANA.",
+    "datos": [
+      { "nombre": "Poechos", "region": "Piura", "capacidad_mmc": 1000, "llenado_pct": 45 },
+      { "nombre": "Gallito Ciego", "region": "Cajamarca/La Libertad", "capacidad_mmc": 573, "llenado_pct": 78 },
+      { "nombre": "Tinajones", "region": "Lambayeque", "capacidad_mmc": 320, "llenado_pct": 51 },
+      { "nombre": "Condoroma", "region": "Arequipa", "capacidad_mmc": 285, "llenado_pct": 62 },
+      { "nombre": "San Lorenzo", "region": "Piura", "capacidad_mmc": 258, "llenado_pct": 38 }
+    ]
+  },
+  "estresHidrico": {
+    "titulo": "Estrés hídrico — regiones de la costa",
+    "fuente": "Autoridad Nacional del Agua (ANA).",
+    "estado": "referencia",
+    "datos": [
+      { "region": "Ica", "nivel": "alto" },
+      { "region": "Tacna", "nivel": "alto" },
+      { "region": "Moquegua", "nivel": "alto" },
+      { "region": "Lima", "nivel": "medio" },
+      { "region": "Piura", "nivel": "medio" }
+    ]
+  }
+}

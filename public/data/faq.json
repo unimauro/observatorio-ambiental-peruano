@@ -1,0 +1,56 @@
+{
+  "nota": "Preguntas frecuentes del Observatorio Ambiental Peruano. También alimentan el contexto del asistente con IA.",
+  "grupos": [
+    {
+      "tema": "Sobre el observatorio",
+      "items": [
+        {
+          "q": "¿Qué es el Observatorio Ambiental Peruano?",
+          "a": "Una plataforma abierta y sin fines de lucro que centraliza, visualiza y democratiza información ambiental del Perú: derrames petroleros, deforestación, minería y pasivos, áreas protegidas, agua y clima. Usa datos abiertos, mapas interactivos e inteligencia artificial."
+        },
+        {
+          "q": "¿De dónde salen los datos?",
+          "a": "De fuentes oficiales: OEFA, MINAM (Geobosques), SERNANP, ANA, INAIGEM, entre otras. Cada cifra y capa declara su fuente. Puedes ver el catálogo completo en la sección Acerca → 'Fuentes que monitoreamos'."
+        },
+        {
+          "q": "¿Cada cuánto se actualizan?",
+          "a": "Un proceso automático (ETL) descarga las capas oficiales cada semana y actualiza el sitio. Cada capa lleva su fecha de actualización en el archivo de datos."
+        },
+        {
+          "q": "¿Es un proyecto oficial del Estado?",
+          "a": "No. Es una iniciativa ciudadana independiente que reutiliza datos públicos del Estado peruano. No reemplaza a las fuentes oficiales; las hace más accesibles y comparables."
+        }
+      ]
+    },
+    {
+      "tema": "Calidad y uso de los datos",
+      "items": [
+        {
+          "q": "¿Qué significan 'verificado', 'estimado' y 'referencial'?",
+          "a": "Verificado = cifra oficial citada de su fuente. Estimado = derivado o distribuido a partir de cifras oficiales. Referencial = ubicación o valor aproximado para visualización, aún por confirmar con la fuente primaria. Es nuestra forma de evitar el sobre-afirmar."
+        },
+        {
+          "q": "¿Las ubicaciones del mapa son exactas?",
+          "a": "Las capas de SERNANP y OEFA usan la geometría oficial. Los 'eventos' (derrames históricos) tienen coordenadas aproximadas marcadas como referenciales hasta cargar los puntos georreferenciados oficiales de OEFA."
+        },
+        {
+          "q": "¿Puedo usar estos datos en mi investigación?",
+          "a": "Sí. El código es open source (MIT) y los datos provienen de fuentes oficiales citadas. Te recomendamos verificar siempre contra la fuente primaria y respetar sus términos."
+        }
+      ]
+    },
+    {
+      "tema": "El asistente con IA",
+      "items": [
+        {
+          "q": "¿Cómo funciona el bot?",
+          "a": "Es un asistente que explica los conceptos y datos del observatorio. Lee en su contexto los indicadores y las descripciones de cada eje, y responde citando la fuente. No inventa cifras: si algo no está, te remite a la fuente oficial."
+        },
+        {
+          "q": "¿Por qué me pide una API key?",
+          "a": "El sitio es estático (GitHub Pages) y no puede guardar una clave secreta de forma segura. Por eso usas tu propia API key de OpenRouter, que se guarda únicamente en tu navegador (localStorage) y nunca se envía a nuestro repositorio. Consíguela gratis en openrouter.ai/keys."
+        }
+      ]
+    }
+  ]
+}

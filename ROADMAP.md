@@ -13,6 +13,24 @@ coordenadas inventadas como si fueran oficiales.
 
 ---
 
+## ⭐ Avances recientes (jun-2026)
+
+- ✅ **Capas oficiales reales en el mapa (6):** ANP y minería ilegal (SERNANP), depósitos de relaves y riesgo ambiental alto (OEFA), eventos, departamentos.
+- ✅ **ETL automatizado** (`etl/build_data.py`, solo stdlib) + cron semanal (`update-data.yml`) que refresca y commitea los datos.
+- ✅ **Página Temas** con explicación + KPIs + gráficos por eje (deforestación, derrames, minería/pasivos, ANP, agua, clima).
+- ✅ **Gráficos mejorados:** más grandes, responsive móvil, menú de navegación interno entre ejes, etiquetas de valor.
+- ✅ **Bot con IA (OpenRouter, BYO key)** que explica los datos; contexto cargado con indicadores + ejes + FAQ.
+- ✅ **FAQ** navegable (`/faq`) que también alimenta al bot.
+- ✅ **Reuso de datos locales:** retroceso glaciar (INAIGEM) y embalses (ANA) activan los ejes Clima y Agua (marcados “referencia”).
+
+### 🔜 Próximo en visualización y datos
+- 🔜 Mapa de calor / coropletas por **distrito** reusando `distritos.geojson` (1,874 distritos, INEI/MINAM) e indicadores INTI.
+- 🔜 Confirmar con fuente primaria los datos “referencia” (glaciares INAIGEM, embalses ANA).
+- 🧭 Gráficos comparativos cruzados (deforestación × minería × pobreza).
+- 🧭 Bot nivel RAG: leer filas individuales (empresas de alto riesgo, relaves por nombre).
+
+---
+
 ## ✅ Fase 1 — Observatorio (MVP) — *desplegado*
 
 Base navegable con datos oficiales sembrados y procedencia marcada.

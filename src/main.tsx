@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard'
 import Mapa from './pages/Mapa'
 import Temas from './pages/Temas'
 import Biblioteca from './pages/Biblioteca'
+import Faq from './pages/Faq'
 import Acerca from './pages/Acerca'
 
 createRoot(document.getElementById('root')!).render(
@@ -18,6 +19,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="mapa" element={<Mapa />} />
           <Route path="temas" element={<Temas />} />
           <Route path="biblioteca" element={<Biblioteca />} />
+          <Route path="faq" element={<Faq />} />
           <Route path="acerca" element={<Acerca />} />
         </Route>
       </Routes>

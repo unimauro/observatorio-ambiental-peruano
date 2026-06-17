@@ -1,24 +1,28 @@
 import { useEffect, useState } from 'react'
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell,
-  PieChart, Pie, Legend,
+  PieChart, Pie, Legend, LineChart, Line, LabelList,
 } from 'recharts'
 import { loadJSON, aggregateGeo, fmt } from '../lib/data'
 import type { Indicadores, Eje, Deforestacion } from '../lib/data'
 
 interface AnpResumen { porCategoria: { categoria: string; n: number; ha: number }[] }
+interface Clima { glaciares: { fuente: string; serie: { anio: number; km2: number }[] } }
+interface Agua {
+  embalses: { fuente: string; datos: { nombre: string; capacidad_mmc: number; llenado_pct: number }[] }
+}
 type Serie = { name: string; value: number }[]
 
 const PALETA = ['#15803d', '#b45309', '#0e7490', '#7c3aed', '#dc2626', '#059669', '#0369a1', '#92400e', '#a16207']
 
 function Bloque({ children, titulo, fuente }: { children: React.ReactNode; titulo: string; fuente?: string }) {
   return (
-    <div className="bg-white border border-slate-200 rounded-lg p-3">
-      <div className="flex items-center justify-between flex-wrap gap-1">
+    <div className="bg-white border border-slate-200 rounded-xl p-4">
+      <div className="flex items-center justify-between flex-wrap gap-1 mb-2">
         <h4 className="text-sm font-semibold text-slate-700">{titulo}</h4>
         {fuente && <span className="text-[10px] text-slate-400">{fuente}</span>}
       </div>
-      <div className="h-56 mt-2">{children}</div>
+      <div className="h-72 sm:h-80">{children}</div>
     </div>
   )
 }
@@ -26,13 +30,14 @@ function Bloque({ children, titulo, fuente }: { children: React.ReactNode; titul
 function BarMini({ data, color = '#15803d', money }: { data: Serie; color?: string; money?: boolean }) {
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={data} layout="vertical" margin={{ left: 8, right: 12, top: 4, bottom: 4 }}>
+      <BarChart data={data} layout="vertical" margin={{ left: 12, right: 40, top: 4, bottom: 4 }}>
         <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-        <XAxis type="number" fontSize={11} tickFormatter={(v) => (money ? `${(v / 1000).toFixed(0)}k` : String(v))} />
-        <YAxis type="category" dataKey="name" width={120} fontSize={11} />
-        <Tooltip formatter={(v: number) => fmt(v)} />
-        <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+        <XAxis type="number" fontSize={12} tickFormatter={(v) => (money ? `${(v / 1000).toFixed(0)}k` : String(v))} />
+        <YAxis type="category" dataKey="name" width={140} fontSize={12} />
+        <Tooltip formatter={(v: number) => fmt(v)} cursor={{ fill: '#0000000a' }} />
+        <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={26}>
           {data.map((_, i) => <Cell key={i} fill={color} />)}
+          <LabelList dataKey="value" position="right" fontSize={11} formatter={(v: number) => fmt(v)} />
         </Bar>
       </BarChart>
     </ResponsiveContainer>
@@ -43,11 +48,25 @@ function PieMini({ data }: { data: Serie }) {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <PieChart>
-        <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label={(e) => String(e.value)}>
+        <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="45%" outerRadius={92} label={(e) => String(e.value)}>
           {data.map((_, i) => <Cell key={i} fill={PALETA[i % PALETA.length]} />)}
         </Pie>
-        <Tooltip /><Legend fontSize={11} />
+        <Tooltip /><Legend />
       </PieChart>
+    </ResponsiveContainer>
+  )
+}
+
+function LineMini({ data, color, yLabel }: { data: { x: string; y: number }[]; color: string; yLabel?: string }) {
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={data} margin={{ left: 4, right: 18, top: 8, bottom: 4 }}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="x" fontSize={12} />
+        <YAxis fontSize={12} width={48} />
+        <Tooltip formatter={(v: number) => `${fmt(v)}${yLabel ? ' ' + yLabel : ''}`} />
+        <Line dataKey="y" stroke={color} strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+      </LineChart>
     </ResponsiveContainer>
   )
 }
@@ -57,6 +76,8 @@ export default function Temas() {
   const [ind, setInd] = useState<Indicadores | null>(null)
   const [defo, setDefo] = useState<Deforestacion | null>(null)
   const [anp, setAnp] = useState<AnpResumen | null>(null)
+  const [clima, setClima] = useState<Clima | null>(null)
+  const [agua, setAgua] = useState<Agua | null>(null)
   const [riesgoSub, setRiesgoSub] = useState<Serie>([])
   const [relavesEstado, setRelavesEstado] = useState<Serie>([])
   const [mineriaTipo, setMineriaTipo] = useState<Serie>([])
@@ -66,6 +87,8 @@ export default function Temas() {
     loadJSON<Indicadores>('indicadores.json').then(setInd).catch(console.error)
     loadJSON<Deforestacion>('deforestacion.json').then(setDefo).catch(console.error)
     loadJSON<AnpResumen>('anp-resumen.json').then(setAnp).catch(console.error)
+    loadJSON<Clima>('clima.json').then(setClima).catch(console.error)
+    loadJSON<Agua>('agua.json').then(setAgua).catch(console.error)
     aggregateGeo('riesgo-ambiental-oefa.geojson', 'subsector').then(setRiesgoSub).catch(() => {})
     aggregateGeo('relaves-oefa-puntos.geojson', 'estado_dr').then(setRelavesEstado).catch(() => {})
     aggregateGeo('mineria-ilegal-anp.geojson', 'idtipact').then((d) => setMineriaTipo(d.slice(0, 8))).catch(() => {})
@@ -76,6 +99,10 @@ export default function Temas() {
     { name: 'Terceros', value: 28 },
     { name: 'Otros', value: 7 },
   ]
+
+  function goTo(id: string) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   function graficos(id: string) {
     switch (id) {
@@ -116,11 +143,28 @@ export default function Temas() {
             <PieMini data={relavesEstado} />
           </Bloque>
         )
+      case 'agua':
+        return (
+          <Bloque titulo="Principales embalses — capacidad (MMC)" fuente="ANA (referencia)">
+            <BarMini color="#0e7490" data={(agua?.embalses.datos ?? []).map((e) => ({ name: e.nombre, value: e.capacidad_mmc }))} />
+          </Bloque>
+        )
+      case 'clima':
+        return (
+          <Bloque titulo="Retroceso de la cobertura glaciar (km²)" fuente="INAIGEM (referencia)">
+            <LineMini color="#0369a1" yLabel="km²" data={(clima?.glaciares.serie ?? []).map((s) => ({ x: String(s.anio), y: s.km2 }))} />
+          </Bloque>
+        )
       case 'anp':
         return (
-          <Bloque titulo="ANP por categoría (n.° de áreas)" fuente="SERNANP">
-            <BarMini color="#059669" data={(anp?.porCategoria ?? []).map((c) => ({ name: c.categoria, value: c.n }))} />
-          </Bloque>
+          <>
+            <Bloque titulo="ANP por categoría (n.° de áreas)" fuente="SERNANP">
+              <BarMini color="#059669" data={(anp?.porCategoria ?? []).map((c) => ({ name: c.categoria, value: c.n }))} />
+            </Bloque>
+            <Bloque titulo="Superficie protegida por categoría (ha)" fuente="SERNANP">
+              <BarMini money color="#047857" data={(anp?.porCategoria ?? []).map((c) => ({ name: c.categoria, value: Math.round(c.ha) }))} />
+            </Bloque>
+          </>
         )
       default:
         return null
@@ -128,7 +172,7 @@ export default function Temas() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-extrabold">Ejes temáticos</h1>
         <p className="text-sm text-slate-500">
@@ -137,17 +181,32 @@ export default function Temas() {
         </p>
       </div>
 
+      {/* Menú de navegación interno */}
+      <nav className="sticky top-[60px] z-[500] bg-slate-50/95 backdrop-blur -mx-4 px-4 py-2 border-y border-slate-200">
+        <div className="flex gap-1.5 overflow-x-auto pb-1">
+          {ejes.map((e) => (
+            <button
+              key={e.id}
+              onClick={() => goTo(e.id)}
+              className="shrink-0 text-xs font-medium px-2.5 py-1.5 rounded-full bg-white border border-slate-200 hover:border-forest hover:text-forest-dark transition flex items-center gap-1"
+            >
+              <span>{e.icono}</span>{e.nombre}
+            </button>
+          ))}
+        </div>
+      </nav>
+
       {ejes.map((e) => {
         const kpis = ind?.kpis.filter((k) => k.categoria === e.id) ?? []
         const conDatos = e.estado === 'con-datos'
         return (
-          <section key={e.id} className="scroll-mt-20" id={e.id}>
+          <section key={e.id} className="scroll-mt-[120px]" id={e.id}>
             <div className="rounded-xl border border-slate-200 overflow-hidden">
-              <div className="p-4 flex items-start gap-3" style={{ background: `${e.color}10` }}>
-                <span className="text-3xl">{e.icono}</span>
+              <div className="p-4 sm:p-5 flex items-start gap-3" style={{ background: `${e.color}10` }}>
+                <span className="text-3xl sm:text-4xl">{e.icono}</span>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h2 className="text-lg font-bold" style={{ color: e.color }}>{e.nombre}</h2>
+                    <h2 className="text-lg sm:text-xl font-bold" style={{ color: e.color }}>{e.nombre}</h2>
                     <span className={`text-[10px] uppercase font-semibold px-1.5 py-0.5 rounded ${conDatos ? 'bg-green-100 text-green-800' : 'bg-slate-200 text-slate-600'}`}>
                       {conDatos ? 'con datos' : 'en integración'}
                     </span>
@@ -174,7 +233,7 @@ export default function Temas() {
               )}
 
               {conDatos ? (
-                <div className="p-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">{graficos(e.id)}</div>
+                <div className="p-4 grid grid-cols-1 lg:grid-cols-2 gap-4">{graficos(e.id)}</div>
               ) : (
                 <div className="p-4">
                   <div className="bg-slate-50 border border-dashed border-slate-300 rounded-lg p-4 text-sm text-slate-500">

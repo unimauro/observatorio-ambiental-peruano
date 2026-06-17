@@ -1,0 +1,16 @@
+{
+  "glaciares": {
+    "titulo": "Cobertura glaciar del Perú (km²)",
+    "fuente": "INAIGEM — Instituto Nacional de Investigación en Glaciares y Ecosistemas de Montaña.",
+    "estado": "referencia",
+    "nota": "Serie compilada de referencia; se reemplazará con la descarga primaria del inventario INAIGEM. El Perú alberga la mayor parte de los glaciares tropicales del mundo.",
+    "serie": [
+      { "anio": 1970, "km2": 2042 },
+      { "anio": 1985, "km2": 1855 },
+      { "anio": 2000, "km2": 1595 },
+      { "anio": 2010, "km2": 1287 },
+      { "anio": 2020, "km2": 1114 },
+      { "anio": 2024, "km2": 1050 }
+    ]
+  }
+}

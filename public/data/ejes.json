@@ -44,9 +44,9 @@
     "icono": "💧",
     "nombre": "Agua y cuencas",
     "color": "#0e7490",
-    "estado": "en-integracion",
-    "queEs": "El estado del agua se evalúa por cuencas hidrográficas y estándares de calidad ambiental (ECA-Agua). La contaminación por metales, vertimientos y derrames compromete el agua para consumo, pesca y agricultura.",
-    "explicacion": "Integraremos las cuencas hidrográficas y los puntos de monitoreo de calidad de agua de la Autoridad Nacional del Agua (ANA) y del SINIA.",
+    "estado": "con-datos",
+    "queEs": "El estado del agua se evalúa por cuencas hidrográficas y estándares de calidad ambiental (ECA-Agua). La contaminación por metales, vertimientos y derrames compromete el agua para consumo, pesca y agricultura. Los embalses regulan el riego y el agua potable en la costa árida.",
+    "explicacion": "Mostramos la capacidad y el llenado de los principales embalses y las regiones con mayor estrés hídrico (referencia ANA). Se integrarán las cuencas y los puntos de monitoreo de calidad de agua.",
     "fuentes": ["ANA", "SINIA — MINAM"]
   },
   {
@@ -54,10 +54,10 @@
     "icono": "🌎",
     "nombre": "Cambio climático",
     "color": "#0369a1",
-    "estado": "en-integracion",
+    "estado": "con-datos",
     "queEs": "El cambio climático altera temperaturas, lluvias y glaciares. El Perú es altamente vulnerable: retroceso glaciar, estrés hídrico y eventos extremos amenazan agua, agricultura y ciudades.",
-    "explicacion": "Sumaremos indicadores climáticos de SENAMHI, el inventario de gases de efecto invernadero (INFOCARBONO/MINAM) y series de organismos internacionales.",
-    "fuentes": ["SENAMHI", "MINAM", "Banco Mundial", "Climate Watch"]
+    "explicacion": "El retroceso glaciar es uno de los indicadores más claros: la cobertura cayó cerca de la mitad en cinco décadas (referencia INAIGEM). Sumaremos indicadores de SENAMHI y el inventario de gases (INFOCARBONO/MINAM).",
+    "fuentes": ["INAIGEM", "SENAMHI", "MINAM", "Climate Watch"]
   },
   {
     "id": "incendios",
