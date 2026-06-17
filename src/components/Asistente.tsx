@@ -71,7 +71,10 @@ export default function Asistente() {
   }, [])
 
   useEffect(() => {
-    if (open && !ctx) buildContext().then(setCtx)
+    if (!open) return
+    if (!ctx) buildContext().then(setCtx)
+    // Si aún no hay key guardada, abrimos ajustes para guiar al usuario.
+    if (!localStorage.getItem(KEY_LS)?.trim()) setShowCfg(true)
   }, [open, ctx])
 
   useEffect(() => {
@@ -146,7 +149,9 @@ export default function Asistente() {
           <div className="bg-forest-dark text-white px-4 py-3 flex items-center justify-between">
             <div>
               <div className="font-bold text-sm">Asistente ambiental</div>
-              <div className="text-[11px] text-forest-light/90">Explica los datos del observatorio</div>
+              <div className="text-[11px] text-forest-light/90">
+                {key.trim() ? '✓ API key configurada' : '⚠ Falta tu API key — toca ⚙️'}
+              </div>
             </div>
             <button onClick={() => setShowCfg((s) => !s)} className="text-white/90 hover:text-white text-lg" title="Ajustes" aria-label="Ajustes">⚙️</button>
           </div>
