@@ -35,7 +35,7 @@ function BarMini({ data, color = '#15803d', money }: { data: Serie; color?: stri
         <XAxis type="number" fontSize={12} tickFormatter={(v) => (money ? `${(v / 1000).toFixed(0)}k` : String(v))} />
         <YAxis type="category" dataKey="name" width={140} fontSize={12} />
         <Tooltip formatter={(v: number) => fmt(v)} cursor={{ fill: '#0000000a' }} />
-        <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={26}>
+        <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={26} isAnimationActive={false}>
           {data.map((_, i) => <Cell key={i} fill={color} />)}
           <LabelList dataKey="value" position="right" fontSize={11} formatter={(v: number) => fmt(v)} />
         </Bar>
@@ -48,7 +48,7 @@ function PieMini({ data }: { data: Serie }) {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <PieChart>
-        <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="45%" outerRadius={92} label={(e) => String(e.value)}>
+        <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="45%" outerRadius={92} label={(e) => String(e.value)} isAnimationActive={false}>
           {data.map((_, i) => <Cell key={i} fill={PALETA[i % PALETA.length]} />)}
         </Pie>
         <Tooltip /><Legend />
@@ -65,7 +65,7 @@ function LineMini({ data, color, yLabel }: { data: { x: string; y: number }[]; c
         <XAxis dataKey="x" fontSize={12} />
         <YAxis fontSize={12} width={48} />
         <Tooltip formatter={(v: number) => `${fmt(v)}${yLabel ? ' ' + yLabel : ''}`} />
-        <Line dataKey="y" stroke={color} strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+        <Line dataKey="y" stroke={color} strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} isAnimationActive={false} />
       </LineChart>
     </ResponsiveContainer>
   )
