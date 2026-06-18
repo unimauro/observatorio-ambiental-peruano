@@ -30,12 +30,12 @@ function Bloque({ children, titulo, fuente }: { children: React.ReactNode; titul
 function BarMini({ data, color = '#15803d', money }: { data: Serie; color?: string; money?: boolean }) {
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={data} layout="vertical" margin={{ left: 12, right: 40, top: 4, bottom: 4 }}>
+      <BarChart data={data} layout="vertical" margin={{ left: 12, right: 48, top: 4, bottom: 4 }}>
         <CartesianGrid strokeDasharray="3 3" horizontal={false} />
         <XAxis type="number" fontSize={12} tickFormatter={(v) => (money ? `${(v / 1000).toFixed(0)}k` : String(v))} />
-        <YAxis type="category" dataKey="name" width={140} fontSize={12} />
+        <YAxis type="category" dataKey="name" width={150} fontSize={12} />
         <Tooltip formatter={(v: number) => fmt(v)} cursor={{ fill: '#0000000a' }} />
-        <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={26} isAnimationActive={false}>
+        <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={28} isAnimationActive={false}>
           {data.map((_, i) => <Cell key={i} fill={color} />)}
           <LabelList dataKey="value" position="right" fontSize={11} formatter={(v: number) => fmt(v)} />
         </Bar>
@@ -81,9 +81,10 @@ export default function Temas() {
   const [riesgoSub, setRiesgoSub] = useState<Serie>([])
   const [relavesEstado, setRelavesEstado] = useState<Serie>([])
   const [mineriaTipo, setMineriaTipo] = useState<Serie>([])
+  const [openId, setOpenId] = useState<string>('')
 
   useEffect(() => {
-    loadJSON<Eje[]>('ejes.json').then(setEjes).catch(console.error)
+    loadJSON<Eje[]>('ejes.json').then((e) => { setEjes(e); if (e[0]) setOpenId(e[0].id) }).catch(console.error)
     loadJSON<Indicadores>('indicadores.json').then(setInd).catch(console.error)
     loadJSON<Deforestacion>('deforestacion.json').then(setDefo).catch(console.error)
     loadJSON<AnpResumen>('anp-resumen.json').then(setAnp).catch(console.error)
@@ -100,84 +101,79 @@ export default function Temas() {
     { name: 'Otros', value: 7 },
   ]
 
-  function goTo(id: string) {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  function openOnly(id: string) {
+    setOpenId(id)
+    setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60)
   }
 
-  function graficos(id: string) {
+  function graficos(id: string): React.ReactNode[] {
     switch (id) {
       case 'deforestacion':
-        return (
-          <>
-            <Bloque titulo="Pérdida anual de bosque (ha)" fuente="Geobosques/MINAM">
-              <BarMini money color="#15803d" data={(defo?.serieAnual ?? []).map((s) => ({ name: String(s.anio), value: s.ha }))} />
-            </Bloque>
-            <Bloque titulo="Pérdida 2023 por región (ha, estimado)" fuente="Geobosques/MINAM">
-              <BarMini money color="#16a34a" data={(defo?.porRegion2023 ?? []).map((s) => ({ name: s.region, value: s.ha }))} />
-            </Bloque>
-          </>
-        )
+        return [
+          <Bloque key="d1" titulo="Pérdida anual de bosque (ha)" fuente="Geobosques/MINAM">
+            <BarMini money color="#15803d" data={(defo?.serieAnual ?? []).map((s) => ({ name: String(s.anio), value: s.ha }))} />
+          </Bloque>,
+          <Bloque key="d2" titulo="Pérdida 2023 por región (ha, estimado)" fuente="Geobosques/MINAM">
+            <BarMini money color="#16a34a" data={(defo?.porRegion2023 ?? []).map((s) => ({ name: s.region, value: s.ha }))} />
+          </Bloque>,
+        ]
       case 'derrames':
-        return (
-          <Bloque titulo="Causas de los derrames (% 2000–2019)" fuente="CNDDHH / OEFA">
+        return [
+          <Bloque key="de1" titulo="Causas de los derrames (% 2000–2019)" fuente="CNDDHH / OEFA">
             <BarMini color="#1f2937" data={causasDerrame} />
-          </Bloque>
-        )
+          </Bloque>,
+        ]
       case 'mineria':
-        return (
-          <>
-            <Bloque titulo="Riesgo ambiental alto por subsector" fuente="OEFA — PIFA">
-              <BarMini color="#b45309" data={riesgoSub} />
-            </Bloque>
-            <Bloque titulo="Depósitos de relaves por estado" fuente="OEFA — PIFA">
-              <PieMini data={relavesEstado} />
-            </Bloque>
-            <Bloque titulo="Minería ilegal en ANP por tipo" fuente="SERNANP">
-              <BarMini color="#dc2626" data={mineriaTipo} />
-            </Bloque>
-          </>
-        )
-      case 'pasivos':
-        return (
-          <Bloque titulo="Depósitos de relaves por estado" fuente="OEFA — PIFA">
+        return [
+          <Bloque key="m1" titulo="Riesgo ambiental alto por subsector" fuente="OEFA — PIFA">
+            <BarMini color="#b45309" data={riesgoSub} />
+          </Bloque>,
+          <Bloque key="m2" titulo="Depósitos de relaves por estado" fuente="OEFA — PIFA">
             <PieMini data={relavesEstado} />
-          </Bloque>
-        )
+          </Bloque>,
+          <Bloque key="m3" titulo="Minería ilegal en ANP por tipo" fuente="SERNANP">
+            <BarMini color="#dc2626" data={mineriaTipo} />
+          </Bloque>,
+        ]
+      case 'pasivos':
+        return [
+          <Bloque key="p1" titulo="Depósitos de relaves por estado" fuente="OEFA — PIFA">
+            <PieMini data={relavesEstado} />
+          </Bloque>,
+        ]
       case 'agua':
-        return (
-          <Bloque titulo="Principales embalses — capacidad (MMC)" fuente="ANA (referencia)">
+        return [
+          <Bloque key="a1" titulo="Principales embalses — capacidad (MMC)" fuente="ANA (referencia)">
             <BarMini color="#0e7490" data={(agua?.embalses.datos ?? []).map((e) => ({ name: e.nombre, value: e.capacidad_mmc }))} />
-          </Bloque>
-        )
+          </Bloque>,
+        ]
       case 'clima':
-        return (
-          <Bloque titulo="Retroceso de la cobertura glaciar (km²)" fuente="INAIGEM (referencia)">
+        return [
+          <Bloque key="c1" titulo="Retroceso de la cobertura glaciar (km²)" fuente="INAIGEM (referencia)">
             <LineMini color="#0369a1" yLabel="km²" data={(clima?.glaciares.serie ?? []).map((s) => ({ x: String(s.anio), y: s.km2 }))} />
-          </Bloque>
-        )
+          </Bloque>,
+        ]
       case 'anp':
-        return (
-          <>
-            <Bloque titulo="ANP por categoría (n.° de áreas)" fuente="SERNANP">
-              <BarMini color="#059669" data={(anp?.porCategoria ?? []).map((c) => ({ name: c.categoria, value: c.n }))} />
-            </Bloque>
-            <Bloque titulo="Superficie protegida por categoría (ha)" fuente="SERNANP">
-              <BarMini money color="#047857" data={(anp?.porCategoria ?? []).map((c) => ({ name: c.categoria, value: Math.round(c.ha) }))} />
-            </Bloque>
-          </>
-        )
+        return [
+          <Bloque key="n1" titulo="ANP por categoría (n.° de áreas)" fuente="SERNANP">
+            <BarMini color="#059669" data={(anp?.porCategoria ?? []).map((c) => ({ name: c.categoria, value: c.n }))} />
+          </Bloque>,
+          <Bloque key="n2" titulo="Superficie protegida por categoría (ha)" fuente="SERNANP">
+            <BarMini money color="#047857" data={(anp?.porCategoria ?? []).map((c) => ({ name: c.categoria, value: Math.round(c.ha) }))} />
+          </Bloque>,
+        ]
       default:
-        return null
+        return []
     }
   }
 
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-extrabold">Ejes temáticos</h1>
+        <h1 className="text-3xl font-extrabold">Ejes temáticos</h1>
         <p className="text-sm text-slate-500">
-          Cada eje con su explicación y gráficos generados a partir de los datos reales del
-          observatorio. Los marcados “en integración” se completarán con sus fuentes oficiales.
+          Toca un eje para abrirlo (los demás se colapsan para centrar el foco). Gráficos
+          generados a partir de los datos reales del observatorio.
         </p>
       </div>
 
@@ -187,8 +183,10 @@ export default function Temas() {
           {ejes.map((e) => (
             <button
               key={e.id}
-              onClick={() => goTo(e.id)}
-              className="shrink-0 text-xs font-medium px-2.5 py-1.5 rounded-full bg-white border border-slate-200 hover:border-forest hover:text-forest-dark transition flex items-center gap-1"
+              onClick={() => openOnly(e.id)}
+              className={`shrink-0 text-xs font-medium px-2.5 py-1.5 rounded-full border transition flex items-center gap-1 ${
+                openId === e.id ? 'bg-forest-dark text-white border-forest-dark' : 'bg-white border-slate-200 hover:border-forest hover:text-forest-dark'
+              }`}
             >
               <span>{e.icono}</span>{e.nombre}
             </button>
@@ -199,10 +197,17 @@ export default function Temas() {
       {ejes.map((e) => {
         const kpis = ind?.kpis.filter((k) => k.categoria === e.id) ?? []
         const conDatos = e.estado === 'con-datos'
+        const isOpen = openId === e.id
+        const charts = isOpen ? graficos(e.id) : []
         return (
           <section key={e.id} className="scroll-mt-[120px]" id={e.id}>
-            <div className="rounded-xl border border-slate-200 overflow-hidden">
-              <div className="p-4 sm:p-5 flex items-start gap-3" style={{ background: `${e.color}10` }}>
+            <div className="rounded-xl border border-slate-200 overflow-hidden bg-white">
+              {/* Cabecera (toggle del acordeón) */}
+              <button
+                onClick={() => setOpenId(isOpen ? '' : e.id)}
+                className="w-full text-left p-4 sm:p-5 flex items-start gap-3"
+                style={{ background: `${e.color}10` }}
+              >
                 <span className="text-3xl sm:text-4xl">{e.icono}</span>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -211,35 +216,46 @@ export default function Temas() {
                       {conDatos ? 'con datos' : 'en integración'}
                     </span>
                   </div>
-                  <p className="text-sm text-slate-700 mt-1"><strong>Qué es:</strong> {e.queEs}</p>
-                  <p className="text-sm text-slate-600 mt-1">{e.explicacion}</p>
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    {e.fuentes.map((f) => (
-                      <span key={f} className="text-[11px] bg-white border border-slate-200 rounded px-1.5 py-0.5 text-slate-500">{f}</span>
-                    ))}
-                  </div>
+                  {!isOpen && <p className="text-xs text-slate-500 mt-1 line-clamp-1">{e.queEs}</p>}
                 </div>
-              </div>
+                <span className={`text-slate-400 text-xl transition-transform shrink-0 ${isOpen ? 'rotate-45' : ''}`}>＋</span>
+              </button>
 
-              {kpis.length > 0 && (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-slate-100">
-                  {kpis.map((k) => (
-                    <div key={k.id} className="bg-white p-3">
-                      <div className="text-xl font-extrabold" style={{ color: e.color }}>{fmt(k.valor)}</div>
-                      <div className="text-[11px] text-slate-500 leading-tight">{k.etiqueta}</div>
+              {isOpen && (
+                <>
+                  <div className="px-4 sm:px-5 pb-4 -mt-1">
+                    <p className="text-sm text-slate-700"><strong>Qué es:</strong> {e.queEs}</p>
+                    <p className="text-sm text-slate-600 mt-1">{e.explicacion}</p>
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {e.fuentes.map((f) => (
+                        <span key={f} className="text-[11px] bg-slate-50 border border-slate-200 rounded px-1.5 py-0.5 text-slate-500">{f}</span>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              )}
-
-              {conDatos ? (
-                <div className="p-4 grid grid-cols-1 lg:grid-cols-2 gap-4">{graficos(e.id)}</div>
-              ) : (
-                <div className="p-4">
-                  <div className="bg-slate-50 border border-dashed border-slate-300 rounded-lg p-4 text-sm text-slate-500">
-                    📡 Datos en integración. Se incorporarán desde: {e.fuentes.join(', ')}.
                   </div>
-                </div>
+
+                  {kpis.length > 0 && (
+                    <div className="flex flex-wrap gap-px bg-slate-100 border-y border-slate-100">
+                      {kpis.map((k) => (
+                        <div key={k.id} className="bg-white p-3 flex-1 min-w-[160px]">
+                          <div className="text-2xl font-extrabold" style={{ color: e.color }}>{fmt(k.valor)}</div>
+                          <div className="text-[11px] text-slate-500 leading-tight">{k.etiqueta}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {conDatos ? (
+                    <div className={`p-4 grid gap-4 ${charts.length <= 1 ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'}`}>
+                      {charts}
+                    </div>
+                  ) : (
+                    <div className="p-4">
+                      <div className="bg-slate-50 border border-dashed border-slate-300 rounded-lg p-4 text-sm text-slate-500">
+                        📡 Datos en integración. Se incorporarán desde: {e.fuentes.join(', ')}.
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </section>

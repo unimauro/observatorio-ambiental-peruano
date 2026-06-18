@@ -1,0 +1,11 @@
+{
+  "autor": "Carlos Cárdenas Fernández",
+  "rol": "Dirección, tecnología y datos",
+  "texto": "Proyecto abierto y sin fines de lucro. Tu apoyo cubre hosting, datos y el tiempo de mantenerlo vivo.",
+  "metodos": [
+    { "tipo": "Yape", "valor": "REEMPLAZAR_NUMERO_YAPE", "icono": "📱", "color": "#742284", "activo": false },
+    { "tipo": "Plin", "valor": "REEMPLAZAR_NUMERO_PLIN", "icono": "💳", "color": "#00b2a9", "activo": false },
+    { "tipo": "Buy me a coffee", "valor": "https://buymeacoffee.com/REEMPLAZAR", "icono": "☕", "color": "#ffdd00", "activo": false },
+    { "tipo": "PayPal", "valor": "https://paypal.me/REEMPLAZAR", "icono": "🅿️", "color": "#003087", "activo": false }
+  ]
+}

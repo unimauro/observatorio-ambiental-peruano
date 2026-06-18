@@ -29,9 +29,9 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-xl bg-gradient-to-br from-forest-dark to-water-dark text-white p-6 sm:p-8">
-        <h1 className="text-2xl sm:text-3xl font-extrabold">Estado ambiental del Perú</h1>
-        <p className="mt-2 max-w-2xl text-forest-light/95">
+      <section className="rounded-xl bg-gradient-to-br from-forest-dark to-water-dark text-white p-7 sm:p-10">
+        <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight leading-tight">Estado ambiental del Perú</h1>
+        <p className="mt-3 max-w-2xl text-base sm:text-lg text-forest-light/95">
           Centralizamos, visualizamos y democratizamos el acceso a información ambiental
           del Perú con datos abiertos y mapas interactivos. Cada cifra declara su fuente.
         </p>

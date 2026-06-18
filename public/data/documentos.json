@@ -50,6 +50,66 @@
       "categoria": "anp",
       "url": "https://www.minam.gob.pe/wp-content/uploads/2016/06/ANP240516.pdf",
       "resumen": "Panorama del SINANPE y la gestión de áreas naturales protegidas."
+    },
+    {
+      "id": "doc-maap",
+      "titulo": "MAAP — Monitoreo de la Amazonía Andina",
+      "tipo": "Plataforma / Reportes",
+      "anio": 2024,
+      "fuente": "Amazon Conservation / Conservación Amazónica",
+      "categoria": "deforestacion",
+      "url": "https://www.maapprogram.org/es/",
+      "resumen": "Reportes satelitales casi en tiempo real de deforestación, minería e incendios en la Amazonía."
+    },
+    {
+      "id": "doc-gfw-peru",
+      "titulo": "Global Forest Watch — Perú",
+      "tipo": "Plataforma / Datos",
+      "anio": 2024,
+      "fuente": "World Resources Institute (WRI)",
+      "categoria": "deforestacion",
+      "url": "https://www.globalforestwatch.org/dashboards/country/PER/",
+      "resumen": "Tablero de pérdida y alertas de bosque por región con datos satelitales."
+    },
+    {
+      "id": "doc-defensoria-conflictos",
+      "titulo": "Reporte de Conflictos Sociales",
+      "tipo": "Reporte mensual",
+      "anio": 2024,
+      "fuente": "Defensoría del Pueblo",
+      "categoria": "mineria",
+      "url": "https://www.defensoria.gob.pe/areas_tematicas/conflictos-sociales/",
+      "resumen": "Seguimiento mensual de conflictos socioambientales, en su mayoría vinculados a minería e hidrocarburos."
+    },
+    {
+      "id": "doc-actualidad-ambiental",
+      "titulo": "Actualidad Ambiental (SPDA)",
+      "tipo": "Medio especializado",
+      "anio": 2024,
+      "fuente": "Sociedad Peruana de Derecho Ambiental",
+      "categoria": "derrames",
+      "url": "https://www.actualidadambiental.pe/",
+      "resumen": "Noticias y análisis sobre derrames, fiscalización ambiental y políticas en el Perú."
+    },
+    {
+      "id": "doc-raisg",
+      "titulo": "RAISG — Amazonía Socioambiental",
+      "tipo": "Plataforma / Cartografía",
+      "anio": 2024,
+      "fuente": "Red Amazónica de Información Socioambiental Georreferenciada",
+      "categoria": "indigenas",
+      "url": "https://www.raisg.org/",
+      "resumen": "Cartografía panamazónica de presiones y amenazas sobre territorios indígenas y áreas protegidas."
+    },
+    {
+      "id": "doc-inaigem",
+      "titulo": "INAIGEM — Inventario de glaciares y lagunas",
+      "tipo": "Plataforma / Datos",
+      "anio": 2024,
+      "fuente": "INAIGEM",
+      "categoria": "clima",
+      "url": "https://www.gob.pe/inaigem",
+      "resumen": "Información oficial sobre el retroceso glaciar y los ecosistemas de montaña del Perú."
     }
   ]
 }
