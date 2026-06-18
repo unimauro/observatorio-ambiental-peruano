@@ -1,0 +1,62 @@
+{
+  "actualizado": "2026-06-18",
+  "fases": [
+    {
+      "id": "1",
+      "nombre": "Fase 1 — Observatorio",
+      "estado": "completada",
+      "pct": 100,
+      "desc": "Mapa nacional con capas oficiales, dashboard, indicadores, ejes temáticos y asistente con IA.",
+      "items": [
+        { "t": "Mapa interactivo (6 capas activables + filtro por región)", "ok": true },
+        { "t": "Capas oficiales SERNANP (ANP, minería ilegal)", "ok": true },
+        { "t": "Capas oficiales OEFA (relaves, riesgo ambiental)", "ok": true },
+        { "t": "Dashboard + ejes temáticos con gráficos reales", "ok": true },
+        { "t": "Asistente con IA (gateway ai.tunky.net)", "ok": true },
+        { "t": "ETL automatizado + actualización semanal", "ok": true }
+      ]
+    },
+    {
+      "id": "1.5",
+      "nombre": "Fase 1.5 — Consolidación de datos oficiales",
+      "estado": "en progreso",
+      "pct": 60,
+      "desc": "Reemplazar lo estimado/referencial por capas oficiales georreferenciadas.",
+      "items": [
+        { "t": "SERNANP — áreas protegidas y minería ilegal", "ok": true },
+        { "t": "OEFA — relaves y riesgo ambiental", "ok": true },
+        { "t": "Glaciares (INAIGEM) y embalses (ANA)", "ok": true },
+        { "t": "Deforestación por departamento (Geobosques)", "ok": false },
+        { "t": "Derrames OEFA georreferenciados oficiales", "ok": false },
+        { "t": "Cuencas (ANA) y catastro minero (MINEM/INGEMMET)", "ok": false }
+      ]
+    },
+    {
+      "id": "2",
+      "nombre": "Fase 2 — Investigación",
+      "estado": "en progreso",
+      "pct": 35,
+      "desc": "Biblioteca documental ampliada, línea de tiempo histórica y estadísticas regionales.",
+      "items": [
+        { "t": "Biblioteca documental con búsqueda y filtros", "ok": true },
+        { "t": "Catálogo de fuentes que monitoreamos", "ok": true },
+        { "t": "Línea de tiempo histórica (1970–hoy)", "ok": false },
+        { "t": "Estadísticas y fichas por región", "ok": false }
+      ]
+    },
+    {
+      "id": "3",
+      "nombre": "Fase 3 — IA Ambiental",
+      "estado": "en progreso",
+      "pct": 30,
+      "desc": "Chat con documentos, generación de reportes, detección de patrones y alertas.",
+      "items": [
+        { "t": "Asistente que explica los datos (citando fuentes)", "ok": true },
+        { "t": "Panel de consumo del gateway (/admin)", "ok": true },
+        { "t": "Chat con documentos (RAG) sobre la biblioteca", "ok": false },
+        { "t": "Reportes automáticos y detección de patrones", "ok": false },
+        { "t": "Alertas de nuevos eventos", "ok": false }
+      ]
+    }
+  ]
+}

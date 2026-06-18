@@ -15,6 +15,21 @@ interface Monitoreo {
   nota: string
   grupos: Grupo[]
 }
+interface Fase {
+  id: string
+  nombre: string
+  estado: 'completada' | 'en progreso' | 'planificada'
+  pct: number
+  desc: string
+  items: { t: string; ok: boolean }[]
+}
+interface Fases { actualizado: string; fases: Fase[] }
+
+const ESTADO_FASE: Record<string, string> = {
+  completada: 'bg-green-100 text-green-800',
+  'en progreso': 'bg-amber-100 text-amber-800',
+  planificada: 'bg-slate-200 text-slate-600',
+}
 
 function EstadoFuente({ estado }: { estado: string }) {
   const ok = estado === 'integrado'
@@ -31,10 +46,14 @@ function EstadoFuente({ estado }: { estado: string }) {
 
 export default function Acerca() {
   const [mon, setMon] = useState<Monitoreo | null>(null)
+  const [fases, setFases] = useState<Fases | null>(null)
 
   useEffect(() => {
     loadJSON<Monitoreo>('fuentes-monitoreo.json').then(setMon).catch(console.error)
+    loadJSON<Fases>('fases.json').then(setFases).catch(console.error)
   }, [])
+
+  const overall = fases ? Math.round(fases.fases.reduce((a, f) => a + f.pct, 0) / fases.fases.length) : 0
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -49,12 +68,44 @@ export default function Acerca() {
 
 
       <section className="bg-white border border-slate-200 rounded-xl p-5">
-        <h2 className="font-bold mb-2">Hoja de ruta</h2>
-        <ol className="space-y-2 text-sm text-slate-700">
-          <li><strong>Fase 1 — Observatorio (actual):</strong> mapa nacional, derrames, deforestación, áreas protegidas, indicadores y dashboard.</li>
-          <li><strong>Fase 2 — Investigación:</strong> biblioteca documental ampliada, línea de tiempo histórica (1970–hoy), estadísticas regionales.</li>
-          <li><strong>Fase 3 — IA Ambiental:</strong> chat con documentos, generación de reportes, detección de patrones y alertas (RAG).</li>
-        </ol>
+        <div className="flex items-center justify-between flex-wrap gap-2 mb-1">
+          <h2 className="font-bold">Hoja de ruta</h2>
+          <span className="text-xs text-slate-400">Avance global: <strong className="text-forest-dark">{overall}%</strong></span>
+        </div>
+        {/* Barra de avance global */}
+        <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden mb-4">
+          <div className="h-full bg-forest rounded-full transition-all" style={{ width: `${overall}%` }} />
+        </div>
+
+        <div className="space-y-4">
+          {fases?.fases.map((f) => (
+            <div key={f.id} className="border border-slate-200 rounded-lg p-4">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <h3 className="font-semibold text-sm">{f.nombre}</h3>
+                <div className="flex items-center gap-2">
+                  <span className={`text-[10px] uppercase font-semibold px-1.5 py-0.5 rounded ${ESTADO_FASE[f.estado]}`}>{f.estado}</span>
+                  <span className="text-xs font-bold text-slate-600">{f.pct}%</span>
+                </div>
+              </div>
+              <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden my-2">
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{ width: `${f.pct}%`, background: f.estado === 'completada' ? '#15803d' : '#d97706' }}
+                />
+              </div>
+              <p className="text-xs text-slate-500">{f.desc}</p>
+              <ul className="mt-2 grid sm:grid-cols-2 gap-x-4 gap-y-1">
+                {f.items.map((it, i) => (
+                  <li key={i} className={`text-xs flex items-start gap-1.5 ${it.ok ? 'text-slate-700' : 'text-slate-400'}`}>
+                    <span>{it.ok ? '✅' : '⏳'}</span>
+                    <span>{it.t}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+        {fases && <p className="text-[11px] text-slate-400 mt-3">Actualizado: {fases.actualizado} · ✅ hecho · ⏳ en curso/planificado</p>}
       </section>
 
       <section className="bg-amber-50 border border-amber-200 rounded-xl p-5">
