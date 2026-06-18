@@ -1,5 +1,10 @@
+import { useEffect, useState } from 'react'
 import { NavLink, Outlet, Link } from 'react-router-dom'
 import Asistente from './Asistente'
+import { loadJSON } from '../lib/data'
+
+interface Metodo { tipo: string; valor: string; icono: string; activo: boolean }
+interface Apoyo { autor: string; rol: string; texto: string; metodos: Metodo[] }
 
 const nav = [
   { to: '/', label: 'Dashboard', end: true },
@@ -11,6 +16,10 @@ const nav = [
 ]
 
 export default function Layout() {
+  const [apoyo, setApoyo] = useState<Apoyo | null>(null)
+  useEffect(() => { loadJSON<Apoyo>('apoyo.json').then(setApoyo).catch(() => {}) }, [])
+  const metodos = apoyo?.metodos.filter((m) => m.activo) ?? []
+
   return (
     <div className="min-h-screen flex flex-col">
       <header className="bg-forest-dark text-white sticky top-0 z-[1000] shadow">
@@ -50,13 +59,35 @@ export default function Layout() {
       <Asistente />
 
       <footer className="bg-ink text-slate-300 text-sm">
-        <div className="max-w-6xl mx-auto px-4 py-6 flex flex-col sm:flex-row gap-3 justify-between">
-          <p>
-            Dirección, tecnología y datos: <strong className="text-white">Carlos Cárdenas Fernández</strong>
-          </p>
-          <p className="text-slate-400">
-            Código y datos: open source · Fase 1 — Observatorio
-          </p>
+        <div className="max-w-6xl mx-auto px-4 py-7 grid gap-5 sm:grid-cols-2">
+          <div>
+            <div className="font-bold text-white">Autoría y apoyo</div>
+            <p className="mt-1 text-slate-400">
+              {apoyo?.rol ?? 'Dirección, tecnología y datos'}:{' '}
+              <strong className="text-white">{apoyo?.autor ?? 'Carlos Cárdenas Fernández'}</strong>.
+              {apoyo?.texto ? ' ' + apoyo.texto : ' Proyecto abierto y sin fines de lucro.'}
+            </p>
+            {metodos.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-3">
+                {metodos.map((m) =>
+                  m.valor.startsWith('http') ? (
+                    <a key={m.tipo} href={m.valor} target="_blank" rel="noreferrer noopener"
+                      className="bg-white/10 hover:bg-white/20 rounded-lg px-2.5 py-1.5 flex items-center gap-1.5 transition">
+                      <span>{m.icono}</span> {m.tipo}
+                    </a>
+                  ) : (
+                    <span key={m.tipo} className="bg-white/10 rounded-lg px-2.5 py-1.5 flex items-center gap-1.5">
+                      <span>{m.icono}</span> {m.tipo}: <strong className="text-white font-semibold">{m.valor}</strong>
+                    </span>
+                  ),
+                )}
+              </div>
+            )}
+          </div>
+          <div className="sm:text-right">
+            <p className="text-slate-400">Código y datos: open source · Fase 1 — Observatorio</p>
+            <Link to="/acerca" className="text-forest-light hover:underline">Acerca y fuentes →</Link>
+          </div>
         </div>
       </footer>
     </div>

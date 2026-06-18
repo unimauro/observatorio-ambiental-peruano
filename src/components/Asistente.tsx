@@ -17,6 +17,20 @@ const GATEWAY_URL = 'https://ai.tunky.net/v1/chat'
 const GATEWAY_PROJECT = 'observatorio'
 const GATEWAY_CLIENT_TOKEN = 'obs_5356ba138c2761b3c84faf38bd82e4e4'
 
+// Render ligero: enlaces markdown [t](u), rutas hash #/x, URLs y **negrita** → HTML seguro.
+function esc(s: string) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+function renderRich(text: string): string {
+  let h = esc(text)
+  h = h.replace(/\[([^\]]+)\]\((#\/[^\s)]+|https?:\/\/[^\s)]+)\)/g,
+    (_m, t, u) => `<a href="${u}"${u.startsWith('http') ? ' target="_blank" rel="noreferrer noopener"' : ''} class="underline font-medium">${t}</a>`)
+  h = h.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+  h = h.replace(/(^|[\s(])(#\/[a-z/-]*)/g, (_m, pre, r) => `${pre}<a href="${r}" class="underline font-medium">${r}</a>`)
+  h = h.replace(/(^|[\s(])(https?:\/\/[^\s)]+)/g, (_m, pre, u) => `${pre}<a href="${u}" target="_blank" rel="noreferrer noopener" class="underline font-medium">${u}</a>`)
+  return h
+}
+
 const SUGERENCIAS = [
   '¿Qué es un pasivo ambiental minero?',
   '¿Por qué hay tantos derrames en la Amazonía?',
@@ -52,14 +66,15 @@ function systemPrompt(ctx: string): string {
   return [
     'Eres el asistente del Observatorio Ambiental Peruano (datos abiertos del ambiente en el Perú).',
     '',
-    'ESTILO (importante): respuestas MUY CORTAS, máximo 3 frases. Directo, sin análisis largos ni introducciones.',
-    'Cuando aplique, REMITE a la sección del dashboard para revisar el detalle, usando estos enlaces:',
-    '- Dashboard general: #/',
-    '- Mapa interactivo (capas oficiales): #/mapa',
-    '- Temas por eje (gráficos): #/temas',
-    '- Biblioteca documental: #/biblioteca',
-    '- Preguntas frecuentes: #/faq',
-    'Ej.: "…Revisa el detalle en Temas (#/temas)."',
+    'TONO: cálido, fraterno y cercano, tratando de "tú", como alguien que acompaña con respeto. Un saludo breve solo en el primer mensaje.',
+    'ESTILO: respuestas CORTAS, máximo 3 frases. Claras y directas, sin análisis largos ni rodeos.',
+    'Cuando aplique, REMITE a la sección del dashboard con un ENLACE en formato markdown, p.ej. [Temas](#/temas). Secciones:',
+    '- Dashboard general: [Dashboard](#/)',
+    '- Mapa interactivo: [Mapa](#/mapa)',
+    '- Temas por eje (gráficos): [Temas](#/temas)',
+    '- Biblioteca documental: [Biblioteca](#/biblioteca)',
+    '- Preguntas frecuentes: [FAQ](#/faq)',
+    'Ej.: "…Mira el detalle en [Temas](#/temas)."',
     '',
     'REGLAS: responde solo sobre el ambiente del Perú y los datos de este observatorio. Si preguntan otra cosa, redirige amablemente.',
     'Usa los datos del contexto y cita la fuente brevemente. NO inventes cifras: si no está, dilo y nombra la fuente oficial (OEFA, MINAM, SERNANP, ANA). Sin alarmismos.',
@@ -214,11 +229,16 @@ export default function Asistente() {
             )}
             {msgs.map((m, i) => (
               <div key={i} className={m.role === 'user' ? 'text-right' : ''}>
-                <span className={`inline-block text-sm rounded-2xl px-3 py-2 max-w-[90%] whitespace-pre-wrap text-left ${
-                  m.role === 'user' ? 'bg-forest-dark text-white' : 'bg-slate-100 text-ink'
-                }`}>
-                  {m.content}
-                </span>
+                {m.role === 'assistant' ? (
+                  <span
+                    className="inline-block text-sm rounded-2xl px-3 py-2 max-w-[90%] whitespace-pre-wrap text-left bg-slate-100 text-ink [&_a]:text-forest-dark"
+                    dangerouslySetInnerHTML={{ __html: renderRich(m.content) }}
+                  />
+                ) : (
+                  <span className="inline-block text-sm rounded-2xl px-3 py-2 max-w-[90%] whitespace-pre-wrap text-left bg-forest-dark text-white">
+                    {m.content}
+                  </span>
+                )}
               </div>
             ))}
             {loading && <div className="text-sm text-slate-400">Pensando…</div>}

@@ -15,8 +15,6 @@ interface Monitoreo {
   nota: string
   grupos: Grupo[]
 }
-interface Metodo { tipo: string; valor: string; icono: string; color: string; activo: boolean }
-interface Apoyo { autor: string; rol: string; texto: string; metodos: Metodo[] }
 
 function EstadoFuente({ estado }: { estado: string }) {
   const ok = estado === 'integrado'
@@ -33,14 +31,10 @@ function EstadoFuente({ estado }: { estado: string }) {
 
 export default function Acerca() {
   const [mon, setMon] = useState<Monitoreo | null>(null)
-  const [apoyo, setApoyo] = useState<Apoyo | null>(null)
 
   useEffect(() => {
     loadJSON<Monitoreo>('fuentes-monitoreo.json').then(setMon).catch(console.error)
-    loadJSON<Apoyo>('apoyo.json').then(setApoyo).catch(console.error)
   }, [])
-
-  const metodos = apoyo?.metodos.filter((m) => m.activo) ?? []
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -53,34 +47,6 @@ export default function Acerca() {
         </p>
       </div>
 
-      {/* Autoría y apoyo */}
-      <section className="bg-gradient-to-br from-forest-dark to-water-dark text-white rounded-xl p-5">
-        <h2 className="font-bold text-lg">Autoría y apoyo</h2>
-        {apoyo && (
-          <p className="text-sm text-forest-light/95 mt-1">
-            {apoyo.rol}: <strong className="text-white">{apoyo.autor}</strong>. {apoyo.texto}
-          </p>
-        )}
-        {metodos.length > 0 ? (
-          <div className="flex flex-wrap gap-2 mt-3">
-            {metodos.map((m) => {
-              const isLink = m.valor.startsWith('http')
-              return isLink ? (
-                <a key={m.tipo} href={m.valor} target="_blank" rel="noreferrer noopener"
-                  className="bg-white/95 text-ink font-semibold rounded-lg px-3 py-2 text-sm hover:bg-white flex items-center gap-1.5">
-                  <span>{m.icono}</span> {m.tipo}
-                </a>
-              ) : (
-                <span key={m.tipo} className="bg-white/95 text-ink font-semibold rounded-lg px-3 py-2 text-sm flex items-center gap-1.5">
-                  <span>{m.icono}</span> {m.tipo}: {m.valor}
-                </span>
-              )
-            })}
-          </div>
-        ) : (
-          <p className="text-xs text-forest-light/80 mt-3">💛 Donaciones (Yape · Plin · PayPal · Coffee): próximamente.</p>
-        )}
-      </section>
 
       <section className="bg-white border border-slate-200 rounded-xl p-5">
         <h2 className="font-bold mb-2">Hoja de ruta</h2>
