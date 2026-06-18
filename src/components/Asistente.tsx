@@ -7,12 +7,8 @@ interface Msg {
   content: string
 }
 
-const KEY_LS = 'oap_openrouter_key'
-const MODEL_LS = 'oap_openrouter_model'
-const DEFAULT_MODEL = 'openrouter/auto'
-
-// Gateway central de IA (ai.tunky.net): permite que cualquier visitante use el bot
-// SIN poner su propia key. El token de cliente NO es secreto (scope/revocable por proyecto).
+// Gateway central de IA (ai.tunky.net): el bot funciona automáticamente, sin que
+// el visitante configure nada. El token de cliente NO es secreto (revocable por proyecto).
 const GATEWAY_URL = 'https://ai.tunky.net/v1/chat'
 const GATEWAY_PROJECT = 'observatorio'
 const GATEWAY_CLIENT_TOKEN = 'obs_5356ba138c2761b3c84faf38bd82e4e4'
@@ -86,9 +82,6 @@ function systemPrompt(ctx: string): string {
 
 export default function Asistente() {
   const [open, setOpen] = useState(false)
-  const [showCfg, setShowCfg] = useState(false)
-  const [key, setKey] = useState('')
-  const [model, setModel] = useState(DEFAULT_MODEL)
   const [ctx, setCtx] = useState('')
   const [msgs, setMsgs] = useState<Msg[]>([])
   const [input, setInput] = useState('')
@@ -97,24 +90,12 @@ export default function Asistente() {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    setKey(localStorage.getItem(KEY_LS) ?? '')
-    setModel(localStorage.getItem(MODEL_LS) ?? DEFAULT_MODEL)
-  }, [])
-
-  useEffect(() => {
     if (open && !ctx) buildContext().then(setCtx)
   }, [open, ctx])
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
   }, [msgs, loading])
-
-  function saveCfg() {
-    localStorage.setItem(KEY_LS, key.trim())
-    localStorage.setItem(MODEL_LS, model.trim() || DEFAULT_MODEL)
-    setShowCfg(false)
-    setError('')
-  }
 
   async function send(text: string) {
     const q = text.trim()
@@ -129,39 +110,17 @@ export default function Asistente() {
     setInput('')
     setLoading(true)
     try {
-      let reply: string | null = null
-      // 1) Gateway central (sin key del usuario).
-      try {
-        const r = await fetch(GATEWAY_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Client-Token': GATEWAY_CLIENT_TOKEN },
-          body: JSON.stringify({ project: GATEWAY_PROJECT, messages: payloadMsgs }),
-        })
-        if (r.ok) reply = (await r.json()).reply ?? null
-      } catch { /* gateway no disponible → intentamos respaldo */ }
-
-      // 2) Respaldo: API key propia del usuario (si la configuró).
-      if (reply == null && key.trim()) {
-        const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${key.trim()}`,
-            'HTTP-Referer': location.origin,
-            'X-Title': 'Observatorio Ambiental Peruano',
-          },
-          body: JSON.stringify({ model: model.trim() || DEFAULT_MODEL, messages: payloadMsgs }),
-        })
-        if (!r.ok) throw new Error(`OpenRouter ${r.status}: ${(await r.text()).slice(0, 140)}`)
-        reply = (await r.json()).choices?.[0]?.message?.content ?? null
-      }
-
-      if (reply == null) {
-        throw new Error('El asistente no está disponible por ahora. Puedes usar tu propia API key en ⚙️.')
-      }
-      setMsgs((m) => [...m, { role: 'assistant', content: reply! }])
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Error al consultar el modelo.')
+      const r = await fetch(GATEWAY_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Client-Token': GATEWAY_CLIENT_TOKEN },
+        body: JSON.stringify({ project: GATEWAY_PROJECT, messages: payloadMsgs }),
+      })
+      if (!r.ok) throw new Error('no-ok')
+      const reply = (await r.json()).reply
+      if (!reply) throw new Error('vacío')
+      setMsgs((m) => [...m, { role: 'assistant', content: reply }])
+    } catch {
+      setError('El asistente está ocupado por ahora 🙏. Intenta de nuevo en un momento.')
     } finally {
       setLoading(false)
     }
@@ -181,41 +140,13 @@ export default function Asistente() {
 
       {open && (
         <div className="fixed bottom-24 right-5 z-[1100] w-[min(94vw,400px)] h-[min(70vh,560px)] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden">
-          <div className="bg-forest-dark text-white px-4 py-3 flex items-center justify-between">
-            <div>
-              <div className="font-bold text-sm">Asistente ambiental</div>
-              <div className="text-[11px] text-forest-light/90">Explica los datos del observatorio</div>
-            </div>
-            <button onClick={() => setShowCfg((s) => !s)} className="text-white/90 hover:text-white text-lg" title="Ajustes" aria-label="Ajustes">⚙️</button>
+          <div className="bg-forest-dark text-white px-4 py-3">
+            <div className="font-bold text-sm">Asistente ambiental</div>
+            <div className="text-[11px] text-forest-light/90">Explica los datos del observatorio</div>
           </div>
 
-          {showCfg && (
-            <div className="p-3 bg-slate-50 border-b border-slate-200 text-sm space-y-2">
-              <p className="text-xs text-slate-600">
-                El asistente ya funciona sin configurar nada (usa el servicio del observatorio).
-                Opcional: usa tu propia API key de OpenRouter como respaldo — se guarda solo en este
-                navegador. Consíguela en{' '}
-                <a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer noopener" className="text-water underline">openrouter.ai/keys</a>.
-              </p>
-              <input
-                type="password"
-                value={key}
-                onChange={(e) => setKey(e.target.value)}
-                placeholder="API key de OpenRouter (sk-or-...)"
-                className="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-sm"
-              />
-              <input
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
-                placeholder="Modelo (ej. openrouter/auto)"
-                className="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-sm"
-              />
-              <button onClick={saveCfg} className="bg-forest-dark text-white text-sm rounded-lg px-3 py-1.5 w-full">Guardar</button>
-            </div>
-          )}
-
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-3">
-            {msgs.length === 0 && !showCfg && (
+            {msgs.length === 0 && (
               <div className="text-sm text-slate-500 space-y-2">
                 <p>Hola 👋 Pregúntame qué significan los datos ambientales del Perú.</p>
                 <div className="flex flex-col gap-1.5">
