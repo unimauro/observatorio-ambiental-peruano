@@ -32,8 +32,10 @@ export default function Dashboard() {
       <section className="rounded-xl bg-gradient-to-br from-forest-dark to-water-dark text-white p-7 sm:p-10">
         <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight leading-tight">Estado ambiental del Perú</h1>
         <p className="mt-3 max-w-2xl text-base sm:text-lg text-forest-light/95">
-          Centralizamos, visualizamos y democratizamos el acceso a información ambiental
-          del Perú con datos abiertos y mapas interactivos. Cada cifra declara su fuente.
+          Reúne información ambiental, territorial y económica de instituciones públicas,
+          sociedad civil y fuentes abiertas para visualizar y comprender las dinámicas
+          socioambientales del país, con especial énfasis en la Amazonía. Cada dato mantiene
+          trazabilidad y cita su fuente.
         </p>
         <div className="mt-4 flex gap-3">
           <Link to="/mapa" className="bg-white text-forest-dark font-semibold px-4 py-2 rounded-lg hover:bg-slate-100">

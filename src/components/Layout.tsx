@@ -3,8 +3,14 @@ import { NavLink, Outlet, Link } from 'react-router-dom'
 import Asistente from './Asistente'
 import { loadJSON } from '../lib/data'
 
-interface Metodo { tipo: string; valor: string; icono: string; activo: boolean }
-interface Apoyo { autor: string; rol: string; texto: string; metodos: Metodo[] }
+interface Creditos {
+  construccion: string
+  atribucion: string
+  autorRol: string
+  autor: string
+  autorLink: string
+  presentacion: string[]
+}
 
 const nav = [
   { to: '/', label: 'Dashboard', end: true },
@@ -16,9 +22,8 @@ const nav = [
 ]
 
 export default function Layout() {
-  const [apoyo, setApoyo] = useState<Apoyo | null>(null)
-  useEffect(() => { loadJSON<Apoyo>('apoyo.json').then(setApoyo).catch(() => {}) }, [])
-  const metodos = apoyo?.metodos.filter((m) => m.activo) ?? []
+  const [cr, setCr] = useState<Creditos | null>(null)
+  useEffect(() => { loadJSON<Creditos>('creditos.json').then(setCr).catch(() => {}) }, [])
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -27,7 +32,14 @@ export default function Layout() {
           <Link to="/" className="flex items-center gap-3 group shrink-0">
             <span className="text-2xl">🌎</span>
             <div className="leading-tight">
-              <div className="font-extrabold tracking-tight text-sm sm:text-base">Observatorio Ambiental Peruano</div>
+              <div className="font-extrabold tracking-tight text-sm sm:text-base flex items-center gap-2">
+                Observatorio Ambiental Peruano
+                {cr?.construccion && (
+                  <span className="text-[9px] uppercase font-semibold bg-amber-400 text-amber-950 px-1.5 py-0.5 rounded">
+                    {cr.construccion}
+                  </span>
+                )}
+              </div>
               <div className="text-[11px] text-forest-light/90 hidden sm:block">
                 Datos abiertos para comprender el territorio y proteger el futuro
               </div>
@@ -61,28 +73,22 @@ export default function Layout() {
       <footer className="bg-ink text-slate-300 text-sm">
         <div className="max-w-6xl mx-auto px-4 py-7 grid gap-5 sm:grid-cols-2">
           <div>
-            <div className="font-bold text-white">Autoría y apoyo</div>
+            <div className="font-bold text-white">Créditos</div>
             <p className="mt-1 text-slate-400">
-              {apoyo?.rol ?? 'Dirección, tecnología y datos'}:{' '}
-              <strong className="text-white">{apoyo?.autor ?? 'Carlos Cárdenas Fernández'}</strong>.
-              {apoyo?.texto ? ' ' + apoyo.texto : ' Proyecto abierto y sin fines de lucro.'}
+              {cr?.atribucion ?? 'Este observatorio se encuentra en construcción.'}
             </p>
-            {metodos.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-3">
-                {metodos.map((m) =>
-                  m.valor.startsWith('http') ? (
-                    <a key={m.tipo} href={m.valor} target="_blank" rel="noreferrer noopener"
-                      className="bg-white/10 hover:bg-white/20 rounded-lg px-2.5 py-1.5 flex items-center gap-1.5 transition">
-                      <span>{m.icono}</span> {m.tipo}
-                    </a>
-                  ) : (
-                    <span key={m.tipo} className="bg-white/10 rounded-lg px-2.5 py-1.5 flex items-center gap-1.5">
-                      <span>{m.icono}</span> {m.tipo}: <strong className="text-white font-semibold">{m.valor}</strong>
-                    </span>
-                  ),
-                )}
-              </div>
-            )}
+            <p className="mt-2 text-slate-400">
+              {cr?.autorRol ?? 'Dirección, tecnología y sistematización de datos'}:{' '}
+              <strong className="text-white">{cr?.autor ?? 'Carlos Cárdenas Fernández'}</strong>
+              {cr?.autorLink && (
+                <>
+                  {' · '}
+                  <a href={cr.autorLink} target="_blank" rel="noreferrer noopener" className="text-forest-light hover:underline">
+                    ver proyectos
+                  </a>
+                </>
+              )}
+            </p>
           </div>
           <div className="sm:text-right">
             <p className="text-slate-400">Código y datos: open source · Fase 1 — Observatorio</p>

@@ -47,10 +47,15 @@ function EstadoFuente({ estado }: { estado: string }) {
 export default function Acerca() {
   const [mon, setMon] = useState<Monitoreo | null>(null)
   const [fases, setFases] = useState<Fases | null>(null)
+  const [pres, setPres] = useState<string[]>([])
+  const [atrib, setAtrib] = useState('')
 
   useEffect(() => {
     loadJSON<Monitoreo>('fuentes-monitoreo.json').then(setMon).catch(console.error)
     loadJSON<Fases>('fases.json').then(setFases).catch(console.error)
+    loadJSON<{ presentacion: string[]; atribucion: string }>('creditos.json')
+      .then((c) => { setPres(c.presentacion || []); setAtrib(c.atribucion || '') })
+      .catch(console.error)
   }, [])
 
   const overall = fases ? Math.round(fases.fases.reduce((a, f) => a + f.pct, 0) / fases.fases.length) : 0
@@ -59,11 +64,22 @@ export default function Acerca() {
     <div className="space-y-6 max-w-3xl">
       <div>
         <h1 className="text-3xl font-extrabold">Acerca del Observatorio</h1>
-        <p className="mt-2 text-slate-600">
-          El <strong>Observatorio Ambiental Peruano</strong> centraliza, visualiza y
-          democratiza el acceso a información ambiental del Perú mediante datos abiertos,
-          mapas interactivos e inteligencia artificial.
-        </p>
+        {pres.length > 0 ? (
+          <div className="mt-2 space-y-2 text-slate-600">
+            {pres.map((p, i) => <p key={i}>{p}</p>)}
+          </div>
+        ) : (
+          <p className="mt-2 text-slate-600">
+            El <strong>Observatorio Ambiental Peruano</strong> centraliza, visualiza y
+            democratiza el acceso a información ambiental del Perú mediante datos abiertos,
+            mapas interactivos e inteligencia artificial.
+          </p>
+        )}
+        {atrib && (
+          <p className="mt-3 text-sm bg-amber-50 border border-amber-200 text-amber-900 rounded-lg p-3">
+            {atrib}
+          </p>
+        )}
       </div>
 
 

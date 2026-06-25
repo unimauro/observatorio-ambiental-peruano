@@ -1,0 +1,11 @@
+{
+  "construccion": "En construcción",
+  "atribucion": "Este observatorio se encuentra en construcción y es parte de la consultoría desarrollada por Kely Alfaro para OXFAM Perú, en vínculo con PUINAMUDT (Pueblos Indígenas Amazónicos Unidos en Defensa de sus Territorios).",
+  "autorRol": "Dirección, tecnología y sistematización de datos",
+  "autor": "Carlos Cárdenas Fernández",
+  "autorLink": "https://unimauro.github.io",
+  "presentacion": [
+    "El Estado Ambiental del Perú reúne información ambiental, territorial y económica proveniente de instituciones públicas, organizaciones de la sociedad civil y fuentes abiertas para visualizar, analizar y comprender las principales dinámicas socioambientales del país. El observatorio integra indicadores, mapas interactivos y series históricas que facilitan el seguimiento de los cambios en el territorio y fortalecen la toma de decisiones basadas en evidencia.",
+    "Su propósito es democratizar el acceso a información confiable, transparente y verificable en beneficio de la ciudadanía, los pueblos indígenas y la conservación de los ecosistemas, con especial énfasis en la Amazonía peruana. Todos los datos mantienen trazabilidad y citan su fuente original."
+  ]
+}
