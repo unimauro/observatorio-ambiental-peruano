@@ -88,6 +88,16 @@
       "fuente": "SERNANP — capa de minería ilegal en ámbito de ANP (ArcGIS REST)."
     },
     {
+      "id": "lotes_petroleros",
+      "etiqueta": "Lotes petroleros (exploración y explotación)",
+      "valor": 78,
+      "unidad": "lotes",
+      "categoria": "derrames",
+      "estado": "verificado",
+      "fuente": "Perupetro, vía OSINERGMIN GISEM (ArcGIS REST).",
+      "detalle": "40 en explotación y 38 en exploración. Muchos se superponen con territorios amazónicos y áreas protegidas."
+    },
+    {
       "id": "relaves_oefa",
       "etiqueta": "Depósitos de relaves fiscalizados (OEFA)",
       "valor": 107,

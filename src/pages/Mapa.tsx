@@ -9,11 +9,12 @@ const iconUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png'
 const iconRetinaUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png'
 const shadowUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png'
 
-type CapaId = 'eventos' | 'departamentos' | 'anp' | 'mineria' | 'relaves' | 'riesgo'
+type CapaId = 'eventos' | 'departamentos' | 'anp' | 'mineria' | 'relaves' | 'riesgo' | 'lotes'
 type Geo = { type: string; features: any[] }
 
 const capasMeta: { id: CapaId; label: string }[] = [
   { id: 'anp', label: 'Áreas protegidas (SERNANP)' },
+  { id: 'lotes', label: 'Lotes petroleros (Perupetro)' },
   { id: 'mineria', label: 'Minería ilegal en ANP' },
   { id: 'relaves', label: 'Depósitos de relaves (OEFA)' },
   { id: 'riesgo', label: 'Riesgo ambiental alto (OEFA)' },
@@ -55,7 +56,7 @@ export default function Mapa() {
   const [regiones, setRegiones] = useState<string[]>([])
   const [region, setRegion] = useState('')
   const [capas, setCapas] = useState<Record<CapaId, boolean>>({
-    anp: true, mineria: true, relaves: true, riesgo: true, eventos: true, departamentos: false,
+    anp: true, lotes: true, mineria: true, relaves: true, riesgo: true, eventos: true, departamentos: false,
   })
 
   useEffect(() => {
@@ -133,6 +134,27 @@ export default function Mapa() {
     const map = L.map(ref.current, { scrollWheelZoom: true }).setView(PERU_CENTER, 5)
     mapRef.current = map
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap', maxZoom: 18 }).addTo(map)
+
+    // Lotes petroleros (Perupetro vía OSINERGMIN GISEM)
+    fetch(`${base}data/lotes-petroleros.geojson`).then((r) => r.json()).then((gj) => {
+      const layer = L.geoJSON(gj, {
+        style: (f) => ({
+          color: '#7c2d12', weight: 1,
+          fillColor: f?.properties?.fase === 'Explotación' ? '#9a3412' : '#f59e0b',
+          fillOpacity: 0.30,
+        }),
+        onEachFeature: (f, l) => {
+          const p = f.properties ?? {}
+          l.bindPopup(`<div style="min-width:220px"><strong style="color:#9a3412">Lote ${p.lote ?? ''}</strong>
+            <div style="font-size:12px;margin-top:4px"><b>Fase:</b> ${p.fase ?? 's/d'}</div>
+            <div style="font-size:12px"><b>Empresa:</b> ${p.empresa ?? 's/d'}</div>
+            <div style="font-size:12px"><b>Ubicación:</b> ${p.ubicacion ?? 's/d'}</div>
+            <div style="font-size:12px"><b>Contrato:</b> ${p.tipo_contrato ?? ''} ${p.contrato ?? ''}</div>
+            <div style="font-size:11px;color:#9a3412;margin-top:4px">Fuente: Perupetro · OSINERGMIN GISEM</div></div>`)
+        },
+      })
+      layersRef.current.lotes = layer; if (capas.lotes) layer.addTo(map)
+    })
 
     fetch(`${base}data/anp-sernanp.geojson`).then((r) => r.json()).then((gj) => {
       const layer = L.geoJSON(gj, {
@@ -265,6 +287,8 @@ export default function Mapa() {
 
       <div className="flex flex-wrap gap-4 text-xs text-slate-600">
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded" style={{ background: '#22c55e' }} /> Área protegida</span>
+        <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded" style={{ background: '#9a3412' }} /> Lote petrolero (explotación)</span>
+        <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded" style={{ background: '#f59e0b' }} /> Lote petrolero (exploración)</span>
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded" style={{ background: '#dc2626' }} /> Minería ilegal en ANP</span>
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full" style={{ background: '#b45309' }} /> Depósito de relaves (OEFA)</span>
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full" style={{ background: '#a78bfa' }} /> Riesgo ambiental alto (OEFA)</span>
