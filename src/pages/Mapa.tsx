@@ -9,12 +9,15 @@ const iconUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png'
 const iconRetinaUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png'
 const shadowUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png'
 
-type CapaId = 'eventos' | 'departamentos' | 'anp' | 'mineria' | 'relaves' | 'riesgo' | 'lotes'
+type CapaId = 'eventos' | 'departamentos' | 'anp' | 'mineria' | 'relaves' | 'riesgo' | 'lotes' | 'pueblos' | 'comunidades' | 'reservas'
 type Geo = { type: string; features: any[] }
 
 const capasMeta: { id: CapaId; label: string }[] = [
   { id: 'anp', label: 'Áreas protegidas (SERNANP)' },
   { id: 'lotes', label: 'Lotes petroleros (Perupetro)' },
+  { id: 'pueblos', label: 'Pueblos indígenas (Cultura/IBC)' },
+  { id: 'reservas', label: 'Reservas territoriales (PIACI)' },
+  { id: 'comunidades', label: 'Comunidades nativas' },
   { id: 'mineria', label: 'Minería ilegal en ANP' },
   { id: 'relaves', label: 'Depósitos de relaves (OEFA)' },
   { id: 'riesgo', label: 'Riesgo ambiental alto (OEFA)' },
@@ -56,7 +59,8 @@ export default function Mapa() {
   const [regiones, setRegiones] = useState<string[]>([])
   const [region, setRegion] = useState('')
   const [capas, setCapas] = useState<Record<CapaId, boolean>>({
-    anp: true, lotes: true, mineria: true, relaves: true, riesgo: true, eventos: true, departamentos: false,
+    anp: true, lotes: true, pueblos: true, reservas: true, comunidades: false,
+    mineria: true, relaves: true, riesgo: true, eventos: true, departamentos: false,
   })
 
   useEffect(() => {
@@ -154,6 +158,57 @@ export default function Mapa() {
         },
       })
       layersRef.current.lotes = layer; if (capas.lotes) layer.addTo(map)
+    })
+
+    // Reservas territoriales / PIACI (Min. Cultura vía GEOCATMIN)
+    fetch(`${base}data/reservas-territoriales.geojson`).then((r) => r.json()).then((gj) => {
+      const layer = L.geoJSON(gj, {
+        style: { color: '#5b21b6', weight: 1.5, fillColor: '#8b5cf6', fillOpacity: 0.30, dashArray: '4 3' },
+        onEachFeature: (f, l) => {
+          const p = f.properties ?? {}
+          l.bindPopup(`<div style="min-width:220px"><strong style="color:#5b21b6">Reserva territorial — ${p.nombre ?? ''}</strong>
+            <div style="font-size:12px;margin-top:4px"><b>Categoría:</b> ${p.categoria ?? 's/d'}</div>
+            <div style="font-size:12px"><b>Pueblo:</b> ${p.pueblo ?? 's/d'}</div>
+            <div style="font-size:12px"><b>Estado:</b> ${p.estado ?? 's/d'}</div>
+            <div style="font-size:11px;color:#5b21b6;margin-top:4px">Fuente: Min. Cultura · GEOCATMIN</div></div>`)
+        },
+      })
+      layersRef.current.reservas = layer; if (capas.reservas) layer.addTo(map)
+    })
+
+    // Comunidades nativas — centroides (IBC/SICNA vía GEOCATMIN)
+    fetch(`${base}data/comunidades-nativas.geojson`).then((r) => r.json()).then((gj) => {
+      const group = L.layerGroup()
+      L.geoJSON(gj, {
+        pointToLayer: (_f, ll) => L.circleMarker(ll, { radius: 3.5, color: '#fff', weight: 0.8, fillColor: '#9333ea', fillOpacity: 0.85 }),
+        onEachFeature: (f, l) => {
+          const p = f.properties ?? {}
+          l.bindPopup(`<div style="min-width:210px"><strong style="color:#7c3aed">Comunidad nativa ${p.nombre ?? ''}</strong>
+            <div style="font-size:12px;margin-top:4px"><b>Etnia:</b> ${p.etnia ?? 's/d'}</div>
+            <div style="font-size:12px"><b>Población:</b> ${p.poblacion ?? 's/d'} · <b>Familias:</b> ${p.familias ?? 's/d'}</div>
+            <div style="font-size:12px"><b>Río:</b> ${p.rio ?? 's/d'}</div>
+            <div style="font-size:11px;color:#7c3aed;margin-top:4px">Fuente: IBC/SICNA · GEOCATMIN</div></div>`)
+        },
+      }).addTo(group)
+      layersRef.current.comunidades = group; if (capas.comunidades) group.addTo(map)
+    })
+
+    // Pueblos indígenas — localidades (Min. Cultura vía GEOCATMIN)
+    fetch(`${base}data/pueblos-indigenas.geojson`).then((r) => r.json()).then((gj) => {
+      const group = L.layerGroup()
+      L.geoJSON(gj, {
+        pointToLayer: (_f, ll) => L.circleMarker(ll, { radius: 3, color: '#581c87', weight: 0.6, fillColor: '#7c3aed', fillOpacity: 0.85 }),
+        onEachFeature: (f, l) => {
+          const p = f.properties ?? {}
+          l.bindPopup(`<div style="min-width:210px"><strong style="color:#7c3aed">${p.nombre ?? 'Localidad indígena'}</strong>
+            <div style="font-size:12px;margin-top:4px"><b>Pueblo / etnia:</b> ${p.etnia ?? 's/d'}</div>
+            <div style="font-size:12px"><b>Familia lingüística:</b> ${p.familia_ling ?? 's/d'}</div>
+            <div style="font-size:12px"><b>Tipo:</b> ${p.tipo ?? 's/d'}</div>
+            ${p.federacion ? `<div style="font-size:12px"><b>Federación:</b> ${p.federacion}</div>` : ''}
+            <div style="font-size:11px;color:#7c3aed;margin-top:4px">Fuente: Min. Cultura/IBC · GEOCATMIN</div></div>`)
+        },
+      }).addTo(group)
+      layersRef.current.pueblos = group; if (capas.pueblos) group.addTo(map)
     })
 
     fetch(`${base}data/anp-sernanp.geojson`).then((r) => r.json()).then((gj) => {
@@ -289,6 +344,9 @@ export default function Mapa() {
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded" style={{ background: '#22c55e' }} /> Área protegida</span>
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded" style={{ background: '#9a3412' }} /> Lote petrolero (explotación)</span>
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded" style={{ background: '#f59e0b' }} /> Lote petrolero (exploración)</span>
+        <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full" style={{ background: '#7c3aed' }} /> Pueblo indígena (localidad)</span>
+        <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full" style={{ background: '#9333ea' }} /> Comunidad nativa</span>
+        <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded" style={{ background: '#8b5cf6' }} /> Reserva territorial (PIACI)</span>
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded" style={{ background: '#dc2626' }} /> Minería ilegal en ANP</span>
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full" style={{ background: '#b45309' }} /> Depósito de relaves (OEFA)</span>
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full" style={{ background: '#a78bfa' }} /> Riesgo ambiental alto (OEFA)</span>

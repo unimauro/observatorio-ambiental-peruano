@@ -81,6 +81,7 @@ export default function Temas() {
   const [riesgoSub, setRiesgoSub] = useState<Serie>([])
   const [relavesEstado, setRelavesEstado] = useState<Serie>([])
   const [mineriaTipo, setMineriaTipo] = useState<Serie>([])
+  const [pueblosFam, setPueblosFam] = useState<Serie>([])
   const [openId, setOpenId] = useState<string>('')
 
   useEffect(() => {
@@ -93,6 +94,7 @@ export default function Temas() {
     aggregateGeo('riesgo-ambiental-oefa.geojson', 'subsector').then(setRiesgoSub).catch(() => {})
     aggregateGeo('relaves-oefa-puntos.geojson', 'estado_dr').then(setRelavesEstado).catch(() => {})
     aggregateGeo('mineria-ilegal-anp.geojson', 'idtipact').then((d) => setMineriaTipo(d.slice(0, 8))).catch(() => {})
+    aggregateGeo('pueblos-indigenas.geojson', 'familia_ling').then((d) => setPueblosFam(d.slice(0, 8))).catch(() => {})
   }, [])
 
   const causasDerrame: Serie = [
@@ -151,6 +153,12 @@ export default function Temas() {
         return [
           <Bloque key="c1" titulo="Retroceso de la cobertura glaciar (km²)" fuente="INAIGEM (referencia)">
             <LineMini color="#0369a1" yLabel="km²" data={(clima?.glaciares.serie ?? []).map((s) => ({ x: String(s.anio), y: s.km2 }))} />
+          </Bloque>,
+        ]
+      case 'indigenas':
+        return [
+          <Bloque key="i1" titulo="Localidades indígenas por familia lingüística" fuente="Min. Cultura/IBC · GEOCATMIN">
+            <BarMini color="#7c3aed" data={pueblosFam} />
           </Bloque>,
         ]
       case 'anp':

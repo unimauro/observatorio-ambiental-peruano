@@ -84,9 +84,9 @@
     "icono": "👥",
     "nombre": "Pueblos indígenas",
     "color": "#7c3aed",
-    "estado": "en-integracion",
+    "estado": "con-datos",
     "queEs": "Los pueblos indígenas u originarios habitan y gestionan gran parte de la Amazonía. Muchos impactos ambientales —derrames, deforestación, minería— recaen directamente sobre sus territorios y su salud.",
-    "explicacion": "Cruzaremos la Base de Datos de Pueblos Indígenas (BDPI) del Ministerio de Cultura con las capas de derrames y deforestación para visualizar afectaciones a comunidades.",
-    "fuentes": ["BDPI — Ministerio de Cultura"]
+    "explicacion": "El mapa muestra 2,275 localidades de pueblos indígenas, 1,600 comunidades nativas y las reservas territoriales (PIACI). Se superponen con lotes petroleros y áreas deforestadas, evidenciando la presión sobre sus territorios.",
+    "fuentes": ["Ministerio de Cultura — BDPI", "IBC / SICNA", "GEOCATMIN"]
   }
 ]

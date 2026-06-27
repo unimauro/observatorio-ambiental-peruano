@@ -88,6 +88,24 @@
       "fuente": "SERNANP — capa de minería ilegal en ámbito de ANP (ArcGIS REST)."
     },
     {
+      "id": "pueblos_indigenas",
+      "etiqueta": "Localidades de pueblos indígenas",
+      "valor": 2275,
+      "unidad": "localidades",
+      "categoria": "indigenas",
+      "estado": "verificado",
+      "fuente": "Ministerio de Cultura / IBC, vía GEOCATMIN (INGEMMET)."
+    },
+    {
+      "id": "comunidades_nativas",
+      "etiqueta": "Comunidades nativas mapeadas",
+      "valor": 1600,
+      "unidad": "comunidades",
+      "categoria": "indigenas",
+      "estado": "verificado",
+      "fuente": "IBC / SICNA, vía GEOCATMIN (INGEMMET)."
+    },
+    {
       "id": "lotes_petroleros",
       "etiqueta": "Lotes petroleros (exploración y explotación)",
       "valor": 78,
