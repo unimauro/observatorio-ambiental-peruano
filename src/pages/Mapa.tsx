@@ -9,7 +9,7 @@ const iconUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png'
 const iconRetinaUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png'
 const shadowUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png'
 
-type CapaId = 'eventos' | 'departamentos' | 'anp' | 'mineria' | 'relaves' | 'riesgo' | 'lotes' | 'pueblos' | 'comunidades' | 'reservas'
+type CapaId = 'eventos' | 'departamentos' | 'anp' | 'mineria' | 'relaves' | 'riesgo' | 'lotes' | 'pueblos' | 'comunidades' | 'reservas' | 'unidades'
 type Geo = { type: string; features: any[] }
 
 const capasMeta: { id: CapaId; label: string }[] = [
@@ -18,6 +18,7 @@ const capasMeta: { id: CapaId; label: string }[] = [
   { id: 'pueblos', label: 'Pueblos indígenas (Cultura/IBC)' },
   { id: 'reservas', label: 'Reservas territoriales (PIACI)' },
   { id: 'comunidades', label: 'Comunidades nativas' },
+  { id: 'unidades', label: 'Unidades mineras (MINEM)' },
   { id: 'mineria', label: 'Minería ilegal en ANP' },
   { id: 'relaves', label: 'Depósitos de relaves (OEFA)' },
   { id: 'riesgo', label: 'Riesgo ambiental alto (OEFA)' },
@@ -60,7 +61,7 @@ export default function Mapa() {
   const [region, setRegion] = useState('')
   const [capas, setCapas] = useState<Record<CapaId, boolean>>({
     anp: true, lotes: true, pueblos: true, reservas: true, comunidades: false,
-    mineria: true, relaves: true, riesgo: true, eventos: true, departamentos: false,
+    unidades: true, mineria: true, relaves: true, riesgo: true, eventos: true, departamentos: false,
   })
 
   useEffect(() => {
@@ -158,6 +159,27 @@ export default function Mapa() {
         },
       })
       layersRef.current.lotes = layer; if (capas.lotes) layer.addTo(map)
+    })
+
+    // Unidades mineras — producción y exploración (MINEM vía GISEM)
+    fetch(`${base}data/unidades-mineras.geojson`).then((r) => r.json()).then((gj) => {
+      const group = L.layerGroup()
+      L.geoJSON(gj, {
+        pointToLayer: (f, ll) => {
+          const prod = f.properties?.tipo === 'En producción'
+          return L.circleMarker(ll, { radius: prod ? 6 : 5, color: '#fff', weight: 1.2, fillColor: prod ? '#92400e' : '#fbbf24', fillOpacity: 0.9 })
+        },
+        onEachFeature: (f, l) => {
+          const p = f.properties ?? {}
+          l.bindPopup(`<div style="min-width:215px"><strong style="color:#92400e">Minería · ${p.tipo ?? ''}</strong>
+            <div style="font-size:12px;margin-top:4px"><b>Unidad:</b> ${p.nombre ?? 's/d'}</div>
+            <div style="font-size:12px"><b>Titular:</b> ${p.titular ?? 's/d'}</div>
+            <div style="font-size:12px"><b>Sustancia:</b> ${p.sustancia ?? 's/d'}</div>
+            ${p.region ? `<div style="font-size:12px"><b>Región:</b> ${p.region}</div>` : ''}
+            <div style="font-size:11px;color:#92400e;margin-top:4px">Fuente: MINEM · OSINERGMIN GISEM</div></div>`)
+        },
+      }).addTo(group)
+      layersRef.current.unidades = group; if (capas.unidades) group.addTo(map)
     })
 
     // Reservas territoriales / PIACI (Min. Cultura vía GEOCATMIN)
@@ -347,6 +369,8 @@ export default function Mapa() {
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full" style={{ background: '#7c3aed' }} /> Pueblo indígena (localidad)</span>
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full" style={{ background: '#9333ea' }} /> Comunidad nativa</span>
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded" style={{ background: '#8b5cf6' }} /> Reserva territorial (PIACI)</span>
+        <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full" style={{ background: '#92400e' }} /> Mina en producción (MINEM)</span>
+        <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full" style={{ background: '#fbbf24' }} /> Proyecto minero en exploración</span>
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded" style={{ background: '#dc2626' }} /> Minería ilegal en ANP</span>
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full" style={{ background: '#b45309' }} /> Depósito de relaves (OEFA)</span>
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full" style={{ background: '#a78bfa' }} /> Riesgo ambiental alto (OEFA)</span>

@@ -106,6 +106,16 @@
       "fuente": "IBC / SICNA, vía GEOCATMIN (INGEMMET)."
     },
     {
+      "id": "unidades_mineras",
+      "etiqueta": "Unidades mineras (producción y exploración)",
+      "valor": 313,
+      "unidad": "unidades",
+      "categoria": "mineria",
+      "estado": "verificado",
+      "fuente": "MINEM, vía OSINERGMIN GISEM (ArcGIS REST).",
+      "detalle": "122 unidades en producción y 191 proyectos en exploración."
+    },
+    {
       "id": "lotes_petroleros",
       "etiqueta": "Lotes petroleros (exploración y explotación)",
       "valor": 78,
