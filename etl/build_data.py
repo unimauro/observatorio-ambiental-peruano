@@ -347,10 +347,14 @@ def build_superposicion():
 
 
 # === MAIN ===================================================================
-TASKS = [("anp/oefa", lambda: [build_paginated(s) for s in SOURCES]),
-         ("lotes", build_lotes), ("unidades", build_unidades),
-         ("pueblos", build_pueblos), ("comunidades", build_comunidades), ("reservas", build_reservas),
-         ("campesinas", build_campesinas)]
+# Cada fuente es una tarea independiente: si una falla (p.ej. OEFA bloquea la IP
+# del runner de CI con 403), las demás se publican igual y la capa caída conserva
+# su última versión buena. Las capas OEFA suelen 403 desde datacenters; se refrescan
+# bien desde una IP residencial (ejecutar el ETL localmente cuando cambien).
+TASKS = [(s["out"], (lambda s=s: build_paginated(s))) for s in SOURCES] + [
+    ("lotes", build_lotes), ("unidades", build_unidades),
+    ("pueblos", build_pueblos), ("comunidades", build_comunidades), ("reservas", build_reservas),
+    ("campesinas", build_campesinas)]
 
 
 def main():
