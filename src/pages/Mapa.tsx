@@ -9,7 +9,7 @@ const iconUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png'
 const iconRetinaUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png'
 const shadowUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png'
 
-type CapaId = 'eventos' | 'departamentos' | 'anp' | 'mineria' | 'relaves' | 'riesgo' | 'lotes' | 'pueblos' | 'comunidades' | 'reservas' | 'unidades'
+type CapaId = 'eventos' | 'departamentos' | 'anp' | 'mineria' | 'relaves' | 'riesgo' | 'lotes' | 'pueblos' | 'comunidades' | 'reservas' | 'unidades' | 'campesinas'
 type Geo = { type: string; features: any[] }
 
 const capasMeta: { id: CapaId; label: string }[] = [
@@ -18,6 +18,7 @@ const capasMeta: { id: CapaId; label: string }[] = [
   { id: 'pueblos', label: 'Pueblos indígenas (Cultura/IBC)' },
   { id: 'reservas', label: 'Reservas territoriales (PIACI)' },
   { id: 'comunidades', label: 'Comunidades nativas' },
+  { id: 'campesinas', label: 'Comunidades campesinas' },
   { id: 'unidades', label: 'Unidades mineras (MINEM)' },
   { id: 'mineria', label: 'Minería ilegal en ANP' },
   { id: 'relaves', label: 'Depósitos de relaves (OEFA)' },
@@ -60,7 +61,7 @@ export default function Mapa() {
   const [regiones, setRegiones] = useState<string[]>([])
   const [region, setRegion] = useState('')
   const [capas, setCapas] = useState<Record<CapaId, boolean>>({
-    anp: true, lotes: true, pueblos: true, reservas: true, comunidades: false,
+    anp: true, lotes: true, pueblos: true, reservas: true, comunidades: false, campesinas: false,
     unidades: true, mineria: true, relaves: true, riesgo: true, eventos: true, departamentos: false,
   })
 
@@ -213,6 +214,20 @@ export default function Mapa() {
         },
       }).addTo(group)
       layersRef.current.comunidades = group; if (capas.comunidades) group.addTo(map)
+    })
+
+    // Comunidades campesinas — centroides (CooperAcción)
+    fetch(`${base}data/comunidades-campesinas.geojson`).then((r) => r.json()).then((gj) => {
+      const group = L.layerGroup()
+      L.geoJSON(gj, {
+        pointToLayer: (_f, ll) => L.circleMarker(ll, { radius: 3, color: '#fff', weight: 0.5, fillColor: '#0d9488', fillOpacity: 0.8 }),
+        onEachFeature: (f, l) => {
+          const p = f.properties ?? {}
+          l.bindPopup(`<div style="min-width:190px"><strong style="color:#0f766e">Comunidad campesina ${p.nombre ?? ''}</strong>
+            <div style="font-size:11px;color:#0f766e;margin-top:4px">Fuente: CooperAcción (geoportal)</div></div>`)
+        },
+      }).addTo(group)
+      layersRef.current.campesinas = group; if (capas.campesinas) group.addTo(map)
     })
 
     // Pueblos indígenas — localidades (Min. Cultura vía GEOCATMIN)
@@ -368,6 +383,7 @@ export default function Mapa() {
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded" style={{ background: '#f59e0b' }} /> Lote petrolero (exploración)</span>
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full" style={{ background: '#7c3aed' }} /> Pueblo indígena (localidad)</span>
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full" style={{ background: '#9333ea' }} /> Comunidad nativa</span>
+        <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full" style={{ background: '#0d9488' }} /> Comunidad campesina</span>
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded" style={{ background: '#8b5cf6' }} /> Reserva territorial (PIACI)</span>
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full" style={{ background: '#92400e' }} /> Mina en producción (MINEM)</span>
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full" style={{ background: '#fbbf24' }} /> Proyecto minero en exploración</span>

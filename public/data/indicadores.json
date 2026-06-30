@@ -106,6 +106,15 @@
       "fuente": "IBC / SICNA, vía GEOCATMIN (INGEMMET)."
     },
     {
+      "id": "comunidades_campesinas",
+      "etiqueta": "Comunidades campesinas mapeadas",
+      "valor": 5043,
+      "unidad": "comunidades",
+      "categoria": "indigenas",
+      "estado": "verificado",
+      "fuente": "CooperAcción — geoportal Espacio de Cooperación."
+    },
+    {
       "id": "unidades_mineras",
       "etiqueta": "Unidades mineras (producción y exploración)",
       "valor": 313,
