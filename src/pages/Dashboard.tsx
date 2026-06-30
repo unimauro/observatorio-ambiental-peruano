@@ -14,17 +14,22 @@ interface AnpResumen {
   porCategoria: { categoria: string; n: number; ha: number }[]
 }
 
+interface Cruce { id: string; etiqueta: string; valor: number; de: number; fuente: string }
+interface Superposicion { nota: string; cruces: Cruce[]; topLotes: { lote: string; comunidades: number }[] }
+
 export default function Dashboard() {
   const [ind, setInd] = useState<Indicadores | null>(null)
   const [cats, setCats] = useState<Categoria[]>([])
   const [defo, setDefo] = useState<Deforestacion | null>(null)
   const [anp, setAnp] = useState<AnpResumen | null>(null)
+  const [sup, setSup] = useState<Superposicion | null>(null)
 
   useEffect(() => {
     loadJSON<Indicadores>('indicadores.json').then(setInd).catch(console.error)
     loadJSON<Categoria[]>('categorias.json').then(setCats).catch(console.error)
     loadJSON<Deforestacion>('deforestacion.json').then(setDefo).catch(console.error)
     loadJSON<AnpResumen>('anp-resumen.json').then(setAnp).catch(console.error)
+    loadJSON<Superposicion>('superposicion.json').then(setSup).catch(console.error)
   }, [])
 
   return (
@@ -46,6 +51,33 @@ export default function Dashboard() {
           </Link>
         </div>
       </section>
+
+      {/* Superposición territorial — insight clave */}
+      {sup && (
+        <section className="rounded-xl border border-amber-200 bg-amber-50 p-5 sm:p-6">
+          <h2 className="text-lg font-bold text-amber-900">Presión sobre los territorios</h2>
+          <p className="text-sm text-amber-900/80 mt-1">
+            Superposición geográfica entre actividades extractivas y territorios indígenas o áreas protegidas.
+          </p>
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
+            {sup.cruces.map((c) => (
+              <div key={c.id} className="bg-white rounded-xl border border-amber-200/60 p-4">
+                <div className="text-3xl font-extrabold text-amber-700">{fmt(c.valor)}</div>
+                <div className="text-[11px] text-slate-400">de {fmt(c.de)}</div>
+                <div className="text-sm font-medium mt-1 leading-snug">{c.etiqueta}</div>
+                <div className="text-[11px] text-slate-400 mt-1">{c.fuente}</div>
+              </div>
+            ))}
+          </div>
+          {sup.topLotes?.length > 0 && (
+            <p className="text-sm text-amber-900/90 mt-4">
+              <strong>Lotes con más comunidades nativas dentro:</strong>{' '}
+              {sup.topLotes.map((t) => `Lote ${t.lote} (${t.comunidades})`).join(' · ')}.
+            </p>
+          )}
+          <p className="text-[11px] text-slate-500 mt-3">{sup.nota}</p>
+        </section>
+      )}
 
       {/* KPIs */}
       <section>

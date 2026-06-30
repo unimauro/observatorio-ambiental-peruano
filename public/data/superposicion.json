@@ -1,0 +1,74 @@
+{
+ "nota": "Análisis de superposición geográfica calculado sobre las capas oficiales del observatorio (point-in-polygon). Indicativo: usa centroides de comunidades y puede subestimar solapamientos parciales.",
+ "actualizado": "2026-06-30",
+ "cruces": [
+  {
+   "id": "pueblos_lotes",
+   "etiqueta": "Localidades de pueblos indígenas dentro de lotes petroleros",
+   "valor": 672,
+   "de": 2275,
+   "fuente": "Min. Cultura/IBC × Perupetro"
+  },
+  {
+   "id": "comunidades_lotes",
+   "etiqueta": "Comunidades nativas dentro de lotes petroleros",
+   "valor": 423,
+   "de": 1600,
+   "fuente": "IBC/SICNA × Perupetro"
+  },
+  {
+   "id": "pueblos_anp",
+   "etiqueta": "Localidades indígenas dentro de áreas protegidas",
+   "valor": 55,
+   "de": 2275,
+   "fuente": "Min. Cultura/IBC × SERNANP"
+  },
+  {
+   "id": "comunidades_anp",
+   "etiqueta": "Comunidades nativas dentro de áreas protegidas",
+   "valor": 30,
+   "de": 1600,
+   "fuente": "IBC/SICNA × SERNANP"
+  },
+  {
+   "id": "unidades_anp",
+   "etiqueta": "Unidades mineras dentro de áreas protegidas",
+   "valor": 3,
+   "de": 313,
+   "fuente": "MINEM × SERNANP"
+  },
+  {
+   "id": "lotes_anp",
+   "etiqueta": "Lotes petroleros que se superponen con áreas protegidas",
+   "valor": 3,
+   "de": 78,
+   "fuente": "Perupetro × SERNANP"
+  }
+ ],
+ "topLotes": [
+  {
+   "lote": "108",
+   "comunidades": 165
+  },
+  {
+   "lote": "116",
+   "comunidades": 81
+  },
+  {
+   "lote": "103",
+   "comunidades": 53
+  },
+  {
+   "lote": "123",
+   "comunidades": 17
+  },
+  {
+   "lote": "57",
+   "comunidades": 16
+  },
+  {
+   "lote": "131",
+   "comunidades": 14
+  }
+ ]
+}
