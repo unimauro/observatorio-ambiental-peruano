@@ -1,5 +1,5 @@
 {
-  "generado": "2026-06-30T09:25:37Z",
+  "generado": "2026-07-06T13:01:24Z",
   "capas": [
     {
       "archivo": "anp-sernanp.geojson",
@@ -52,8 +52,12 @@
   ],
   "errores": [
     {
-      "tarea": "anp/oefa",
+      "tarea": "relaves-oefa-puntos.geojson",
       "error": "fallo https://pifa.oefa.gob.pe/arcgis/rest/services/RIESGOS/SERV_RIESGO_HIDROM_RELAVES_WMS/MapServer/4/query: HTTP Error 403: Forbidden"
+    },
+    {
+      "tarea": "riesgo-ambiental-oefa.geojson",
+      "error": "fallo https://pifa.oefa.gob.pe/arcgis/rest/services/RIESGOS/SERV_RIES_AMB_UF/MapServer/5/query: HTTP Error 403: Forbidden"
     }
   ]
 }
