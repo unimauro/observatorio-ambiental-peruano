@@ -1,6 +1,6 @@
 {
  "nota": "Análisis de superposición geográfica calculado sobre las capas oficiales del observatorio (point-in-polygon). Indicativo: usa centroides de comunidades y puede subestimar solapamientos parciales.",
- "actualizado": "2026-07-06",
+ "actualizado": "2026-07-13",
  "cruces": [
   {
    "id": "pueblos_lotes",
