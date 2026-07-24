@@ -14,6 +14,7 @@ const shadowUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png
 type CapaId =
   | 'anp' | 'lotes' | 'pueblos' | 'reservas' | 'comunidades' | 'campesinas'
   | 'unidades' | 'mineria' | 'relaves' | 'riesgo' | 'eventos' | 'departamentos'
+  | 'pasivosHidro' | 'suelos' | 'oleoducto'
 type Geo = { type: string; features: any[] }
 
 const PERU_CENTER: L.LatLngTuple = [-9.6, -74.5]
@@ -111,6 +112,30 @@ const POPUP = {
     <p style="margin:6px 0;font-size:13px">${p.descrip ?? ''}</p>
     <div style="font-size:12px"><b>Ubicación:</b> ${p.ubiref ?? 's/d'}</div>
     <div style="font-size:11px;color:#b91c1c;margin-top:4px">Fuente: SERNANP (oficial)</div></div>`,
+  pasivosHidro: (p: any) => {
+    const alto = (v?: string) => ['alto', 'muy alto'].includes(String(v ?? '').trim().toLowerCase())
+    const rr = [alto(p.riesgo_salud) ? 'salud' : '', alto(p.riesgo_poblacion) ? 'población' : '', alto(p.riesgo_ambiente) ? 'ambiente' : ''].filter(Boolean).join(' · ')
+    return `<div style="min-width:230px"><strong style="color:#1f2937">Pasivo ambiental de hidrocarburos</strong>
+      <div style="font-size:12px;margin-top:4px"><b>Tipo:</b> ${p.tipo ?? 's/d'}</div>
+      <div style="font-size:12px"><b>Lote:</b> ${p.lote ?? 's/d'} · <b>Año:</b> ${p.anio ?? 's/d'}</div>
+      <div style="font-size:12px"><b>Ubicación:</b> ${[p.distrito, p.provincia, p.departamento].filter(Boolean).join(', ') || 's/d'}</div>
+      <div style="font-size:12px"><b>Cuenca:</b> ${p.cuenca ?? 's/d'}</div>
+      <div style="font-size:12px"><b>Riesgo:</b> salud ${p.riesgo_salud ?? 's/d'} · población ${p.riesgo_poblacion ?? 's/d'} · ambiente ${p.riesgo_ambiente ?? 's/d'}</div>
+      ${rr ? `<div style="font-size:12px;color:#b91c1c;margin-top:3px">⚠ Riesgo alto en: ${rr}</div>` : ''}
+      <div style="font-size:11px;color:#475569;margin-top:4px">Fuente: OEFA · PIFA (oficial) ${p.oficio ? '· Of. ' + p.oficio : ''}</div></div>`
+  },
+  suelos: (p: any) => `<div style="min-width:225px"><strong style="color:#0f172a">Suelo empetrolado — ${p.estatus ?? 's/d'}</strong>
+    <div style="font-size:12px;margin-top:4px"><b>Locación:</b> ${p.locacion ?? 's/d'}</div>
+    <div style="font-size:12px"><b>Yacimiento:</b> ${p.yacimiento ?? 's/d'}</div>
+    <div style="font-size:12px"><b>Administrado:</b> ${p.administrado ?? 's/d'}</div>
+    <div style="font-size:12px"><b>Área registrada:</b> ${p.area_m2 ? fmt(p.area_m2) + ' m²' : 's/d'}</div>
+    <div style="font-size:12px"><b>Puntos que exceden el ECA:</b> ${p.puntos_exceden ?? 's/d'} · <b>Evaluaciones:</b> ${p.evaluaciones ?? 's/d'}</div>
+    <div style="font-size:12px"><b>Etapa de remediación:</b> ${p.etapa ?? 's/d'}</div>
+    <div style="font-size:11px;color:#475569;margin-top:4px">Fuente: OEFA · PIFA — supervisiones Lote X</div></div>`,
+  oleoducto: (p: any) => `<div style="min-width:215px"><strong style="color:#0f172a">Oleoducto Norperuano — ramal ${p.ramal ?? ''}</strong>
+    <div style="font-size:12px;margin-top:4px"><b>Tramo:</b> ${p.tramo ?? 's/d'}</div>
+    <div style="font-size:12px"><b>Progresivas:</b> km ${p.km_inicio} → km ${p.km_fin} (${p.progresivas} hitos)</div>
+    <div style="font-size:11px;color:#475569;margin-top:4px">Fuente: Petroperú · OSINERGMIN GISEM. Traza indicativa entre progresivas.</div></div>`,
   reservas: (p: any) => `<div style="min-width:220px"><strong style="color:#5b21b6">Reserva territorial — ${p.nombre ?? ''}</strong>
     <div style="font-size:12px;margin-top:4px"><b>Categoría:</b> ${p.categoria ?? 's/d'}</div>
     <div style="font-size:12px"><b>Pueblo:</b> ${p.pueblo ?? 's/d'}</div>
@@ -143,11 +168,25 @@ const LAYERS: Record<CapaId, LayerDef> = {
     style: (f) => ({ radius: 9, color: '#fff', weight: 2, fillColor: f?.properties?.categoria === 'derrames' ? '#1f2937' : f?.properties?.categoria === 'mineria' ? '#b45309' : '#0e7490', fillOpacity: 0.9 }), popup: POPUP.eventos },
   departamentos: { kind: 'poly', label: 'Departamentos', group: 'Áreas y base', file: 'peru-departamentos.geojson',
     style: { color: '#334155', weight: 1, fill: false }, popup: () => '' },
+  oleoducto: { kind: 'poly', label: 'Oleoducto Norperuano', group: 'Derrames y pasivos', file: 'oleoducto-norperuano.geojson',
+    style: { color: '#111827', weight: 3, opacity: 0.85, dashArray: '6 4' }, popup: POPUP.oleoducto },
+  pasivosHidro: { kind: 'point', label: 'Pasivos de hidrocarburos (OEFA)', group: 'Derrames y pasivos', file: 'pasivos-hidrocarburos.geojson', cluster: true,
+    style: (f) => {
+      const p = f?.properties ?? {}
+      const alto = ['riesgo_salud', 'riesgo_poblacion', 'riesgo_ambiente'].some((k) => ['alto', 'muy alto'].includes(String(p[k] ?? '').trim().toLowerCase()))
+      return { radius: alto ? 6 : 4, color: '#fff', weight: alto ? 1.2 : 0.6, fillColor: alto ? '#dc2626' : '#334155', fillOpacity: 0.9 }
+    }, popup: POPUP.pasivosHidro },
+  suelos: { kind: 'point', label: 'Suelos empetrolados Lote X (OEFA)', group: 'Derrames y pasivos', file: 'suelos-empetrolados.geojson', cluster: true,
+    style: (f) => {
+      const e = String(f?.properties?.estatus ?? '').toLowerCase()
+      const fill = e.includes('con afecta') ? '#0f172a' : e.includes('ejecuci') ? '#f97316' : e.includes('sin afecta') ? '#94a3b8' : '#cbd5e1'
+      return { radius: e.includes('con afecta') ? 5 : 3.5, color: '#fff', weight: 0.6, fillColor: fill, fillOpacity: 0.9 }
+    }, popup: POPUP.suelos },
 }
 
-const DEFAULT_ON: CapaId[] = ['anp', 'lotes', 'pueblos', 'reservas', 'unidades', 'mineria', 'relaves', 'riesgo', 'eventos']
+const DEFAULT_ON: CapaId[] = ['anp', 'lotes', 'pueblos', 'reservas', 'unidades', 'mineria', 'relaves', 'riesgo', 'eventos', 'oleoducto', 'pasivosHidro']
 
-const GROUPS = ['Territorios y pueblos', 'Hidrocarburos y minería', 'Áreas y base']
+const GROUPS = ['Territorios y pueblos', 'Hidrocarburos y minería', 'Derrames y pasivos', 'Áreas y base']
 
 const LEYENDA: { c: string; t: string; sq?: boolean }[] = [
   { c: '#22c55e', t: 'Área protegida', sq: true },
@@ -162,6 +201,10 @@ const LEYENDA: { c: string; t: string; sq?: boolean }[] = [
   { c: '#dc2626', t: 'Minería ilegal', sq: true },
   { c: '#b45309', t: 'Depósito de relaves' },
   { c: '#a78bfa', t: 'Riesgo ambiental alto' },
+  { c: '#334155', t: 'Pasivo de hidrocarburos' },
+  { c: '#dc2626', t: 'Pasivo con riesgo alto' },
+  { c: '#0f172a', t: 'Suelo empetrolado con afectación' },
+  { c: '#111827', t: 'Oleoducto Norperuano', sq: true },
 ]
 
 export default function Mapa() {
@@ -296,8 +339,10 @@ export default function Mapa() {
       <div>
         <h1 className="text-3xl font-extrabold">Mapa interactivo</h1>
         <p className="text-sm text-slate-500">
-          Capas oficiales del SERNANP, OEFA, MINEM y Cultura. Filtra por región o explora todo el país.
-          Coordenadas de eventos referenciales — ver <span className="font-medium">Acerca</span>.
+          Capas oficiales del SERNANP, OEFA, MINEM, Petroperú y Cultura — incluye los pasivos de
+          hidrocarburos, los suelos empetrolados del Lote X y la traza del Oleoducto Norperuano.
+          Filtra por región o explora todo el país. Solo los 5 eventos emblemáticos tienen
+          coordenadas referenciales — ver <span className="font-medium">Acerca</span>.
         </p>
       </div>
 
@@ -321,16 +366,26 @@ export default function Mapa() {
           <span className={`text-slate-400 transition-transform ${panelOpen ? 'rotate-180' : ''}`}>▾</span>
         </button>
         {panelOpen && (
-          <div className="px-3 pb-3 grid sm:grid-cols-3 gap-x-4 gap-y-3 border-t border-slate-100 pt-3">
+          <div className="px-3 pb-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-3 border-t border-slate-100 pt-3">
             {GROUPS.map((g) => (
               <div key={g}>
                 <div className="text-[11px] uppercase font-semibold text-slate-400 mb-1">{g}</div>
                 <div className="flex flex-col gap-1">
                   {(Object.keys(LAYERS) as CapaId[]).filter((id) => LAYERS[id].group === g).map((id) => (
-                    <label key={id} className="flex items-center gap-1.5 cursor-pointer text-sm">
-                      <input type="checkbox" checked={capas[id]} onChange={(e) => setCapas((s) => ({ ...s, [id]: e.target.checked }))} />
-                      {LAYERS[id].label}
-                    </label>
+                    <div key={id} className="flex items-center gap-1.5 text-sm">
+                      <label className="flex items-center gap-1.5 cursor-pointer flex-1 min-w-0">
+                        <input type="checkbox" checked={capas[id]} onChange={(e) => setCapas((s) => ({ ...s, [id]: e.target.checked }))} />
+                        <span className="truncate">{LAYERS[id].label}</span>
+                      </label>
+                      <a
+                        href={`${base}data/csv/${LAYERS[id].file.replace('.geojson', '.csv')}`}
+                        download
+                        title={`Descargar ${LAYERS[id].label} en CSV`}
+                        className="shrink-0 text-[10px] uppercase font-semibold text-slate-400 hover:text-forest-dark border border-slate-200 rounded px-1"
+                      >
+                        csv
+                      </a>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -340,6 +395,18 @@ export default function Mapa() {
       </div>
 
       <div ref={ref} className="h-[72vh] w-full rounded-xl overflow-hidden border border-slate-200 shadow-sm z-0" />
+
+      {/* Descargas — cada capa tiene su CSV junto al GeoJSON */}
+      <div className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-600">
+        <span className="font-medium text-slate-700">Descargar datos:</span>{' '}
+        cada capa del panel tiene su enlace <span className="uppercase font-semibold">csv</span> (misma
+        información que el mapa, con <code>lon</code>/<code>lat</code> y todos los atributos).
+        Atajos de derrames:{' '}
+        <a className="underline hover:text-forest-dark" download href={`${base}data/csv/pasivos-hidrocarburos.csv`}>pasivos de hidrocarburos</a>{' · '}
+        <a className="underline hover:text-forest-dark" download href={`${base}data/csv/suelos-empetrolados.csv`}>suelos empetrolados (Lote X)</a>{' · '}
+        <a className="underline hover:text-forest-dark" download href={`${base}data/csv/oleoducto-norperuano.csv`}>oleoducto Norperuano</a>{' · '}
+        <a className="underline hover:text-forest-dark" download href={`${base}data/csv/derrames-resumen.csv`}>resumen de indicadores</a>.
+      </div>
 
       <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-slate-600">
         {LEYENDA.map((l) => (

@@ -1,0 +1,60 @@
+{
+  "_descripcion": "Catálogo de endpoints geoespaciales oficiales sondeados para el Observatorio Ambiental Peruano. Incluye los que SÍ sirven datos y los que están caídos o vacíos, para no repetir el sondeo. Verificado el 2026-07-24 desde IP residencial peruana.",
+  "_gotchas": [
+    "Los servidores .gob.pe suelen tener cadenas TLS incompletas: el ETL usa ssl con verify_mode=CERT_NONE.",
+    "PIFA (OEFA) responde 403 a IPs de datacenter (incluidos los runners de GitHub Actions). Refrescar esas capas ejecutando el ETL desde una IP residencial.",
+    "GISEM (OSINERGMIN) y PIFA exigen cabecera Referer del propio dominio.",
+    "GEOCATMIN no soporta paginación (resultOffset): hay que consultar por lotes de OBJECTID (returnIdsOnly + IN).",
+    "www.datosabiertos.gob.pe no expone API CKAN funcional (/api/3/action/* responde vacío); solo búsqueda HTML."
+  ],
+  "servidores": {
+    "PIFA_OEFA": {
+      "root": "https://pifa.oefa.gob.pe/arcgis/rest/services",
+      "referer": "https://pifa.oefa.gob.pe/",
+      "carpetas": ["APP_MAPAS", "APP_MOVIL", "APP_MOVIL_AGRI", "APP_MOVIL_CARBON", "APP_SINADA", "CiudadanoAmb", "CONFLICTOS", "DERRAME_TALARA_2024", "EMER_HIDRO", "ESPECIALES", "FEN", "INCENDIO", "INTEROPERABILIDAD", "LADRILLERAS", "LOTEX", "ODES", "OSPA", "PORTAL", "QUEMA", "REINFO", "RES_EJECUTIVOS_PIFA", "RIESGOS", "RIO_RIMAC", "RRSS", "SIGIP", "SISMO", "VIG_MON", "WFS"]
+    },
+    "GISEM_OSINERGMIN": {
+      "root": "https://gisem.osinergmin.gob.pe/serverosih/rest/services",
+      "referer": "https://gisem.osinergmin.gob.pe/",
+      "carpetas": ["Cartografia", "Dashboard", "Electricidad", "Gas_Natural", "Hidrocarburos_Liquidos", "Hosted", "Mineria", "OGC", "PGIM", "Transversal"]
+    },
+    "SERNANP": { "root": "https://geoservicios.sernanp.gob.pe/arcgis/rest/services", "referer": null },
+    "GEOCATMIN_INGEMMET": { "root": "https://geocatmin.ingemmet.gob.pe/arcgis/rest/services", "referer": null },
+    "COOPERACCION_WFS": { "root": "http://cooperaccion-geoportal.org:8082/geoserver/ows", "referer": null }
+  },
+  "capas_en_uso": [
+    { "salida": "anp-sernanp.geojson", "url": "https://geoservicios.sernanp.gob.pe/arcgis/rest/services/servicios_ogc/peru_sernanp_0102/MapServer/0", "estrategia": "geojson paginado" },
+    { "salida": "mineria-ilegal-anp.geojson", "url": "https://geoservicios.sernanp.gob.pe/arcgis/rest/services/servicios_ogc/peru_sernanp_0201/MapServer/1", "estrategia": "geojson paginado" },
+    { "salida": "relaves-oefa-puntos.geojson", "url": "https://pifa.oefa.gob.pe/arcgis/rest/services/RIESGOS/SERV_RIESGO_HIDROM_RELAVES_WMS/MapServer/4", "estrategia": "geojson paginado + centroide" },
+    { "salida": "riesgo-ambiental-oefa.geojson", "url": "https://pifa.oefa.gob.pe/arcgis/rest/services/RIESGOS/SERV_RIES_AMB_UF/MapServer/5", "estrategia": "geojson paginado + centroide, where RIESGO_EST IN ('Muy alto','Alto')" },
+    { "salida": "pasivos-hidrocarburos.geojson", "url": "https://pifa.oefa.gob.pe/arcgis/rest/services/LOTEX/SERV_SUP_LOTEX_BASE/MapServer/12", "features": 3266, "estrategia": "lotes de OBJECTID (f=json)", "notas": "Inventario NACIONAL de pasivos ambientales del subsector hidrocarburos comunicado al MINEM. Campos con tildes (AÑO_PASIVO, UNIDAD_HIDROGRÁFICA). 3129 en Piura, 98 Tumbes, 15 Loreto." },
+    { "salida": "suelos-empetrolados.geojson", "url": "https://pifa.oefa.gob.pe/arcgis/rest/services/LOTEX/SERV_SUP_LOTX_REM/MapServer/0", "features": 3233, "estrategia": "lotes de OBJECTID (f=json)", "notas": "Supervisiones de suelos empetrolados del Lote X (Talara). AREA_TOTAL en m² solo viene informada en las locaciones 'Con afectación'." },
+    { "salida": "oleoducto-norperuano.geojson", "url": "https://gisem.osinergmin.gob.pe/serverosih/rest/services/Hidrocarburos_Liquidos/HIDROCARBUROS_LIQUIDOS/FeatureServer/17", "features": 803, "estrategia": "puntos → polilínea por RAMAL/TRAMO ordenada por progresiva", "notas": "Progresivas kilométricas oficiales de Petroperú: ramal ORN (Andoas–Est.5, km 0–251) y ramal II (km 306–855, Terminal Bayóvar)." },
+    { "salida": "lotes-petroleros.geojson", "url": "https://gisem.osinergmin.gob.pe/serverosih/rest/services/Hidrocarburos_Liquidos/HIDROCARBUROS_LIQUIDOS/FeatureServer/{11=explotación,12=exploración}", "estrategia": "geojson directo" },
+    { "salida": "unidades-mineras.geojson", "url": "https://gisem.osinergmin.gob.pe/serverosih/rest/services/Mineria/MINERIA_MEM/MapServer/{5=producción,2=exploración}", "estrategia": "f=json directo" },
+    { "salida": "pueblos-indigenas.geojson", "url": "https://geocatmin.ingemmet.gob.pe/arcgis/rest/services/SERV_OTRAS_FUENTES/MapServer/15", "estrategia": "lotes de OBJECTID" },
+    { "salida": "comunidades-nativas.geojson", "url": "https://geocatmin.ingemmet.gob.pe/arcgis/rest/services/SERV_OTRAS_FUENTES/MapServer/17", "estrategia": "lotes de OBJECTID + centroide" },
+    { "salida": "reservas-territoriales.geojson", "url": "https://geocatmin.ingemmet.gob.pe/arcgis/rest/services/SERV_OTRAS_FUENTES/MapServer/18", "estrategia": "lotes de OBJECTID" },
+    { "salida": "comunidades-campesinas.geojson", "url": "http://cooperaccion-geoportal.org:8082/geoserver/ows?typeNames=espacio-cooperacion:comunidadescampesinas", "estrategia": "WFS 2.0 GetFeature + centroide" }
+  ],
+  "candidatas_pendientes": [
+    { "url": "https://pifa.oefa.gob.pe/arcgis/rest/services/LOTEX/SERV_SUP_LOTEX_BASE/MapServer/11", "que_es": "Pozos petroleros (Lote X)", "interes": "medio" },
+    { "url": "https://pifa.oefa.gob.pe/arcgis/rest/services/REINFO/SERV_MIN_ILEGAL_AREA/MapServer", "que_es": "Áreas de minería ilegal (REINFO)", "interes": "alto" },
+    { "url": "https://pifa.oefa.gob.pe/arcgis/rest/services/RRSS/SERV_AREAS_DEGRADADAS_1/MapServer", "que_es": "Áreas degradadas por residuos sólidos", "interes": "alto" },
+    { "url": "https://pifa.oefa.gob.pe/arcgis/rest/services/CONFLICTOS/SERV_CONSULTAS_MAPA_GCS_PIFA/MapServer", "que_es": "Conflictos socioambientales", "interes": "alto" },
+    { "url": "https://pifa.oefa.gob.pe/arcgis/rest/services/VIG_MON/SERV_VIGILANCIA_AMBIENTAL_PROD/MapServer", "que_es": "Puntos de vigilancia ambiental", "interes": "medio" },
+    { "url": "https://pifa.oefa.gob.pe/arcgis/rest/services/ESPECIALES/SERV_RESUL_MON_PAMPILLA_PLAYAS_MENSUAL/MapServer", "que_es": "Monitoreo mensual de playas tras el derrame de La Pampilla", "interes": "alto" },
+    { "url": "https://pifa.oefa.gob.pe/arcgis/rest/services/APP_SINADA/SERV_LIM_CUERPOS_AGUA_DES/MapServer", "que_es": "Denuncias ambientales (SINADA) por cuerpo de agua", "interes": "medio" }
+  ],
+  "descartadas": [
+    { "url": "https://pifa.oefa.gob.pe/arcgis/rest/services/EMER_HIDRO", "motivo": "Carpeta sin servicios públicos: no hay capa de emergencias/derrames por evento." },
+    { "url": "https://pifa.oefa.gob.pe/arcgis/rest/services/DERRAME_TALARA_2024", "motivo": "Carpeta sin servicios públicos." },
+    { "url": "https://services5.arcgis.com/.../Emergencias_Ambientales_Hidrocarburos", "motivo": "Capa hosted huérfana (Invalid URL)." },
+    { "url": "https://pifa.oefa.gob.pe/arcgis/rest/services/OSPA/SERV_PROB_AMBIE_INVEN/MapServer/0", "motivo": "1929 puntos pero sin atributos descriptivos: solo COD_PROBLEMA y CAT_PROBLEMA (BAJO/REGULAR/PRIORITARIO)." },
+    { "url": "https://gisem.osinergmin.gob.pe/serverosih/rest/services/Hidrocarburos_Liquidos/HIDROCARBUROS_LIQUIDOS/FeatureServer/15", "motivo": "Capa 'Ductos' (354): son redes internas de Talara (Peña Negra, Lobitos), NO el Oleoducto Norperuano." },
+    { "url": "https://pifa.oefa.gob.pe/arcgis/rest/services/ESPECIALES/SERV_ACCIONES_MONITOREO_DERRAME_CAMP_3_PROD/MapServer/0", "motivo": "'Punto de Derrame' con 1 solo registro (campaña puntual)." }
+  ],
+  "sin_capa_publica": {
+    "eventos_de_derrame": "Perú no publica (jul-2026) una capa oficial de EVENTOS de derrame con fecha, volumen y responsable. Referencia documental: 474 derrames 2000–2019 sistematizados por la CNDDHH/EarthRights a partir de OEFA y OSINERGMIN (ver fuentes.md). El observatorio usa el rastro georreferenciado: pasivos y suelos empetrolados."
+  }
+}

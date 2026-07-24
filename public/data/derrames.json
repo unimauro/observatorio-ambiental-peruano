@@ -1,0 +1,224 @@
+{
+ "actualizado": "2026-07-24",
+ "nota": "Perú no publica (jul-2026) una capa oficial de eventos de derrame con fecha y volumen. Estos indicadores usan el rastro que sí es público: el inventario de pasivos ambientales de hidrocarburos y las supervisiones de suelos empetrolados del OEFA.",
+ "kpis": [
+  {
+   "id": "pasivos",
+   "etiqueta": "Pasivos ambientales de hidrocarburos inventariados",
+   "valor": 3266,
+   "fuente": "OEFA (PIFA)"
+  },
+  {
+   "id": "pasivos_riesgo_alto",
+   "etiqueta": "Pasivos con riesgo Alto o Muy alto (salud, población o ambiente)",
+   "valor": 175,
+   "de": 3266,
+   "fuente": "OEFA (PIFA)"
+  },
+  {
+   "id": "pasivos_derrame",
+   "etiqueta": "Pasivos que incluyen suelos contaminados por efluente o derrame",
+   "valor": 1488,
+   "de": 3266,
+   "fuente": "OEFA (PIFA)"
+  },
+  {
+   "id": "suelos_lotex",
+   "etiqueta": "Locaciones con suelos empetrolados supervisadas en el Lote X",
+   "valor": 3233,
+   "fuente": "OEFA (PIFA)"
+  },
+  {
+   "id": "suelos_con_afectacion",
+   "etiqueta": "Locaciones del Lote X con afectación confirmada",
+   "valor": 399,
+   "de": 3233,
+   "fuente": "OEFA (PIFA)"
+  },
+  {
+   "id": "area_ha",
+   "etiqueta": "Superficie afectada registrada en el Lote X (ha, en 365 locaciones)",
+   "valor": 39.2,
+   "fuente": "OEFA (PIFA)",
+   "nota": "El área solo viene informada en las locaciones con afectación confirmada; subestima el total."
+  },
+  {
+   "id": "onp_km",
+   "etiqueta": "Kilómetro final registrado del Oleoducto Norperuano",
+   "valor": 855.4,
+   "fuente": "Petroperú vía GISEM"
+  }
+ ],
+ "pasivosPorDepartamento": [
+  {
+   "clave": "Piura",
+   "valor": 3129
+  },
+  {
+   "clave": "Tumbes",
+   "valor": 98
+  },
+  {
+   "clave": "Loreto",
+   "valor": 15
+  },
+  {
+   "clave": "Puno",
+   "valor": 10
+  },
+  {
+   "clave": "Pasco",
+   "valor": 5
+  },
+  {
+   "clave": "Ucayali",
+   "valor": 5
+  },
+  {
+   "clave": "Amazonas",
+   "valor": 2
+  },
+  {
+   "clave": "Madre de Dios",
+   "valor": 1
+  },
+  {
+   "clave": "Ica",
+   "valor": 1
+  }
+ ],
+ "pasivosPorTipo": [
+  {
+   "clave": "Pozo mal abandonado",
+   "valor": 1060
+  },
+  {
+   "clave": "Pozo mal abandonado, suelos contaminados con efluente o derrame",
+   "valor": 805
+  },
+  {
+   "clave": "Pozo mal abandonado, suelos contaminados con efluente o derrame, emisiones",
+   "valor": 407
+  },
+  {
+   "clave": "Pozo mal abandonado, emisiones",
+   "valor": 267
+  },
+  {
+   "clave": "Suelos contaminados con efluente o derrame",
+   "valor": 119
+  },
+  {
+   "clave": "Pozo mal abandonado, suelos contaminados con efluente o derrame, restos o depósitos de residuos",
+   "valor": 106
+  },
+  {
+   "clave": "Pozo mal abandonado, restos o depósitos de residuos",
+   "valor": 61
+  },
+  {
+   "clave": "Pozo mal abandonado, que presenta emisiones gaseosas fugitivas y  suelo contaminado en el área circundante al mismo",
+   "valor": 46
+  }
+ ],
+ "pasivosPorLote": [
+  {
+   "clave": "VII/VI",
+   "valor": 2070
+  },
+  {
+   "clave": "X",
+   "valor": 378
+  },
+  {
+   "clave": "I",
+   "valor": 249
+  },
+  {
+   "clave": "III",
+   "valor": 191
+  },
+  {
+   "clave": "IV",
+   "valor": 118
+  },
+  {
+   "clave": "XX (ex Lote XIV)",
+   "valor": 89
+  },
+  {
+   "clave": "Z-2B",
+   "valor": 53
+  },
+  {
+   "clave": "IX",
+   "valor": 20
+  }
+ ],
+ "pasivosPorCuenca": [
+  {
+   "clave": "Intercuenca 1391",
+   "valor": 2016
+  },
+  {
+   "clave": "Cuenca Pariñas",
+   "valor": 614
+  },
+  {
+   "clave": "Intercuenca 13931",
+   "valor": 413
+  },
+  {
+   "clave": "Intercuenca 13939",
+   "valor": 82
+  },
+  {
+   "clave": "Cuenca Chira",
+   "valor": 26
+  },
+  {
+   "clave": "Intercuenca 13935",
+   "valor": 14
+  },
+  {
+   "clave": "Intercuenca Ramis",
+   "valor": 6
+  },
+  {
+   "clave": "Intercuenca 49913",
+   "valor": 6
+  }
+ ],
+ "suelosPorEstatus": [
+  {
+   "clave": "Sin afectación",
+   "valor": 1728
+  },
+  {
+   "clave": "No supervisada",
+   "valor": 934
+  },
+  {
+   "clave": "Con afectación",
+   "valor": 399
+  },
+  {
+   "clave": "En ejecución",
+   "valor": 159
+  },
+  {
+   "clave": "No concluyeron",
+   "valor": 8
+  }
+ ],
+ "suelosPorAdministrado": [
+  {
+   "clave": "CNPC - Corporación Nacional de Petróleos de China S.A.",
+   "valor": 3227
+  },
+  {
+   "clave": "Lote X",
+   "valor": 1
+  }
+ ]
+}

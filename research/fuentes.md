@@ -12,6 +12,20 @@ Este documento registra el origen y el estado de cada dato del observatorio.
 - **+2,000 sitios impactados/contaminados** en la Amazonía Norte.
 - Eventos del mapa (Cuninico 2014, Chiriaco/Imaza 2016, Morona 2016, La Pampilla/Repsol 2022): documentados públicamente; **coordenadas aproximadas/referenciales** — reemplazar con registros georeferenciados oficiales de OEFA.
 
+### Lo que sí es oficial y georreferenciado (integrado 2026-07-24)
+
+No existe (jul-2026) capa pública de **eventos** de derrame con fecha/volumen: la carpeta `EMER_HIDRO` de PIFA no expone servicios y la capa hosted "Emergencias Ambientales – Hidrocarburos" quedó huérfana. Lo que sí publica el Estado es el **rastro** que dejan los derrames, y eso es lo que integramos:
+
+- **`pasivos-hidrocarburos.geojson` (verificado)** — 3,266 pasivos ambientales del subsector hidrocarburos inventariados por OEFA y comunicados al MINEM, con tipo, lote, año, cuenca, ubicación distrital y nivel de riesgo para salud/población/ambiente. 1,488 corresponden a suelos contaminados por efluente o derrame y 175 tienen riesgo Alto o Muy alto. Distribución: Piura 3,129 · Tumbes 98 · Loreto 15 · Puno 10 · Pasco 5 · Ucayali 5.
+  - `https://pifa.oefa.gob.pe/arcgis/rest/services/LOTEX/SERV_SUP_LOTEX_BASE/MapServer/12`
+- **`suelos-empetrolados.geojson` (verificado)** — 3,233 locaciones del **Lote X (Talara)** con supervisión de remediación: 399 con afectación confirmada, 159 en ejecución, 1,728 sin afectación, 934 no supervisadas. El campo de área (m²) solo viene informado en las locaciones con afectación (39.2 ha en 365 locaciones), por lo que **subestima** el total.
+  - `https://pifa.oefa.gob.pe/arcgis/rest/services/LOTEX/SERV_SUP_LOTX_REM/MapServer/0`
+- **`oleoducto-norperuano.geojson` (verificado, traza indicativa)** — recorrido del ONP reconstruido a partir de las 803 progresivas kilométricas oficiales de Petroperú: ramal ORN (Andoas–Estación 5, km 0–252) y ramal II (km 306–855, hasta el Terminal Bayóvar). Las polilíneas interpolan entre hitos cada 1 km, así que la traza es indicativa a esa escala.
+  - `https://gisem.osinergmin.gob.pe/serverosih/rest/services/Hidrocarburos_Liquidos/HIDROCARBUROS_LIQUIDOS/FeatureServer/17`
+- **`derrames.json`** — resumen agregado (KPIs y cortes por departamento, tipo, lote, cuenca, estatus y empresa) que consumen Dashboard, Temas y el asistente.
+
+> Catálogo completo de endpoints sondeados —los que sirven y los que están caídos— en [`research/endpoints.json`](endpoints.json).
+
 ## Pasivos y depósitos de relaves (OEFA)
 
 - **Capa oficial integrada (verificado):** `relaves-oefa-puntos.geojson` — 107 depósitos de relaves fiscalizados, con administrado (empresa), unidad fiscalizable, estado y área. Estados: 74 en operación, 18 inoperativos, 8 cerrados, 4 revegetados, 2 pasivo ambiental minero. Fuente: OEFA — PIFA, servidor ArcGIS:
@@ -48,7 +62,8 @@ Este documento registra el origen y el estado de cada dato del observatorio.
 
 ## Pendientes / próximas integraciones
 
-- [ ] Puntos oficiales de derrames OEFA (georeferenciados).
+- [x] Rastro georreferenciado de los derrames: pasivos de hidrocarburos, suelos empetrolados del Lote X y traza del ONP (2026-07-24).
+- [ ] Eventos de derrame con fecha/volumen/responsable: no hay capa pública; evaluar sistematizar los informes PAS del OEFA o la base CNDDHH 2000–2019.
 - [ ] Deforestación por departamento/distrito desde Geobosques.
 - [ ] Cuencas hidrográficas (ANA) y ANP (SERNANP WFS).
 - [ ] Concesiones mineras y pasivos (MINEM / INGEMMET).

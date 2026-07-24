@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { loadJSON } from '../lib/data'
-import type { Indicadores, Eje } from '../lib/data'
+import type { Indicadores, Eje, Derrames } from '../lib/data'
 
 interface Msg {
   role: 'user' | 'assistant' | 'system'
@@ -38,10 +38,11 @@ interface FaqCtx { grupos: { tema: string; items: { q: string; a: string }[] }[]
 
 async function buildContext(): Promise<string> {
   try {
-    const [ind, ejes, faq] = await Promise.all([
+    const [ind, ejes, faq, der] = await Promise.all([
       loadJSON<Indicadores>('indicadores.json'),
       loadJSON<Eje[]>('ejes.json'),
       loadJSON<FaqCtx>('faq.json').catch(() => ({ grupos: [] }) as FaqCtx),
+      loadJSON<Derrames>('derrames.json').catch(() => null),
     ])
     const kpis = ind.kpis
       .map((k) => `- ${k.etiqueta}: ${k.valor.toLocaleString('es-PE')} ${k.unidad} (${k.estado}; ${k.fuente})`)
@@ -52,7 +53,13 @@ async function buildContext(): Promise<string> {
     const faqs = faq.grupos
       .flatMap((g) => g.items.map((it) => `- P: ${it.q}\n  R: ${it.a}`))
       .join('\n')
-    return `INDICADORES NACIONALES ACTUALES:\n${kpis}\n\nEJES TEMÁTICOS:\n${temas}\n\nPREGUNTAS FRECUENTES:\n${faqs}`
+    const hidro = der
+      ? '\n\nDERRAMES Y PASIVOS DE HIDROCARBUROS (OEFA, oficial):\n'
+        + der.kpis.map((k) => `- ${k.etiqueta}: ${k.valor.toLocaleString('es-PE')}${k.de ? ` de ${k.de.toLocaleString('es-PE')}` : ''} (${k.fuente})`).join('\n')
+        + `\n- Departamentos con más pasivos: ${der.pasivosPorDepartamento.slice(0, 5).map((d) => `${d.clave} (${d.valor})`).join(', ')}`
+        + `\n- Nota metodológica: ${der.nota}`
+      : ''
+    return `INDICADORES NACIONALES ACTUALES:\n${kpis}\n\nEJES TEMÁTICOS:\n${temas}${hidro}\n\nPREGUNTAS FRECUENTES:\n${faqs}`
   } catch {
     return '(No se pudo cargar el contexto de datos.)'
   }

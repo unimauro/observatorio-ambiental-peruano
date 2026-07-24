@@ -58,6 +58,28 @@ export interface Deforestacion {
   notaRegional: string
 }
 
+export interface DerramesKPI {
+  id: string
+  etiqueta: string
+  valor: number
+  de?: number
+  fuente: string
+  nota?: string
+}
+
+/** Resumen de la huella de los hidrocarburos (derrames.json). */
+export interface Derrames {
+  actualizado: string
+  nota: string
+  kpis: DerramesKPI[]
+  pasivosPorDepartamento: { clave: string; valor: number }[]
+  pasivosPorTipo: { clave: string; valor: number }[]
+  pasivosPorLote: { clave: string; valor: number }[]
+  pasivosPorCuenca: { clave: string; valor: number }[]
+  suelosPorEstatus: { clave: string; valor: number }[]
+  suelosPorAdministrado: { clave: string; valor: number }[]
+}
+
 export function fmt(n: number): string {
   return n.toLocaleString('es-PE')
 }

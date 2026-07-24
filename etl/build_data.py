@@ -9,6 +9,7 @@ externas (solo biblioteca estándar) para correr en cualquier runner de CI.
 
 Uso:  python etl/build_data.py
 """
+import csv
 import json
 import os
 import ssl
@@ -44,6 +45,42 @@ def _http(url, data=None, referer=None, retries=3, timeout=150):
     raise RuntimeError(f"fallo {url}: {last}")
 
 
+def _rep_point(geom):
+    """Un punto representativo por feature, para la columna lon/lat del CSV."""
+    if not geom:
+        return None
+    t, c = geom.get("type"), geom.get("coordinates")
+    if t == "Point":
+        return c
+    if t == "LineString":
+        return c[len(c) // 2] if c else None
+    if t == "MultiLineString":
+        return c[0][len(c[0]) // 2] if c and c[0] else None
+    return centroid(geom)
+
+
+def write_csv(out_geojson, feats):
+    """Vuelca el mismo contenido en CSV plano (lon, lat + una columna por propiedad).
+    Para polígonos y líneas, lon/lat es un punto representativo (centroide / punto medio)."""
+    cols, seen = [], set()
+    for f in feats:
+        for k in (f.get("properties") or {}):
+            if k not in seen:
+                seen.add(k)
+                cols.append(k)
+    name = out_geojson.replace(".geojson", ".csv")
+    path = os.path.join(OUT_DIR, "csv", name)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8-sig", newline="") as fh:
+        w = csv.writer(fh)
+        w.writerow(["lon", "lat"] + cols)
+        for f in feats:
+            pt = _rep_point(f.get("geometry")) or [None, None]
+            props = f.get("properties") or {}
+            w.writerow([pt[0], pt[1]] + [props.get(c) for c in cols])
+    return name
+
+
 def write_fc(out, titulo, fuente, feats, estado="verificado", extra=None):
     meta = {"titulo": titulo, "fuente": fuente, "estado": estado, "actualizado": HOY}
     if extra:
@@ -51,8 +88,10 @@ def write_fc(out, titulo, fuente, feats, estado="verificado", extra=None):
     fc = {"type": "FeatureCollection", "metadata": meta, "features": feats}
     with open(os.path.join(OUT_DIR, out), "w", encoding="utf-8") as fh:
         json.dump(fc, fh, ensure_ascii=False)
-    manifest.append({"archivo": out, "features": len(feats), "titulo": titulo, "fuente": fuente})
-    print(f"OK  {out:34s} {len(feats):>5} features")
+    csv_name = write_csv(out, feats)
+    manifest.append({"archivo": out, "csv": f"csv/{csv_name}", "features": len(feats),
+                     "titulo": titulo, "fuente": fuente})
+    print(f"OK  {out:34s} {len(feats):>5} features  (+ csv/{csv_name})")
     return fc
 
 
@@ -249,6 +288,159 @@ def build_unidades():
                     "MINEM, vía OSINERGMIN GISEM (ArcGIS REST).", feats)
 
 
+# === DERRAMES / HIDROCARBUROS (OEFA PIFA + GISEM) ===========================
+# No existe (jul-2026) una capa pública de EVENTOS de derrame con fecha/volumen:
+# la carpeta EMER_HIDRO de PIFA no expone servicios y la capa hosted de
+# "Emergencias Ambientales - Hidrocarburos" quedó huérfana. Lo que SÍ es público y
+# georreferenciado es el rastro que dejan los derrames: pasivos ambientales del
+# subsector hidrocarburos (nacional) y los suelos empetrolados supervisados en el
+# Lote X (Talara), más la traza del Oleoducto Norperuano donde ocurre la mayoría
+# de los derrames amazónicos. Catálogo completo de endpoints: research/endpoints.json
+PIFA = "https://pifa.oefa.gob.pe/arcgis/rest/services"
+PIFA_REF = "https://pifa.oefa.gob.pe/"
+
+
+def build_pasivos_hidro():
+    fields = ("NRO,NOMBRE_LOTE,TIPO_PASIVO,AÑO_PASIVO,NV_RIESGO_SALUD,NV_RIESGO_SEG_POBL,"
+              "NV_RIESGO_CLD_AMB,CUENCA,UNIDAD_HIDROGRÁFICA,DEPARTAMENTO,PROVINCIA,DISTRITO,OFICIO_OEFA")
+    feats = []
+    for ft in arcgis_idlist(f"{PIFA}/LOTEX/SERV_SUP_LOTEX_BASE/MapServer/12", fields, referer=PIFA_REF):
+        c = esri_point(ft.get("geometry"))
+        a = ft.get("attributes", {})
+        if not c:
+            continue
+        feats.append({"type": "Feature", "geometry": {"type": "Point", "coordinates": c}, "properties": {
+            "nro": a.get("NRO"), "lote": a.get("NOMBRE_LOTE"), "tipo": (a.get("TIPO_PASIVO") or "").strip(" ."),
+            "anio": a.get("AÑO_PASIVO"), "riesgo_salud": a.get("NV_RIESGO_SALUD"),
+            "riesgo_poblacion": a.get("NV_RIESGO_SEG_POBL"), "riesgo_ambiente": a.get("NV_RIESGO_CLD_AMB"),
+            "cuenca": a.get("CUENCA"), "region_hidrografica": a.get("UNIDAD_HIDROGRÁFICA"),
+            "departamento": a.get("DEPARTAMENTO"), "provincia": a.get("PROVINCIA"), "distrito": a.get("DISTRITO"),
+            "oficio": a.get("OFICIO_OEFA")}})
+    return write_fc("pasivos-hidrocarburos.geojson", "Pasivos ambientales del subsector hidrocarburos",
+                    "OEFA — PIFA, LOTEX/SERV_SUP_LOTEX_BASE (capa 12). Inventario identificado y comunicado al MINEM.",
+                    feats)
+
+
+def build_suelos_empetrolados():
+    fields = ("LOCACION,YACIMIENTO,ADMINISTRADO,ETAPA,ESTATUS_AFECTACION,AREA_TOTAL,NUMERO_EVALUACIONES,"
+              "CANTIDAD_PUNTOS_EXCEDEN,AÑO_FINAL_DE_SUPERVISION,ESTADO_DE_LOC,NOMBDEP,NOMBPROV,NOMBDIST")
+    feats = []
+    for ft in arcgis_idlist(f"{PIFA}/LOTEX/SERV_SUP_LOTX_REM/MapServer/0", fields, referer=PIFA_REF):
+        c = esri_point(ft.get("geometry"))
+        a = ft.get("attributes", {})
+        if not c:
+            continue
+        feats.append({"type": "Feature", "geometry": {"type": "Point", "coordinates": c}, "properties": {
+            "locacion": a.get("LOCACION"), "yacimiento": a.get("YACIMIENTO"), "administrado": a.get("ADMINISTRADO"),
+            "etapa": a.get("ETAPA"), "estatus": a.get("ESTATUS_AFECTACION"), "area_m2": a.get("AREA_TOTAL"),
+            "evaluaciones": a.get("NUMERO_EVALUACIONES"), "puntos_exceden": a.get("CANTIDAD_PUNTOS_EXCEDEN"),
+            "anio_supervision": a.get("AÑO_FINAL_DE_SUPERVISION"), "estado_locacion": a.get("ESTADO_DE_LOC"),
+            "departamento": a.get("NOMBDEP"), "provincia": a.get("NOMBPROV"), "distrito": a.get("NOMBDIST")}})
+    return write_fc("suelos-empetrolados.geojson", "Suelos empetrolados supervisados por OEFA (Lote X, Talara)",
+                    "OEFA — PIFA, LOTEX/SERV_SUP_LOTX_REM. Locaciones con supervisión de remediación.", feats)
+
+
+def build_oleoducto():
+    """Traza del Oleoducto Norperuano reconstruida desde las 803 progresivas
+    kilométricas oficiales de Petroperú (una polilínea por tramo)."""
+    url = (f"{GISEM}/Hidrocarburos_Liquidos/HIDROCARBUROS_LIQUIDOS/FeatureServer/17/query")
+    d = _http(url, {"where": "1=1", "outFields": "PROG_PETROPERU,PETROPERU,RAMAL,TRAMO", "returnGeometry": "true",
+                    "outSR": "4326", "geometryPrecision": "5", "f": "json"},
+              referer="https://gisem.osinergmin.gob.pe/")
+    tramos = {}
+    for ft in d.get("features", []):
+        c = esri_point(ft.get("geometry"))
+        a = ft.get("attributes", {})
+        km = a.get("PETROPERU")
+        if not c or km is None:
+            continue
+        tramos.setdefault((a.get("RAMAL"), a.get("TRAMO")), []).append((km, c))
+    feats = []
+    for (ramal, tramo), pts in sorted(tramos.items(), key=lambda kv: (str(kv[0][0]), min(p[0] for p in kv[1]))):
+        pts.sort()
+        if len(pts) < 2:
+            continue
+        feats.append({"type": "Feature", "geometry": {"type": "LineString", "coordinates": [p[1] for p in pts]},
+                      "properties": {"ramal": ramal, "tramo": tramo, "km_inicio": round(pts[0][0] / 1000, 1),
+                                     "km_fin": round(pts[-1][0] / 1000, 1), "progresivas": len(pts)}})
+    return write_fc("oleoducto-norperuano.geojson", "Oleoducto Norperuano (traza por tramos)",
+                    "Petroperú, vía OSINERGMIN GISEM — progresivas kilométricas oficiales (capa 17).", feats,
+                    extra={"nota": "Polilíneas interpoladas entre progresivas cada 1 km; la traza es indicativa a esa escala."})
+
+
+def build_derrames_resumen():
+    """Agrega los KPIs de hidrocarburos que consume el front (sin bajar los geojson)."""
+    pas = _load("pasivos-hidrocarburos.geojson")
+    sue = _load("suelos-empetrolados.geojson")
+    onp = _load("oleoducto-norperuano.geojson")
+
+    def top(feats, key, n=8):
+        c = {}
+        for f in feats:
+            v = f["properties"].get(key)
+            if v not in (None, "", " "):
+                c[v] = c.get(v, 0) + 1
+        return [{"clave": k, "valor": v} for k, v in sorted(c.items(), key=lambda x: -x[1])[:n]]
+
+    riesgo_alto = sum(1 for f in pas if any(
+        str(f["properties"].get(k) or "").strip().lower() in ("alto", "muy alto")
+        for k in ("riesgo_salud", "riesgo_poblacion", "riesgo_ambiente")))
+    con_afect = [f for f in sue if "con afecta" in str(f["properties"].get("estatus") or "").lower()]
+    # AREA_TOTAL (m²) solo viene informada en las locaciones con afectación confirmada
+    areas = [float(f["properties"].get("area_m2") or 0) for f in sue]
+    area_ha = round(sum(areas) / 10000, 1)
+    con_area = sum(1 for a in areas if a > 0)
+    # El tipo de pasivo es texto libre; "derrame" aparece como "suelos contaminados con efluente o derrame"
+    por_derrame = sum(1 for f in pas if "derrame" in str(f["properties"].get("tipo") or "").lower())
+    km_onp = round(max([f["properties"]["km_fin"] for f in onp] or [0]), 1)
+
+    out = {
+        "actualizado": HOY,
+        "nota": ("Perú no publica (jul-2026) una capa oficial de eventos de derrame con fecha y volumen. "
+                 "Estos indicadores usan el rastro que sí es público: el inventario de pasivos ambientales "
+                 "de hidrocarburos y las supervisiones de suelos empetrolados del OEFA."),
+        "kpis": [
+            {"id": "pasivos", "etiqueta": "Pasivos ambientales de hidrocarburos inventariados", "valor": len(pas),
+             "fuente": "OEFA (PIFA)"},
+            {"id": "pasivos_riesgo_alto", "etiqueta": "Pasivos con riesgo Alto o Muy alto (salud, población o ambiente)",
+             "valor": riesgo_alto, "de": len(pas), "fuente": "OEFA (PIFA)"},
+            {"id": "pasivos_derrame", "etiqueta": "Pasivos que incluyen suelos contaminados por efluente o derrame",
+             "valor": por_derrame, "de": len(pas), "fuente": "OEFA (PIFA)"},
+            {"id": "suelos_lotex", "etiqueta": "Locaciones con suelos empetrolados supervisadas en el Lote X",
+             "valor": len(sue), "fuente": "OEFA (PIFA)"},
+            {"id": "suelos_con_afectacion", "etiqueta": "Locaciones del Lote X con afectación confirmada",
+             "valor": len(con_afect), "de": len(sue), "fuente": "OEFA (PIFA)"},
+            {"id": "area_ha", "etiqueta": f"Superficie afectada registrada en el Lote X (ha, en {con_area} locaciones)",
+             "valor": area_ha, "fuente": "OEFA (PIFA)",
+             "nota": "El área solo viene informada en las locaciones con afectación confirmada; subestima el total."},
+            {"id": "onp_km", "etiqueta": "Kilómetro final registrado del Oleoducto Norperuano", "valor": km_onp,
+             "fuente": "Petroperú vía GISEM"},
+        ],
+        "pasivosPorDepartamento": top(pas, "departamento", 10),
+        "pasivosPorTipo": top(pas, "tipo", 8),
+        "pasivosPorLote": top(pas, "lote", 8),
+        "pasivosPorCuenca": top(pas, "cuenca", 8),
+        "suelosPorEstatus": top(sue, "estatus", 8),
+        "suelosPorAdministrado": top(sue, "administrado", 5),
+    }
+    with open(os.path.join(OUT_DIR, "derrames.json"), "w", encoding="utf-8") as fh:
+        json.dump(out, fh, ensure_ascii=False, indent=1)
+
+    # Mismo resumen en CSV largo (indicador, corte, clave, valor) para hojas de cálculo
+    path = os.path.join(OUT_DIR, "csv", "derrames-resumen.csv")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8-sig", newline="") as fh:
+        w = csv.writer(fh)
+        w.writerow(["bloque", "clave", "valor", "de", "fuente"])
+        for k in out["kpis"]:
+            w.writerow(["kpi", k["etiqueta"], k["valor"], k.get("de", ""), k["fuente"]])
+        for bloque in ("pasivosPorDepartamento", "pasivosPorTipo", "pasivosPorLote", "pasivosPorCuenca",
+                       "suelosPorEstatus", "suelosPorAdministrado"):
+            for r in out[bloque]:
+                w.writerow([bloque, r["clave"], r["valor"], "", "OEFA (PIFA)"])
+    print(f"OK  derrames.json + csv/derrames-resumen.csv   {len(pas)} pasivos / {len(sue)} locaciones Lote X")
+
+
 # === ESTRATEGIA 4: WFS GeoServer (CooperAcción) =============================
 def build_campesinas():
     url = ("http://cooperaccion-geoportal.org:8082/geoserver/ows?service=wfs&version=2.0.0&request=GetFeature"
@@ -354,7 +546,9 @@ def build_superposicion():
 TASKS = [(s["out"], (lambda s=s: build_paginated(s))) for s in SOURCES] + [
     ("lotes", build_lotes), ("unidades", build_unidades),
     ("pueblos", build_pueblos), ("comunidades", build_comunidades), ("reservas", build_reservas),
-    ("campesinas", build_campesinas)]
+    ("campesinas", build_campesinas),
+    ("pasivos-hidro", build_pasivos_hidro), ("suelos-empetrolados", build_suelos_empetrolados),
+    ("oleoducto", build_oleoducto)]
 
 
 def main():
@@ -365,12 +559,13 @@ def main():
         except Exception as e:  # noqa: BLE001
             errores.append({"tarea": name, "error": str(e)})
             print(f"ERR {name:34s} {e}")
-    # Superposición: solo si las capas base existen
-    try:
-        build_superposicion()
-    except Exception as e:  # noqa: BLE001
-        errores.append({"tarea": "superposicion", "error": str(e)})
-        print(f"ERR superposicion: {e}")
+    # Derivados: solo si las capas base existen (si una falló, se conserva el JSON previo)
+    for name, fn in [("superposicion", build_superposicion), ("derrames", build_derrames_resumen)]:
+        try:
+            fn()
+        except Exception as e:  # noqa: BLE001
+            errores.append({"tarea": name, "error": str(e)})
+            print(f"ERR {name}: {e}")
     with open(os.path.join(OUT_DIR, "_manifest.json"), "w", encoding="utf-8") as fh:
         json.dump({"generado": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
                    "capas": manifest, "errores": errores}, fh, ensure_ascii=False, indent=2)

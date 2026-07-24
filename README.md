@@ -43,14 +43,20 @@ public/data/        Datasets (JSON / GeoJSON) servidos estáticamente
   indicadores.json    KPIs nacionales con fuente y estado
   categorias.json     Ejes temáticos
   deforestacion.json  Serie anual + por región (Geobosques)
-  eventos.geojson     Eventos georeferenciados (derrames, minería)
+  eventos.geojson     Eventos emblemáticos (coordenadas referenciales)
+  derrames.json       KPIs de la huella de los hidrocarburos (OEFA)
+  pasivos-hidrocarburos.geojson  3,266 pasivos de hidrocarburos (OEFA, nacional)
+  suelos-empetrolados.geojson    3,233 locaciones supervisadas, Lote X (OEFA)
+  oleoducto-norperuano.geojson   Traza del ONP (progresivas de Petroperú)
   documentos.json     Biblioteca documental
   peru-departamentos.geojson  Capa base (24 departamentos)
+etl/build_data.py   Descarga todas las capas oficiales (cron semanal)
 src/
   pages/            Dashboard · Mapa · Biblioteca · Acerca
   components/       Layout, Estado (badge de calidad de dato)
   lib/data.ts       Carga de datasets + tipos
-research/fuentes.md  Origen y metodología de cada dato
+research/fuentes.md    Origen y metodología de cada dato
+research/endpoints.json  Catálogo de endpoints oficiales (los que sirven y los caídos)
 ```
 
 ## Calidad del dato (anti-sobre-afirmación)

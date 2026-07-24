@@ -53,7 +53,8 @@ Base navegable con datos oficiales sembrados y procedencia marcada.
 > Es el paso de mayor valor inmediato: convierte el demo en una fuente confiable.
 
 ### Capas geográficas oficiales
-- 🔜 **Derrames OEFA georeferenciados** — puntos oficiales con fecha, lote, operador, volumen, estado del PAS.
+- ✅ **Huella de los derrames (OEFA, oficial)** — 3,266 pasivos ambientales de hidrocarburos (tipo, lote, cuenca, riesgo salud/población/ambiente), 3,233 locaciones con suelos empetrolados supervisadas en el Lote X y la traza del Oleoducto Norperuano desde las progresivas de Petroperú. Capas nuevas en el mapa + KPIs en Dashboard/Temas + contexto para el asistente.
+- 🔜 **Eventos de derrame (fecha, volumen, operador, estado del PAS)** — no hay capa pública: `EMER_HIDRO` de PIFA no expone servicios y la capa hosted de emergencias quedó huérfana. Camino viable: sistematizar informes/PAS del OEFA o la base CNDDHH 2000–2019. Ver `research/endpoints.json`.
 - 🔜 **Deforestación por departamento/distrito** — descarga Geobosques (no solo el total nacional).
 - 🧭 **ANP desde SERNANP** — polígonos vía WFS `geo.sernanp.gob.pe` (ANP nacionales, ACR, ACP + zonas de amortiguamiento).
 - 🧭 **Cuencas hidrográficas (ANA)** — capa hídrica + estaciones de calidad de agua.

@@ -4,7 +4,7 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell,
 } from 'recharts'
 import { loadJSON, fmt } from '../lib/data'
-import type { Indicadores, Categoria, Deforestacion } from '../lib/data'
+import type { Indicadores, Categoria, Deforestacion, Derrames } from '../lib/data'
 import Estado from '../components/Estado'
 
 interface AnpResumen {
@@ -23,6 +23,7 @@ export default function Dashboard() {
   const [defo, setDefo] = useState<Deforestacion | null>(null)
   const [anp, setAnp] = useState<AnpResumen | null>(null)
   const [sup, setSup] = useState<Superposicion | null>(null)
+  const [der, setDer] = useState<Derrames | null>(null)
 
   useEffect(() => {
     loadJSON<Indicadores>('indicadores.json').then(setInd).catch(console.error)
@@ -30,6 +31,7 @@ export default function Dashboard() {
     loadJSON<Deforestacion>('deforestacion.json').then(setDefo).catch(console.error)
     loadJSON<AnpResumen>('anp-resumen.json').then(setAnp).catch(console.error)
     loadJSON<Superposicion>('superposicion.json').then(setSup).catch(console.error)
+    loadJSON<Derrames>('derrames.json').then(setDer).catch(console.error)
   }, [])
 
   return (
@@ -76,6 +78,39 @@ export default function Dashboard() {
             </p>
           )}
           <p className="text-[11px] text-slate-500 mt-3">{sup.nota}</p>
+        </section>
+      )}
+
+      {/* Huella de los hidrocarburos — derrames y pasivos */}
+      {der && (
+        <section className="rounded-xl border border-slate-300 bg-slate-900 text-white p-5 sm:p-6">
+          <div className="flex items-baseline justify-between flex-wrap gap-2">
+            <h2 className="text-lg font-bold">🛢️ La huella de los derrames</h2>
+            <Link to="/mapa" className="text-xs bg-white/15 hover:bg-white/25 rounded-lg px-2.5 py-1.5">
+              Ver en el mapa →
+            </Link>
+          </div>
+          <p className="text-sm text-slate-300 mt-1">
+            Lo que queda en el territorio después de un derrame: pasivos ambientales sin remediar y
+            suelos empetrolados bajo supervisión del OEFA.
+          </p>
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
+            {der.kpis.map((k) => (
+              <div key={k.id} className="bg-white/5 rounded-xl border border-white/10 p-4">
+                <div className="text-3xl font-extrabold text-amber-400">{fmt(k.valor)}</div>
+                {k.de && <div className="text-[11px] text-slate-400">de {fmt(k.de)}</div>}
+                <div className="text-sm font-medium mt-1 leading-snug">{k.etiqueta}</div>
+                <div className="text-[11px] text-slate-400 mt-1">{k.fuente}</div>
+              </div>
+            ))}
+          </div>
+          {der.pasivosPorDepartamento?.length > 0 && (
+            <p className="text-sm text-slate-200 mt-4">
+              <strong>Departamentos con más pasivos:</strong>{' '}
+              {der.pasivosPorDepartamento.slice(0, 5).map((d) => `${d.clave} (${fmt(d.valor)})`).join(' · ')}.
+            </p>
+          )}
+          <p className="text-[11px] text-slate-400 mt-3">{der.nota} Actualizado: {der.actualizado}.</p>
         </section>
       )}
 

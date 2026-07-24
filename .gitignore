@@ -8,3 +8,4 @@ dist-ssr
 npm-debug.log*
 .env
 .env.local
+__pycache__/

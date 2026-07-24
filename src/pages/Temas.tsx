@@ -4,7 +4,7 @@ import {
   PieChart, Pie, Legend, LineChart, Line, LabelList,
 } from 'recharts'
 import { loadJSON, aggregateGeo, fmt } from '../lib/data'
-import type { Indicadores, Eje, Deforestacion } from '../lib/data'
+import type { Indicadores, Eje, Deforestacion, Derrames } from '../lib/data'
 
 interface AnpResumen { porCategoria: { categoria: string; n: number; ha: number }[] }
 interface Clima { glaciares: { fuente: string; serie: { anio: number; km2: number }[] } }
@@ -82,6 +82,7 @@ export default function Temas() {
   const [relavesEstado, setRelavesEstado] = useState<Serie>([])
   const [mineriaTipo, setMineriaTipo] = useState<Serie>([])
   const [pueblosFam, setPueblosFam] = useState<Serie>([])
+  const [der, setDer] = useState<Derrames | null>(null)
   const [openId, setOpenId] = useState<string>('')
 
   useEffect(() => {
@@ -91,6 +92,7 @@ export default function Temas() {
     loadJSON<AnpResumen>('anp-resumen.json').then(setAnp).catch(console.error)
     loadJSON<Clima>('clima.json').then(setClima).catch(console.error)
     loadJSON<Agua>('agua.json').then(setAgua).catch(console.error)
+    loadJSON<Derrames>('derrames.json').then(setDer).catch(console.error)
     aggregateGeo('riesgo-ambiental-oefa.geojson', 'subsector').then(setRiesgoSub).catch(() => {})
     aggregateGeo('relaves-oefa-puntos.geojson', 'estado_dr').then(setRelavesEstado).catch(() => {})
     aggregateGeo('mineria-ilegal-anp.geojson', 'idtipact').then((d) => setMineriaTipo(d.slice(0, 8))).catch(() => {})
@@ -102,6 +104,11 @@ export default function Temas() {
     { name: 'Terceros', value: 28 },
     { name: 'Otros', value: 7 },
   ]
+
+  // Los tipos de pasivo son texto libre y largo: se recortan para el eje del gráfico.
+  const corta = (s: string, n = 34) => (s.length > n ? s.slice(0, n - 1) + '…' : s)
+  const serie = (arr: { clave: string; valor: number }[] | undefined, n = 8): Serie =>
+    (arr ?? []).slice(0, n).map((x) => ({ name: corta(String(x.clave ?? 's/d')), value: x.valor }))
 
   function openOnly(id: string) {
     setOpenId(id)
@@ -124,6 +131,18 @@ export default function Temas() {
           <Bloque key="de1" titulo="Causas de los derrames (% 2000–2019)" fuente="CNDDHH / OEFA">
             <BarMini color="#1f2937" data={causasDerrame} />
           </Bloque>,
+          <Bloque key="de2" titulo="Pasivos ambientales de hidrocarburos por departamento" fuente="OEFA — PIFA (oficial)">
+            <BarMini color="#334155" data={serie(der?.pasivosPorDepartamento, 10)} />
+          </Bloque>,
+          <Bloque key="de3" titulo="Tipo de pasivo (incluye suelos contaminados por derrame)" fuente="OEFA — PIFA (oficial)">
+            <BarMini color="#1f2937" data={serie(der?.pasivosPorTipo, 7)} />
+          </Bloque>,
+          <Bloque key="de4" titulo="Suelos empetrolados del Lote X por estatus de afectación" fuente="OEFA — PIFA (oficial)">
+            <PieMini data={serie(der?.suelosPorEstatus, 6)} />
+          </Bloque>,
+          <Bloque key="de5" titulo="Pasivos por lote petrolero" fuente="OEFA — PIFA (oficial)">
+            <BarMini color="#9a3412" data={serie(der?.pasivosPorLote, 8)} />
+          </Bloque>,
         ]
       case 'mineria':
         return [
@@ -141,6 +160,12 @@ export default function Temas() {
         return [
           <Bloque key="p1" titulo="Depósitos de relaves por estado" fuente="OEFA — PIFA">
             <PieMini data={relavesEstado} />
+          </Bloque>,
+          <Bloque key="p2" titulo="Pasivos de hidrocarburos por cuenca" fuente="OEFA — PIFA (oficial)">
+            <BarMini color="#92400e" data={serie(der?.pasivosPorCuenca, 8)} />
+          </Bloque>,
+          <Bloque key="p3" titulo="Empresas con más locaciones de suelos empetrolados (Lote X)" fuente="OEFA — PIFA (oficial)">
+            <BarMini color="#78350f" data={serie(der?.suelosPorAdministrado, 5)} />
           </Bloque>,
         ]
       case 'agua':
