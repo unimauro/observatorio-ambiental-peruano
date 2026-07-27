@@ -1,50 +1,44 @@
 {
-  "generado": "2026-07-20T12:00:19Z",
+  "generado": "2026-07-27T12:40:23Z",
   "capas": [
     {
       "archivo": "anp-sernanp.geojson",
+      "csv": "csv/anp-sernanp.csv",
       "features": 103,
       "titulo": "Áreas Naturales Protegidas (administración nacional)",
       "fuente": "SERNANP — ArcGIS REST servicios_ogc/peru_sernanp_0102"
     },
     {
       "archivo": "mineria-ilegal-anp.geojson",
+      "csv": "csv/mineria-ilegal-anp.csv",
       "features": 179,
       "titulo": "Minería ilegal en ámbito de ANP",
       "fuente": "SERNANP — ArcGIS REST servicios_ogc/peru_sernanp_0201"
     },
     {
-      "archivo": "lotes-petroleros.geojson",
-      "features": 78,
-      "titulo": "Lotes petroleros (exploración y explotación)",
-      "fuente": "Perupetro, vía OSINERGMIN GISEM (ArcGIS REST)."
-    },
-    {
-      "archivo": "unidades-mineras.geojson",
-      "features": 313,
-      "titulo": "Unidades mineras (producción y exploración)",
-      "fuente": "MINEM, vía OSINERGMIN GISEM (ArcGIS REST)."
-    },
-    {
       "archivo": "pueblos-indigenas.geojson",
+      "csv": "csv/pueblos-indigenas.csv",
       "features": 2275,
       "titulo": "Pueblos indígenas (localidades)",
       "fuente": "Ministerio de Cultura / IBC, vía GEOCATMIN (INGEMMET)."
     },
     {
       "archivo": "comunidades-nativas.geojson",
+      "csv": "csv/comunidades-nativas.csv",
       "features": 1600,
       "titulo": "Comunidades nativas (centroides)",
       "fuente": "IBC / SICNA, vía GEOCATMIN (INGEMMET)."
     },
     {
       "archivo": "reservas-territoriales.geojson",
+      "csv": "csv/reservas-territoriales.csv",
       "features": 12,
       "titulo": "Reservas territoriales (PIACI)",
       "fuente": "Ministerio de Cultura, vía GEOCATMIN (INGEMMET)."
     },
     {
       "archivo": "comunidades-campesinas.geojson",
+      "csv": "csv/comunidades-campesinas.csv",
       "features": 5043,
       "titulo": "Comunidades campesinas (centroides)",
       "fuente": "CooperAcción — geoportal Espacio de Cooperación (GeoServer)."
@@ -58,6 +52,26 @@
     {
       "tarea": "riesgo-ambiental-oefa.geojson",
       "error": "fallo https://pifa.oefa.gob.pe/arcgis/rest/services/RIESGOS/SERV_RIES_AMB_UF/MapServer/5/query: HTTP Error 403: Forbidden"
+    },
+    {
+      "tarea": "lotes",
+      "error": "fallo https://gisem.osinergmin.gob.pe/serverosih/rest/services/Hidrocarburos_Liquidos/HIDROCARBUROS_LIQUIDOS/FeatureServer/11/query: Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "tarea": "unidades",
+      "error": "fallo https://gisem.osinergmin.gob.pe/serverosih/rest/services/Mineria/MINERIA_MEM/MapServer/5/query: Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "tarea": "pasivos-hidro",
+      "error": "fallo https://pifa.oefa.gob.pe/arcgis/rest/services/LOTEX/SERV_SUP_LOTEX_BASE/MapServer/12/query: HTTP Error 403: Forbidden"
+    },
+    {
+      "tarea": "suelos-empetrolados",
+      "error": "fallo https://pifa.oefa.gob.pe/arcgis/rest/services/LOTEX/SERV_SUP_LOTX_REM/MapServer/0/query: HTTP Error 403: Forbidden"
+    },
+    {
+      "tarea": "oleoducto",
+      "error": "fallo https://gisem.osinergmin.gob.pe/serverosih/rest/services/Hidrocarburos_Liquidos/HIDROCARBUROS_LIQUIDOS/FeatureServer/17/query: Expecting value: line 1 column 1 (char 0)"
     }
   ]
 }
