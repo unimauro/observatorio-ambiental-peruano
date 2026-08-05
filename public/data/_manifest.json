@@ -1,5 +1,5 @@
 {
-  "generado": "2026-08-03T12:39:00Z",
+  "generado": "2026-08-05T22:00:11Z",
   "capas": [
     {
       "archivo": "anp-sernanp.geojson",
@@ -14,6 +14,20 @@
       "features": 179,
       "titulo": "Minería ilegal en ámbito de ANP",
       "fuente": "SERNANP — ArcGIS REST servicios_ogc/peru_sernanp_0201"
+    },
+    {
+      "archivo": "relaves-oefa-puntos.geojson",
+      "csv": "csv/relaves-oefa-puntos.csv",
+      "features": 206,
+      "titulo": "Depósitos de relaves fiscalizados",
+      "fuente": "OEFA — PIFA, RIESGOS/SERV_RIESGO_HIDROM_RELAVES_WMS"
+    },
+    {
+      "archivo": "riesgo-ambiental-oefa.geojson",
+      "csv": "csv/riesgo-ambiental-oefa.csv",
+      "features": 195,
+      "titulo": "Unidades fiscalizables con riesgo ambiental Muy alto / Alto",
+      "fuente": "OEFA — PIFA, RIESGOS/SERV_RIES_AMB_UF"
     },
     {
       "archivo": "lotes-petroleros.geojson",
@@ -58,6 +72,20 @@
       "fuente": "CooperAcción — geoportal Espacio de Cooperación (GeoServer)."
     },
     {
+      "archivo": "pasivos-hidrocarburos.geojson",
+      "csv": "csv/pasivos-hidrocarburos.csv",
+      "features": 3266,
+      "titulo": "Pasivos ambientales del subsector hidrocarburos",
+      "fuente": "OEFA — PIFA, LOTEX/SERV_SUP_LOTEX_BASE (capa 12). Inventario identificado y comunicado al MINEM."
+    },
+    {
+      "archivo": "suelos-empetrolados.geojson",
+      "csv": "csv/suelos-empetrolados.csv",
+      "features": 3233,
+      "titulo": "Suelos empetrolados supervisados por OEFA (Lote X, Talara)",
+      "fuente": "OEFA — PIFA, LOTEX/SERV_SUP_LOTX_REM. Locaciones con supervisión de remediación."
+    },
+    {
       "archivo": "oleoducto-norperuano.geojson",
       "csv": "csv/oleoducto-norperuano.csv",
       "features": 4,
@@ -65,22 +93,5 @@
       "fuente": "Petroperú, vía OSINERGMIN GISEM — progresivas kilométricas oficiales (capa 17)."
     }
   ],
-  "errores": [
-    {
-      "tarea": "relaves-oefa-puntos.geojson",
-      "error": "fallo https://pifa.oefa.gob.pe/arcgis/rest/services/RIESGOS/SERV_RIESGO_HIDROM_RELAVES_WMS/MapServer/4/query: HTTP Error 403: Forbidden"
-    },
-    {
-      "tarea": "riesgo-ambiental-oefa.geojson",
-      "error": "fallo https://pifa.oefa.gob.pe/arcgis/rest/services/RIESGOS/SERV_RIES_AMB_UF/MapServer/5/query: HTTP Error 403: Forbidden"
-    },
-    {
-      "tarea": "pasivos-hidro",
-      "error": "fallo https://pifa.oefa.gob.pe/arcgis/rest/services/LOTEX/SERV_SUP_LOTEX_BASE/MapServer/12/query: HTTP Error 403: Forbidden"
-    },
-    {
-      "tarea": "suelos-empetrolados",
-      "error": "fallo https://pifa.oefa.gob.pe/arcgis/rest/services/LOTEX/SERV_SUP_LOTX_REM/MapServer/0/query: HTTP Error 403: Forbidden"
-    }
-  ]
+  "errores": []
 }

@@ -1,108 +1,207 @@
 ﻿lon,lat,NOM_COMP,TIPO_COMP,estado_dr,unidad,administrado,subsector,area_m2
--75.66117,-12.05156,Depósito de relaves n° 5 b 2,Depósito,Operación,UEA Azulcocha,SIERRA POLI S.A.C.,Minería,1747.59440191
+-77.03098,-9.55914,Depósito de relaves Antamina (preliminar - referencia),Depósito,Operación,Antamina,COMPANIA MINERA ANTAMINA S.A,Minería,6468163.35980479
+-70.6785,-15.35062,Depósito de relaves Pomasi,Depósito,Operación,Pomasi,CONSORCIO DE INGENIEROS EJECUTORES MINEROS S.A.,Minería,10199.82603377
+-76.13071,-11.65624,Depósito de relaves Toromocho (preliminar - referencia),Depósito,Operación,Toromocho,MINERA CHINALCO PERÚ S.A.,Minería,4192563.44702017
+-76.13471,-11.60034,Depósito de relaves Toromocho (preliminar - referencia),Depósito,Operación,Toromocho,MINERA CHINALCO PERÚ S.A.,Minería,403472.69735501
+-70.70927,-17.20532,Depósito de relaves Quellaveco (preliminar - referencia),Depósito,Operación,Quellaveco,ANGLO AMERICAN QUELLAVECO S.A.,Minería,4584.91124906
+-70.69004,-17.19626,Depósito de relaves Quellaveco (preliminar - referencia),Depósito,Operación,Quellaveco,ANGLO AMERICAN QUELLAVECO S.A.,Minería,2478966.51805966
+-71.79654,-14.50265,Depósito de relaves TMF,Depósito,Operación,Constancia,HUDBAY PERU S.A.C.,,3214881.43720228
+-70.60022,-15.44707,Depósito de relaves Huaybillo,Depósito,Operación,El Cofre,CONSORCIO DE INGENIEROS EJECUTORES MINEROS S.A.,,132158.54557708
+-76.213,-10.62101,Depósito de relaves El porvenir,Depósito,Operación,El Porvenir,NEXA RESOURCES EL PORVENIR S.A.C.,,683689.32287111
+-75.20456,-15.26597,Depósito de relaves Pampa Choclon I,Depósito,Operación,Marcona,MINERA SHOUXIN PERU S.A.,,324463.62669314
+-75.8403,-11.40281,Depósito de relaves,Depósito,Operación,Fortunita,CIA MINERA LAS CAMELIAS S A,,42218.21244087
+-74.46653,-15.09068,Depósito de relaves N°3,Depósito,Operación,Planta de Beneficio Hacienda Metalex,MINERA VETA DORADA S.A.C.,,47667.350037
+-74.46606,-15.09231,Depósito de relaves N°2,Depósito,Operación,Planta de Beneficio Hacienda Metalex,MINERA VETA DORADA S.A.C.,,25291.94795217
+-74.46501,-15.09279,Depósito de relaves N°1,Depósito,Operación,Planta de Beneficio Hacienda Metalex,MINERA VETA DORADA S.A.C.,,15026.88556378
+-75.47346,-12.6204,Depósito de relaves,Depósito,Operación,Heraldos Negros,COMPANIA MINERA SAN VALENTIN S.A.,,105307.15794186
+-73.24015,-14.93554,Depósito de relaves Inmaculada,Depósito,Operación,Inmaculada,COMPANIA MINERA ARES S.A.C.,,376539.21946147
+-76.72874,-10.78856,Depósito de relaves Tinyag Inferior,Depósito,Operación,Iscaycruz,EMPRESA MINERA LOS QUENUALES S.A.C.,,125449.85359378
+-76.73127,-10.78383,Depósito de relaves 2,Depósito,Operación,Iscaycruz,EMPRESA MINERA LOS QUENUALES S.A.C.,,46121.85320178
+-76.72026,-10.79006,Depósito de relaves Geniococha,Depósito,Operación,Iscaycruz,EMPRESA MINERA LOS QUENUALES S.A.C.,,244458.88895767
+-76.72228,-10.78486,Depósito de relaves B,Depósito,Operación,Iscaycruz,EMPRESA MINERA LOS QUENUALES S.A.C.,,110136.12162798
+-77.66247,-7.71359,Depósito de relaves Marañon,Depósito,Operación,La Libertad y La Poderosa de Trujillo,CIA MINERA PODEROSA S A,,11698.28924412
+-77.66268,-7.71401,Depósito de relaves N°1,Depósito,Operación,La Libertad y La Poderosa de Trujillo,CIA MINERA PODEROSA S A,,17214.34295415
+-77.6627,-7.71558,Depósito de relaves N°2,Depósito,Operación,La Libertad y La Poderosa de Trujillo,CIA MINERA PODEROSA S A,,33067.66286274
+-77.66208,-7.7163,Depósito de relaves N°3,Depósito,Operación,La Libertad y La Poderosa de Trujillo,CIA MINERA PODEROSA S A,,14059.67706897
+-76.41996,-11.03486,Depósito de relaves PCM-AN-DR-01,Depósito,Operación,Islay,COMPAÑIA MINERA CHUNGAR S.A.C.,,344693.66960857
+-77.66131,-7.71708,Depósito de relaves N°4,Depósito,Operación,La Libertad y La Poderosa de Trujillo,CIA MINERA PODEROSA S A,,4776.65489615
+-77.6617,-7.71717,Depósito de relaves N°5,Depósito,Operación,La Libertad y La Poderosa de Trujillo,CIA MINERA PODEROSA S A,,7797.13013622
+-77.66127,-7.71828,Depósito de relaves N°6,Depósito,Operación,La Libertad y La Poderosa de Trujillo,CIA MINERA PODEROSA S A,,6759.08093994
+-77.65152,-7.71996,Depósito de relaves Livias,Depósito,Operación,La Libertad y La Poderosa de Trujillo,CIA MINERA PODEROSA S A,,115418.02829354
+-75.26583,-12.25382,Depósito de relaves 1,Depósito,Operación,Mercedes,MINERA DOÑA HERMINIA S A,,31427.48571053
+-75.08702,-15.16227,Depósito de relaves,Depósito,Operación,Mina Justa,MARCOBRE S.A.C.,,1838031.00425679
+-75.09185,-15.15261,Depósito de relaves2,Depósito,Operación,Mina Justa,MARCOBRE S.A.C.,,1002329.52072191
+-70.32073,-14.24917,Depósito de relaves B3,Depósito,Operación,Nueva Acumulación Quenamari - San Rafael,MINSUR S. A.,,268088.99626699
+-70.32067,-14.2407,Depósito de relaves B2,Depósito,Operación,Nueva Acumulación Quenamari - San Rafael,MINSUR S. A.,,275658.97239381
+-70.32153,-14.23493,Depósito de relaves B1,Depósito,Operación,Nueva Acumulación Quenamari - San Rafael,MINSUR S. A.,,132918.63847538
+-76.10507,-11.59418,Depósito de relaves Huascacocha,Depósito,Operación,Argentum,COMPAÑIA MINERA ARGENTUM S.A.,,1610757.80114221
+-76.13423,-11.60268,Depósito de relaves 1,Depósito,Operación,Toromocho,MINERA CHINALCO PERÚ S.A.,,109055.9983171
+-76.13987,-11.59508,Depósito de relaves Puquiococha,Depósito,Operación,Austria Duvaz,SOCIEDAD MINERA AUSTRIA DUVAZ S.A.C. EN LIQUIDACION,,81774.91367283
+-76.14017,-11.59333,Depósito de relaves 2,Depósito,Operación,Argentum,COMPAÑIA MINERA ARGENTUM S.A.,,23095.69763845
+-73.14571,-14.68432,Depósito de relaves Pallancata,Depósito,Operación,Pallancata,COMPANIA MINERA ARES S.A.C.,,290381.66714013
+-73.14253,-14.68189,Depósito de relaves 1,Depósito,Operación,Pallancata,COMPANIA MINERA ARES S.A.C.,,18420.70803135
+-77.0772,-9.49449,Depósito de relaves 1,Depósito,Operación,Contonga,EMPRESA MINERA LOS QUENUALES S.A.C.,,93624.58871264
+-77.08741,-9.50523,Depósito de relaves 2,Depósito,Operación,Contonga,EMPRESA MINERA LOS QUENUALES S.A.C.,,249903.17508931
+-74.07661,-15.64373,Depósito de relaves Chacchuille,Depósito,Operación,Capitana,COMPAÑIA MINERA CARAVELI S.A.C.,,6830.46266785
+-74.077,-15.64443,Depósito de relaves Chacchuille I,Depósito,Operación,Caravelí,COMPAÑIA MINERA CARAVELI S.A.C.,,18987.50334559
+-76.14527,-11.59408,Depósito de relaves 3,Depósito,Operación,Argentum,COMPAÑIA MINERA ARGENTUM S.A.,,22016.22050945
+-74.07417,-15.64371,Depósito de relaves Chacchuille II - Zona 1,Depósito,Operación,Capitana,COMPAÑIA MINERA CARAVELI S.A.C.,,39135.36354974
+-74.07471,-15.64229,Depósito de relaves Chacchuille II - Zona 2,Depósito,Operación,Capitana,COMPAÑIA MINERA CARAVELI S.A.C.,,30969.60129861
+-74.07503,-15.6464,Depósito de relaves Chacchuille II - Zona 3,Depósito,Operación,Capitana,COMPAÑIA MINERA CARAVELI S.A.C.,,66809.88104829
+-78.55946,-6.99598,Depósito de relaves Arenas de Molienda Sur,Depósito,Operación,Chaupiloma Sur,MINERA YANACOCHA S.R.L.,,302568.89949749
+-76.17631,-11.67999,Depósito de relaves,Depósito,Operación,Oroya sur,SOBREANDES S.A.C.,,313049.38600672
+-75.66027,-12.05198,Depósito de relaves n° 5 b 4,Depósito,Operación,UEA Azulcocha,SIERRA POLI S.A.C.,,3412.82523527
+-75.68233,-12.41035,Depósito de relaves San Valentín (preliminar - referencia),Depósito,Operación,San Valentín,COMPANIA MINERA SAN VALENTIN S.A.,Minería,55885.34053807
+-76.19649,-11.60991,Depósito de relaves Ticlio (preliminar - referencia),Depósito,Operación,Ticlio,VOLCAN COMPANIA MINERA S.A.A.,Minería,79627.52118537
+-76.13979,-11.59431,Depósito de relaves Austria Duvaz (preliminar - referencia),Depósito,Operación,Austria Duvaz,SOCIEDAD MINERA AUSTRIA DUVAZ S.A.C. EN LIQUIDACION,Minería,114459.93683158
+-75.16372,-15.27637,Depósito de relaves Marcona (preliminar - referencia),Depósito,Operación,Marcona,SHOUGANG HIERRO PERU S.A.A.,Minería,2923680.43027774
+-75.1958,-15.26047,Depósito de relaves Marcona (preliminar - referencia),Depósito,Operación,Marcona,SHOUGANG HIERRO PERU S.A.A.,Minería,1763946.57286734
+-75.17352,-15.25636,Depósito de relaves Marcona (preliminar - referencia),Depósito,Operación,Marcona,SHOUGANG HIERRO PERU S.A.A.,Minería,944127.61816405
+-72.30851,-14.98782,Depósito de relaves Arcata (preliminar - referencia),Depósito,Operación,Arcata,COMPANIA MINERA ARES S.A.C.,Minería,20850.05006608
+-72.32389,-14.98866,Depósito de relaves Arcata (preliminar - referencia),Depósito,Operación,Arcata,COMPANIA MINERA ARES S.A.C.,Minería,272135.99455594
+-76.28394,-10.43759,Depósito de relaves Vinchos (preliminar - referencia),Depósito,Operación,Vinchos,EMP.EXPLOTADORA DE VINCHOS LTDA S.A.C.,Minería,8067.21239158
+-76.28341,-10.43389,Depósito de relaves Vinchos (preliminar - referencia),Depósito,Operación,Vinchos,EMP.EXPLOTADORA DE VINCHOS LTDA S.A.C.,Minería,10232.00689261
+-76.28618,-10.43118,Depósito de relaves Vinchos (preliminar - referencia),Depósito,Operación,Vinchos,EMP.EXPLOTADORA DE VINCHOS LTDA S.A.C.,Minería,8765.63462457
+-76.4152,-11.03688,Depósito de relaves Animon (preliminar - referencia),Depósito,Operación,Animon,COMPAÑIA MINERA CHUNGAR S.A.C.,Minería,43636.27284606
+-76.42027,-11.03436,Depósito de relaves Animon (preliminar - referencia),Depósito,Operación,Animon,COMPAÑIA MINERA CHUNGAR S.A.C.,Minería,361038.95585549
+-76.42567,-11.02438,Depósito de relaves Animon (preliminar - referencia),Depósito,Operación,Animon,COMPAÑIA MINERA CHUNGAR S.A.C.,Minería,239698.60123998
+-80.8492,-6.08198,Depósito de relaves Fosfatos Bayovar (preliminar - referencia),Depósito,Operación,Fosfatos Bayovar,COMPAÑIA MINERA MISKI MAYO S.R.L.,Minería,1990838.9634134
+-80.85871,-6.07352,Depósito de relaves Fosfatos Bayovar (preliminar - referencia),Depósito,Operación,Fosfatos Bayovar,COMPAÑIA MINERA MISKI MAYO S.R.L.,Minería,977414.24499351
+-80.86741,-6.07291,Depósito de relaves Fosfatos Bayovar (preliminar - referencia),Depósito,Operación,Fosfatos Bayovar,COMPAÑIA MINERA MISKI MAYO S.R.L.,Minería,787424.71961722
+-80.84925,-6.07455,Depósito de relaves Fosfatos Bayovar (preliminar - referencia),Depósito,Operación,Fosfatos Bayovar,COMPAÑIA MINERA MISKI MAYO S.R.L.,Minería,1349701.76452995
+-80.84212,-6.06951,Depósito de relaves Fosfatos Bayovar (preliminar - referencia),Depósito,Operación,Fosfatos Bayovar,COMPAÑIA MINERA MISKI MAYO S.R.L.,Minería,473337.83563813
+-80.83572,-6.05354,Depósito de relaves Fosfatos Bayovar (preliminar - referencia),Depósito,Operación,Fosfatos Bayovar,COMPAÑIA MINERA MISKI MAYO S.R.L.,Minería,4607902.56198987
+-80.83391,-6.02283,Depósito de relaves Fosfatos Bayovar (preliminar - referencia),Depósito,Operación,Fosfatos Bayovar,COMPAÑIA MINERA MISKI MAYO S.R.L.,Minería,13600.61496802
+-72.17255,-15.03562,Depósito de relaves Ares (preliminar - referencia),Depósito,Operación,Ares,COMPANIA MINERA ARES S.A.C.,Minería,324771.30405012
+-73.13949,-14.66086,Depósito de relaves Selene (preliminar - referencia),Depósito,Operación,Selene,COMPANIA MINERA ARES S.A.C.,Minería,95031.24617847
+-73.14165,-14.65848,Depósito de relaves Selene (preliminar - referencia),Depósito,Operación,Selene,COMPANIA MINERA ARES S.A.C.,Minería,129482.43921751
+-73.06503,-15.91762,Depósito de relaves San Juan de Chorunga (preliminar - referencia),Depósito,Operación,San Juan de Chorunga,CENTURY MINING PERU S.A.C.,Minería,10301.1948495
+-73.06631,-15.91711,Depósito de relaves San Juan de Chorunga (preliminar - referencia),Depósito,Operación,San Juan de Chorunga,CENTURY MINING PERU S.A.C.,Minería,20368.19350498
+-73.05978,-15.91305,Depósito de relaves San Juan de Chorunga (preliminar - referencia),Depósito,Operación,San Juan de Chorunga,CENTURY MINING PERU S.A.C.,Minería,256878.07028722
+-73.05076,-15.90571,Depósito de relaves San Juan de Chorunga (preliminar - referencia),Depósito,Operación,San Juan de Chorunga,CENTURY MINING PERU S.A.C.,Minería,3823.45368629
+-71.31813,-14.9006,Depósito de relaves Antapaccay - Expansión Tintaya (preliminar - referencia),Depósito,Operación,Antapaccay - Expansión Tintaya,COMPAÑIA MINERA ANTAPACCAY S.A.,Minería,3400025.53957905
+-71.30898,-14.88286,Depósito de relaves Antapaccay - Expansión Tintaya (preliminar - referencia),Depósito,Operación,Antapaccay - Expansión Tintaya,COMPAÑIA MINERA ANTAPACCAY S.A.,Minería,20168.66157416
+-71.32193,-14.88237,Depósito de relaves Antapaccay - Expansión Tintaya (preliminar - referencia),Depósito,Operación,Antapaccay - Expansión Tintaya,COMPAÑIA MINERA ANTAPACCAY S.A.,Minería,3420.39063514
+-71.31996,-14.88214,Depósito de relaves Antapaccay - Expansión Tintaya (preliminar - referencia),Depósito,Operación,Antapaccay - Expansión Tintaya,COMPAÑIA MINERA ANTAPACCAY S.A.,Minería,4706.16904627
+-71.31901,-14.88224,Depósito de relaves Antapaccay - Expansión Tintaya (preliminar - referencia),Depósito,Operación,Antapaccay - Expansión Tintaya,COMPAÑIA MINERA ANTAPACCAY S.A.,Minería,6821.92073143
+-71.31739,-14.88266,Depósito de relaves Antapaccay - Expansión Tintaya (preliminar - referencia),Depósito,Operación,Antapaccay - Expansión Tintaya,COMPAÑIA MINERA ANTAPACCAY S.A.,Minería,40676.09047164
+-71.31902,-14.88124,Depósito de relaves Antapaccay - Expansión Tintaya (preliminar - referencia),Depósito,Operación,Antapaccay - Expansión Tintaya,COMPAÑIA MINERA ANTAPACCAY S.A.,Minería,5833.7026446
+-71.30937,-14.88531,Depósito de relaves Antapaccay - Expansión Tintaya (preliminar - referencia),Depósito,Operación,Antapaccay - Expansión Tintaya,COMPAÑIA MINERA ANTAPACCAY S.A.,Minería,70980.02031517
+-71.31877,-14.88085,Depósito de relaves Antapaccay - Expansión Tintaya (preliminar - referencia),Depósito,Operación,Antapaccay - Expansión Tintaya,COMPAÑIA MINERA ANTAPACCAY S.A.,Minería,1394.46131166
+-71.30722,-14.86597,Depósito de relaves Antapaccay - Expansión Tintaya (preliminar - referencia),Depósito,Operación,Antapaccay - Expansión Tintaya,COMPAÑIA MINERA ANTAPACCAY S.A.,Minería,1319341.67218395
+-77.08656,-9.55349,Depósito de relaves Antamina (preliminar - referencia),Depósito,Operación,Antamina,COMPANIA MINERA ANTAMINA S.A,Minería,8596.49006005
+-77.08986,-9.55327,Depósito de relaves Antamina (preliminar - referencia),Depósito,Operación,Antamina,COMPANIA MINERA ANTAMINA S.A,Minería,3372.90983217
+-77.08488,-9.55252,Depósito de relaves Antamina (preliminar - referencia),Depósito,Operación,Antamina,COMPANIA MINERA ANTAMINA S.A,Minería,8526.66006384
+-77.08349,-9.55133,Depósito de relaves Antamina (preliminar - referencia),Depósito,Operación,Antamina,COMPANIA MINERA ANTAMINA S.A,Minería,9618.50566286
+-77.08863,-9.55377,Depósito de relaves Antamina (preliminar - referencia),Depósito,Operación,Antamina,COMPANIA MINERA ANTAMINA S.A,Minería,10215.08358029
+-77.07297,-9.54888,Depósito de relaves Antamina (preliminar - referencia),Depósito,Operación,Antamina,COMPANIA MINERA ANTAMINA S.A,Minería,700.09241882
+-77.07405,-9.54885,Depósito de relaves Antamina (preliminar - referencia),Depósito,Operación,Antamina,COMPANIA MINERA ANTAMINA S.A,Minería,836.89899092
+-77.07522,-9.54828,Depósito de relaves Antamina (preliminar - referencia),Depósito,Operación,Antamina,COMPANIA MINERA ANTAMINA S.A,Minería,8528.77735969
+-77.07006,-9.54587,Depósito de relaves Antamina (preliminar - referencia),Depósito,Operación,Antamina,COMPANIA MINERA ANTAMINA S.A,Minería,6885.34231074
+-76.23212,-11.59579,Depósito de relave Chinchán,Depósito,Operación,Casapalca,EMPRESA MINERA LOS QUENUALES S.A.,Minería,409040.39200301
+-75.67163,-12.0592,Depósito de relave nº 1 (PAM),Depósito,Pasivo Ambiental Minero,UEA Azulcocha,SIERRA POLI S.A.C.,Minería,248.62314313
 -77.59136,-7.77182,Depósito de relaves Santa María 2,Depósito,Operación,La Libertad y La Poderosa de Trujillo,CIA MINERA PODEROSA S A,Minería,34565.64284048
--75.70749,-12.31655,Deposito de relaves,Depósito,Operación,Acumulación Yauricocha,SOCIEDAD MINERA CORONA S.A.,Minería,426290.65200693
--75.19493,-13.20571,Deposito de relaves n°2,Depósito,Operación,Caudalosa Grande y Relíquias,SOCIEDAD MINERA RELIQUIAS S.A.C.,Minería,208658.45194667
--77.27855,-11.4924,Deposito de relave nro. 3,Depósito,Operación,María Teresa,MINERA COLQUISIRI S.A.,Minería,95364.93702491
--74.9457,-13.09314,Relavera n° 3-4,Depósito,Operación,Recuperada,MINES & METALS TRADING (PERU) S.A.C. - MMTP,Minería,49979.99463271
--76.69152,-10.62872,Depósito de relave n° 1,Depósito,Inoperativo,Uchucchacua,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,25027.41390943
--75.67,-12.05962,Depósito de relave nº 2 (PAM),Depósito,Pasivo Ambiental Minero,UEA Azulcocha,SIERRA POLI S.A.C.,Minería,972.94109264
--76.26182,-11.67793,Deposito de relaves Rosaura,Depósito,Operación,Casapalca 7,EMPRESA MINERA LOS QUENUALES S.A.,Minería,91645.67378331
--74.80531,-12.94795,Depósitos de relaves 4,Depósito,Inoperativo,Julcani,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,21283.70614679
--76.73179,-10.44058,Relave nieve Ucro - reforestacion (PAMA nro. 5),Depósito,Operación,Raura,CIA MINERA RAURA S A,Minería,122525.77532622
--74.98791,-13.06349,Relavera c,Depósito,Operación,Huachocolpa Uno,COMPAÑIA MINERA KOLPA S.A.,Minería,36209.17369514
--76.29258,-10.79933,Cabecera del depósito de relaves integrado n° 7,Depósito,Inoperativo,Colquijirca,SOCIEDAD MINERA EL BROCAL S.A.A.,Minería,343893.26279435
--76.59468,-12.68717,Depósito de relaves n° 4,Depósito,Inoperativo,Acumulación Condestable,COMPAñIA MINERA CONDESTABLE S.A.,Minería,312790.14607796
--76.28344,-10.69971,Deposito de Relaves Quiulacocha,Depósito,Operación,Pasivos Ambientales Mineros del Depósito de Relaves Quiulacocha,ACTIVOS MINEROS S.A.C.,Minería,385873.218881
--74.3716,-12.57882,Depósito de relaves Chacapampa,Depósito,Operación,Cobriza,DOE RUN PERU S.R.L. EN LIQUIDACION EN MARCHA,Minería,201589.73704991
--75.14887,-13.1953,Deposito de relaves n° 1,Depósito,Operación,San Genaro,CIA MINERA SANTA INES Y MOROCOCHA S A,Minería,64327.39121426
--76.69349,-10.63065,Depósito de relaves n° 2 (Mesapata),Depósito,Operación,Uchucchacua,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,60222.48320616
--77.07142,-9.50917,Deposito de relaves Tucush,Depósito,Operación,Contonga,EMPRESA MINERA LOS QUENUALES S.A.,Minería,79350.32126226
--72.10433,-15.34389,Depósito de relave n° 4,Depósito,Operación,Acumulación Ancoyo,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,42610.76888313
--74.9891,-13.05489,Depósito de relaves Otungocucho,Depósito,Cerrado,Huachocolpa Uno,COMPAÑIA MINERA KOLPA S.A.,Minería,3778.0758581
--78.64685,-6.7387,Deposito de relaves nro. 3,Depósito,Operación,Colorada,COMPAÑIA MINERA SAN NICOLAS SOCIEDAD ANONIMA,Minería,30346.6386712
--74.79836,-12.92171,Deposito de relaves n° 9,Depósito,Operación,Julcani,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,153397.77271434
--77.08463,-9.80737,Depósito de relave Oasis.,Depósito,Operación,Pucarrajo,NYRSTAR ANCASH S.A.,Minería,15958.38268613
--78.64362,-6.76526,Depósito de relaves,Depósito,Operación,Cerro Corona,GOLD FIELDS LA CIMA S.A.,Minería,712259.99793932
--76.59798,-12.69784,Depósito de relaves n° 2,Depósito,Inoperativo,Acumulación Condestable,COMPAñIA MINERA CONDESTABLE S.A.,Minería,78194.44298758
--77.41869,-8.05575,Deposito de relaves de flotacion.,Depósito,Operación,UEA Retamas,MINERA AURIFERA RETAMAS S.A.,Minería,141373.3631273
--77.51052,-7.96349,Depósito de relaves Alpamarca,Depósito,Inoperativo,Acumulación Parcoy N° 1,CONSORCIO MINERO HORIZONTE S.A.,Minería,105435.53056943
--78.3525,-8.00333,Depósito de lodos San Felipe,Depósito,Operación,Quiruvilca,MINISTERIO DE ENERGIA Y MINAS,Minería,167020.62007931
--74.38606,-12.57124,Depósito de relaves dr-co-02 (El Platanal),Depósito,Operación,Cobriza,DOE RUN PERU S.R.L. EN LIQUIDACION EN MARCHA,Minería,25218.81094864
--72.33363,-15.28042,Depósito de relaves r-4a,Depósito,Operación,Orcopampa,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,182032.09564423
--76.29669,-10.79654,Depósito de relaves n° 1,Depósito,Inoperativo,Colquijirca,SOCIEDAD MINERA EL BROCAL S.A.A.,Minería,23347.80239085
--77.51044,-7.93343,Deposito de relaves filtrados de flotación Yurac Yacu,Depósito,Operación,Acumulación Parcoy N° 1,CONSORCIO MINERO HORIZONTE S.A.,Minería,44480.01510519
--77.64547,-7.7583,Depósito de relaves filtrados Hualanga,Depósito,Inoperativo,La Libertad y La Poderosa de Trujillo,CIA MINERA PODEROSA S A,Minería,77403.37823067
--77.49797,-7.98318,Depósito de relaves filtrados Curaubamba (depósito n° 8),Depósito,Inoperativo,Acumulación Parcoy N° 1,CONSORCIO MINERO HORIZONTE S.A.,Minería,21947.30842232
--76.04341,-11.62299,Depósito de relave n° 6,Depósito,Operación,San Cristóbal - Mahr Túnel,VOLCAN COMPANIA MINERA S.A.A.,Minería,131536.85382785
--71.60238,-16.50691,Deposito de relaves Enlozada,Depósito,Operación,Cerro Verde,SOCIEDAD MINERA CERRO VERDE S.A.A.,Minería,3274716.47735076
--76.26581,-11.67496,Relavera Yauliyacu Nuevo (plataforma de finos),Depósito,Inoperativo,Casapalca 7,EMPRESA MINERA LOS QUENUALES S.A.,Minería,43603.83364825
--75.20064,-13.20154,Deposito de relaves n°1,Depósito,Inoperativo,Caudalosa Grande y Relíquias,SOCIEDAD MINERA RELIQUIAS S.A.C.,Minería,312304.05152957
--76.30774,-11.78373,Deposito de Relave Triana,Depósito,Operación,Coricancha,GREAT PANTHER CORICANCHA S.A.,Minería,13625.80251753
--75.66671,-12.05759,Depósito de relaves n° 4:,Depósito,Operación,UEA Azulcocha,SIERRA POLI S.A.C.,Minería,66618.44353378
--76.46096,-11.20829,Depósito de relave Alpamarca,Depósito,Operación,Alpamarca,COMPAÑIA MINERA CHUNGAR S.A.C.,Minería,219972.77371942
--77.49971,-7.96998,Depósito de relaves Chilcapampa,Depósito,Inoperativo,Acumulación Parcoy N° 1,CONSORCIO MINERO HORIZONTE S.A.,Minería,20073.12748756
+-71.74911,-15.07152,Depósito de relaves,Depósito,Operación,Suyckutambo,AMG-AUPLATA MINING GROUP PERU S.A.C.,Minería,26603.8526689
 -74.37512,-12.5882,Depósito de relave zona norte (dr-co-04),Depósito,Operación,Cobriza,DOE RUN PERU S.R.L. EN LIQUIDACION EN MARCHA,Minería,58770.5495082
--76.21587,-10.57186,Depósito de relaves Atacocha,Depósito,Operación,Atacocha,NEXA RESOURCES ATACOCHA S.A.A.,Minería,250787.44322702
--75.664,-12.05427,Depósito de relaves Azulcocha,Depósito,Operación,UEA Azulcocha,SIERRA POLI S.A.C.,Minería,35727.18175875
--76.09269,-11.68453,"Depósitos de relave dr-ca-01, 02, 03, 04, 05 y 06",Depósito,Cerrado,Carahuacra,VOLCAN COMPANIA MINERA S.A.A.,Minería,32645.76190584
--74.80583,-12.94663,Depósito de relaves 3,Depósito,Inoperativo,Julcani,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,10298.6862912
--69.38384,-14.58341,Depósito de relaves Untuca,Depósito,Operación,Untuca,CORI PUNO S.A.C.,Minería,153453.83078749
--72.32196,-14.08451,Depósito de relaves,Depósito,Operación,Las Bambas,MINERA LAS BAMBAS S.A.,Minería,2592677.4061832
--74.98674,-13.06073,Relavera D,Depósito,Operación,Huachocolpa Uno,COMPAÑIA MINERA KOLPA S.A.,Minería,66250.29317326
--75.66106,-12.05202,Depósito de relaves n° 5 b 3,Depósito,Operación,UEA Azulcocha,SIERRA POLI S.A.C.,Minería,1634.69410837
--71.97666,-15.47507,Depósito de relave,Depósito,En proceso de construcción,Tambomayo,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,161759.07153426
--76.86109,-10.67519,Relavera 1A,Depósito,Operación,Mallay,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,47102.9236061
--77.09025,-9.95525,Deposito de relaves Pachapaqui,Depósito,Operación,Pachapaqui,ICM PACHAPAQUI S.A.C.,Minería,70084.25477728
--76.29773,-10.68632,Punto de descarga de relave de la planta de oxid,Depósito,Operación,Cerro de Pasco,EMPRESA ADMINISTRADORA CERRO S.A.C.,Minería,1789924.52405652
--74.80574,-12.94882,Deposito de relaves 5,Depósito,Inoperativo,Julcani,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,6174.8629569
--76.08987,-11.68075,Depósito de relaves n° 6.,Depósito,Cerrado,Carahuacra,VOLCAN COMPANIA MINERA S.A.A.,Minería,14725.85321828
--71.97001,-15.47817,Depósito de relave filtrado 2 (drf2),Depósito,Operación,Tambomayo,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,53868.07381522
+-76.2379,-11.65135,Depósito de relaves Casapalca,Depósito,Revegetado,Ex Unidad Minera Casapalca,ACTIVOS MINEROS S.A.C.,Minería,71846.85503752
+-76.00377,-11.75241,Depósito de relaves Andaychagua Alto,Depósito,Operación,Andaychagua,VOLCAN COMPANIA MINERA S.A.A.,Minería,443184.03173712
+-76.51818,-11.1955,Depósito de relaves Santander,Depósito,Operación,Santander,TREVALI PERU S.A.C.,Minería,245153.34612719
+-75.19493,-13.20571,Deposito de relaves n°2,Depósito,Operación,Caudalosa Grande y Relíquias,SOCIEDAD MINERA RELIQUIAS S.A.C.,Minería,208658.45194667
 -75.67113,-12.05812,Deposito de relaves n 2,Depósito,Operación,UEA Azulcocha,SIERRA POLI S.A.C.,Minería,6191.92419626
+-71.60238,-16.50691,Deposito de relaves Enlozada,Depósito,Operación,Cerro Verde,SOCIEDAD MINERA CERRO VERDE S.A.A.,Minería,3274716.47735076
+-74.80531,-12.94795,Depósitos de relaves 4,Depósito,Inoperativo,Julcani,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,21283.70614679
+-76.69152,-10.62872,Depósito de relave n° 1,Depósito,Inoperativo,Uchucchacua,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,25027.41390943
+-76.86109,-10.67519,Relavera 1A,Depósito,Operación,Mallay,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,47102.9236061
+-74.79836,-12.92171,Deposito de relaves n° 9,Depósito,Operación,Julcani,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,153397.77271434
+-76.40133,-11.00465,Depósito de relaves n° 5,Depósito,Operación,Huarón,PAN AMERICAN SILVER HUARON S.A.,Minería,491989.32588527
+-75.66671,-12.05759,Depósito de relaves n° 4:,Depósito,Operación,UEA Azulcocha,SIERRA POLI S.A.C.,Minería,66618.44353378
+-76.11086,-11.69863,Depósito de relaves Rumichaca,Depósito,Operación,Carahuacra,VOLCAN COMPANIA MINERA S.A.A.,Minería,606131.40697159
+-76.09269,-11.68453,"Depósitos de relave dr-ca-01, 02, 03, 04, 05 y 06",Depósito,Cerrado,Carahuacra,VOLCAN COMPANIA MINERA S.A.A.,Minería,32645.76190584
+-78.3115,-8.02591,Deposito de relaves Santa Catalina,Depósito,Operación,Quiruvilca,MINISTERIO DE ENERGIA Y MINAS,Minería,419983.79081508
+-76.20951,-11.66637,Depósito de relaves n° 3,Depósito,Operación,Americana,ALPAYANA S.A.,Minería,410680.51894073
+-75.66146,-12.05175,Depósito de relaves n° 5 b 1,Depósito,Operación,UEA Azulcocha,SIERRA POLI S.A.C.,Minería,1373.93301146
+-76.26192,-11.6933,Depósito de relaves Bellavista,Depósito,Revegetado,Ex Unidad Minera Casapalca,ACTIVOS MINEROS S.A.C.,Minería,46463.6463546
+-74.3716,-12.57882,Depósito de relaves Chacapampa,Depósito,Operación,Cobriza,DOE RUN PERU S.R.L. EN LIQUIDACION EN MARCHA,Minería,201589.73704991
 -74.77003,-12.94001,Depósito de relaves n° 8.,Depósito,Cerrado,Julcani,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,31145.57865956
 -76.59419,-12.69665,Depósito de relaves integrado 1 y 3,Depósito,Inoperativo,Acumulación Condestable,COMPAñIA MINERA CONDESTABLE S.A.,Minería,109445.7331161
--76.30608,-11.78211,Deposito de Relave N°1 y 2,Depósito,Operación,Coricancha,GREAT PANTHER CORICANCHA S.A.,Minería,38122.32660314
--76.00377,-11.75241,Depósito de relaves Andaychagua Alto,Depósito,Operación,Andaychagua,VOLCAN COMPANIA MINERA S.A.A.,Minería,443184.03173712
--78.32983,-7.04208,Depósito de relaves,Depósito,Cerrado,Pasivos Ambientales Mineros del Proyecto Michiquillay,ACTIVOS MINEROS S.A.C.,Minería,7333.12524248
--74.98517,-13.07126,Presa de relaves Rubio,Depósito,Operación,Huachocolpa Uno,COMPAÑIA MINERA KOLPA S.A.,Minería,11674.88237611
--76.29841,-10.79821,Depósito de relaves nª 4,Depósito,Inoperativo,Colquijirca,SOCIEDAD MINERA EL BROCAL S.A.A.,Minería,62960.81365923
--74.38703,-12.5747,Depósito de relaves dr-co-01 (nv. 28s),Depósito,Revegetado,Cobriza,DOE RUN PERU S.R.L. EN LIQUIDACION EN MARCHA,Minería,4439.97729828
--74.94321,-13.08975,Relavera n° 5,Depósito,Cerrado,Recuperada,MINES & METALS TRADING (PERU) S.A.C. - MMTP,Minería,31796.43052288
--75.66146,-12.05175,Depósito de relaves n° 5 b 1,Depósito,Operación,UEA Azulcocha,SIERRA POLI S.A.C.,Minería,1373.93301146
--73.97098,-14.01295,Depósito de relaves cr-7,Depósito,Operación,Catalina Huanca,CATALINA HUANCA SOCIEDAD MINERA S.A.C.,Minería,13467.07428517
--74.37526,-12.59297,Depósito de relaves Chancadora,Depósito,Operación,Cobriza,DOE RUN PERU S.R.L. EN LIQUIDACION EN MARCHA,Minería,44281.45867722
+-72.10433,-15.34389,Depósito de relave n° 4,Depósito,Operación,Acumulación Ancoyo,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,42610.76888313
 -72.12252,-15.34628,Deposito de relaves n° 2,Depósito,Cerrado,Acumulación Ancoyo,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,4639.47509351
--77.37467,-8.19777,Depósito de relaves 	,Depósito,Operación,La Estrella,COMPAñIA MINERA CARAVELI S.A.C.,Minería,24618.95670686
--71.74911,-15.07152,Depósito de relaves,Depósito,Operación,Suyckutambo,AMG-AUPLATA MINING GROUP PERU S.A.C.,Minería,26603.8526689
--75.67163,-12.0592,Depósito de relave nº 1 (PAM),Depósito,Pasivo Ambiental Minero,UEA Azulcocha,SIERRA POLI S.A.C.,Minería,248.62314313
--76.29056,-10.77135,Depósito de relaves Huachuacaja,Depósito,Operación,Colquijirca,SOCIEDAD MINERA EL BROCAL S.A.A.,Minería,2706190.94179405
--76.11086,-11.69863,Depósito de relaves Rumichaca,Depósito,Operación,Carahuacra,VOLCAN COMPANIA MINERA S.A.A.,Minería,606131.40697159
--76.26192,-11.6933,Depósito de relaves Bellavista,Depósito,Revegetado,Ex Unidad Minera Casapalca,ACTIVOS MINEROS S.A.C.,Minería,46463.6463546
--75.33154,-11.19717,Depósito de relaves La Esperanza.,Depósito,Operación,San Vicente,COMPAÑIA MINERA SAN IGNACIO DE MOROCOCHA S.A.A.,Minería,140589.26300385
--76.69243,-10.64117,Relavera n° 3,Depósito,Operación,Uchucchacua,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,465039.53258154
--77.02764,-9.87975,Depósito de relaves Chuspic (margen derecha),Depósito,Operación,Huanzala,CIA MINERA SANTA LUISA S A,Minería,634205.32996341
--75.99779,-11.75512,Depósito de relaves Andaychagua Bajo,Depósito,Operación,Andaychagua,VOLCAN COMPANIA MINERA S.A.A.,Minería,367953.45900871
--76.29902,-10.80013,Depósito de relaves n° 6,Depósito,Inoperativo,Colquijirca,SOCIEDAD MINERA EL BROCAL S.A.A.,Minería,86469.36686424
--70.78455,-17.44989,Depósito de relave,Depósito,Operación,Toquepala,SOUTHERN PERU COPPER CORPORATION SUCURSA L DEL PERU,Minería,17851861.942884
--75.66849,-12.05944,Depósito de relave nº 3 (PAM),Depósito,Cerrado,UEA Azulcocha,SIERRA POLI S.A.C.,Minería,9540.08158627
 -77.52861,-9.74953,Depósito de relaves n° 2 (dr2),Depósito,Operación,Huancapeti,COMPAÑIA MINERA LINCUNA S.A.,Minería,149841.19845321
--75.15121,-13.19643,Deposito de relaves n° 2,Depósito,Operación,San Genaro,CIA MINERA SANTA INES Y MOROCOCHA S A,Minería,33702.74642202
--76.20951,-11.66637,Depósito de relaves n° 3,Depósito,Operación,Americana,ALPAYANA S.A.,Minería,410680.51894073
--74.37151,-12.59111,Depósito de relaves antiguo espesador,Depósito,Operación,Cobriza,DOE RUN PERU S.R.L. EN LIQUIDACION EN MARCHA,Minería,25417.73257348
--78.3115,-8.02591,Deposito de relaves Santa Catalina,Depósito,Operación,Quiruvilca,MINISTERIO DE ENERGIA Y MINAS,Minería,419983.79081508
--76.25617,-11.66263,Depósito de relaves Tablachaca,Depósito,Revegetado,Ex Unidad Minera Casapalca,ACTIVOS MINEROS S.A.C.,Minería,63717.10015428
--75.99246,-13.09054,Depósito de relaves Pahuaypite 2,Depósito,Operación,Cerro Lindo,NEXA RESOURCES PERU S.A.A.,Minería,189342.16924854
--76.2379,-11.65135,Depósito de relaves Casapalca,Depósito,Revegetado,Ex Unidad Minera Casapalca,ACTIVOS MINEROS S.A.C.,Minería,71846.85503752
--75.07018,-13.98215,Depósito de relave Huinchulla,Depósito,Operación,Antapite,SIERRA ANTAPITE S.A.C.,Minería,135591.20932573
--76.2943,-10.79695,Depósito de relave n° 2,Depósito,Inoperativo,Colquijirca,SOCIEDAD MINERA EL BROCAL S.A.A.,Minería,53270.76922534
--75.99663,-13.09332,Deposito de relaves Pahuaypite 1,Depósito,Operación,Cerro Lindo,NEXA RESOURCES PERU S.A.A.,Minería,104763.40211339
--76.40133,-11.00465,Depósito de relaves n° 5,Depósito,Operación,Huarón,PAN AMERICAN SILVER HUARON S.A.,Minería,491989.32588527
--76.51818,-11.1955,Depósito de relaves Santander,Depósito,Operación,Santander,TREVALI PERU S.A.C.,Minería,245153.34612719
+-75.67,-12.05962,Depósito de relave nº 2 (PAM),Depósito,Pasivo Ambiental Minero,UEA Azulcocha,SIERRA POLI S.A.C.,Minería,972.94109264
+-74.94321,-13.08975,Relavera n° 5,Depósito,Cerrado,Recuperada,MINES & METALS TRADING (PERU) S.A.C. - MMTP,Minería,31796.43052288
+-74.80574,-12.94882,Deposito de relaves 5,Depósito,Inoperativo,Julcani,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,6174.8629569
+-74.38703,-12.5747,Depósito de relaves dr-co-01 (nv. 28s),Depósito,Revegetado,Cobriza,DOE RUN PERU S.R.L. EN LIQUIDACION EN MARCHA,Minería,4439.97729828
+-76.59468,-12.68717,Depósito de relaves n° 4,Depósito,Inoperativo,Acumulación Condestable,COMPAñIA MINERA CONDESTABLE S.A.,Minería,312790.14607796
+-76.29773,-10.68632,Punto de descarga de relave de la planta de oxid,Depósito,Operación,Cerro de Pasco,EMPRESA ADMINISTRADORA CERRO S.A.C.,Minería,1789924.52405652
+-77.02764,-9.87975,Depósito de relaves Chuspic (margen derecha),Depósito,Operación,Huanzala,CIA MINERA SANTA LUISA S A,Minería,634205.32996341
+-73.97098,-14.01295,Depósito de relaves cr-7,Depósito,Operación,Catalina Huanca,CATALINA HUANCA SOCIEDAD MINERA S.A.C.,Minería,13467.07428517
+-76.08987,-11.68075,Depósito de relaves n° 6.,Depósito,Cerrado,Carahuacra,VOLCAN COMPANIA MINERA S.A.A.,Minería,14725.85321828
+-77.27855,-11.4924,Deposito de relave nro. 3,Depósito,Operación,María Teresa,MINERA COLQUISIRI S.A.,Minería,95364.93702491
+-76.26182,-11.67793,Deposito de relaves Rosaura,Depósito,Operación,Casapalca 7,EMPRESA MINERA LOS QUENUALES S.A.,Minería,91645.67378331
 -75.66067,-12.05162,Depósito de relaves n° 5 b 4,Depósito,Operación,UEA Azulcocha,SIERRA POLI S.A.C.,Minería,1377.32930645
--75.05393,-12.67195,Relavera,Depósito,Operación,Mina Marta,COMPAÑIA MINERA BARBASTRO SOCIEDAD ANONIMA CERRADA,Minería,58808.78942076
--76.23212,-11.59579,Depósito de relave Chinchán,Depósito,Operación,Casapalca,EMPRESA MINERA LOS QUENUALES S.A.,Minería,409040.39200301
--70.72594,-15.6286,Depósito de relaves Tacaza,Depósito,Operación,Tacaza,CONSORCIO DE INGENIEROS EJECUTORES MINEROS S.A.,Minería,60334.98857787
--71.86316,-15.2088,"Depósito de relaves n° 02, zona sur.",Depósito,Operación,San Cristóbal,MINERA BATEAS S.A.C.,Minería,77801.07880457
--73.53411,-15.79717,Depósito de relaves de cianuración dr-2,Depósito,Operación,Calpa,INTIGOLD MINING SOCIEDAD ANONIMA - INTIGOLD MINING S.A.,Minería,10331.22675117
--76.69464,-10.63249,Mesapata (deposito de relave n° 2),Depósito,Operación,Uchucchacua,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,32297.91910586
+-76.25617,-11.66263,Depósito de relaves Tablachaca,Depósito,Revegetado,Ex Unidad Minera Casapalca,ACTIVOS MINEROS S.A.C.,Minería,63717.10015428
+-78.64685,-6.7387,Deposito de relaves nro. 3,Depósito,Operación,Colorada,COMPAÑIA MINERA SAN NICOLAS SOCIEDAD ANONIMA,Minería,30346.6386712
+-72.33363,-15.28042,Depósito de relaves r-4a,Depósito,Operación,Orcopampa,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,182032.09564423
+-69.38384,-14.58341,Depósito de relaves Untuca,Depósito,Operación,Untuca,CORI PUNO S.A.C.,Minería,153453.83078749
 -71.58546,-16.59313,Depósito de relaves Linga,Depósito,Operación,Cerro Verde,SOCIEDAD MINERA CERRO VERDE S.A.A.,Minería,4646129.54385601
+-70.72594,-15.6286,Depósito de relaves Tacaza,Depósito,Operación,Tacaza,CONSORCIO DE INGENIEROS EJECUTORES MINEROS S.A.,Minería,60334.98857787
+-75.20064,-13.20154,Deposito de relaves n°1,Depósito,Inoperativo,Caudalosa Grande y Relíquias,SOCIEDAD MINERA RELIQUIAS S.A.C.,Minería,312304.05152957
+-74.80583,-12.94663,Depósito de relaves 3,Depósito,Inoperativo,Julcani,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,10298.6862912
+-75.15121,-13.19643,Deposito de relaves n° 2,Depósito,Operación,San Genaro,CIA MINERA SANTA INES Y MOROCOCHA S A,Minería,33702.74642202
+-76.69243,-10.64117,Relavera n° 3,Depósito,Operación,Uchucchacua,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,465039.53258154
+-76.73179,-10.44058,Relave nieve Ucro - reforestacion (PAMA nro. 5),Depósito,Operación,Raura,CIA MINERA RAURA S A,Minería,122525.77532622
+-77.41869,-8.05575,Deposito de relaves de flotacion.,Depósito,Operación,UEA Retamas,MINERA AURIFERA RETAMAS S.A.,Minería,141373.3631273
+-76.21587,-10.57186,Depósito de relaves Atacocha,Depósito,Operación,Atacocha,NEXA RESOURCES ATACOCHA S.A.A.,Minería,250787.44322702
+-75.664,-12.05427,Depósito de relaves Azulcocha,Depósito,Operación,UEA Azulcocha,SIERRA POLI S.A.C.,Minería,35727.18175875
+-76.29669,-10.79654,Depósito de relaves n° 1,Depósito,Inoperativo,Colquijirca,SOCIEDAD MINERA EL BROCAL S.A.A.,Minería,23347.80239085
+-71.97666,-15.47507,Depósito de relave,Depósito,En proceso de construcción,Tambomayo,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,161759.07153426
+-74.37526,-12.59297,Depósito de relaves Chancadora,Depósito,Operación,Cobriza,DOE RUN PERU S.R.L. EN LIQUIDACION EN MARCHA,Minería,44281.45867722
+-73.53411,-15.79717,Depósito de relaves de cianuración dr-2,Depósito,Operación,Calpa,INTIGOLD MINING SOCIEDAD ANONIMA - INTIGOLD MINING S.A.,Minería,10331.22675117
+-74.37151,-12.59111,Depósito de relaves antiguo espesador,Depósito,Operación,Cobriza,DOE RUN PERU S.R.L. EN LIQUIDACION EN MARCHA,Minería,25417.73257348
+-76.46096,-11.20829,Depósito de relave Alpamarca,Depósito,Operación,Alpamarca,COMPAÑIA MINERA CHUNGAR S.A.C.,Minería,219972.77371942
+-74.38606,-12.57124,Depósito de relaves dr-co-02 (El Platanal),Depósito,Operación,Cobriza,DOE RUN PERU S.R.L. EN LIQUIDACION EN MARCHA,Minería,25218.81094864
+-76.29258,-10.79933,Cabecera del depósito de relaves integrado n° 7,Depósito,Inoperativo,Colquijirca,SOCIEDAD MINERA EL BROCAL S.A.A.,Minería,343893.26279435
+-74.9457,-13.09314,Relavera n° 3-4,Depósito,Operación,Recuperada,MINES & METALS TRADING (PERU) S.A.C. - MMTP,Minería,49979.99463271
+-76.29902,-10.80013,Depósito de relaves n° 6,Depósito,Inoperativo,Colquijirca,SOCIEDAD MINERA EL BROCAL S.A.A.,Minería,86469.36686424
+-76.29056,-10.77135,Depósito de relaves Huachuacaja,Depósito,Operación,Colquijirca,SOCIEDAD MINERA EL BROCAL S.A.A.,Minería,2706190.94179405
+-76.69349,-10.63065,Depósito de relaves n° 2 (Mesapata),Depósito,Operación,Uchucchacua,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,60222.48320616
+-78.3525,-8.00333,Depósito de lodos San Felipe,Depósito,Operación,Quiruvilca,MINISTERIO DE ENERGIA Y MINAS,Minería,167020.62007931
+-71.97001,-15.47817,Depósito de relave filtrado 2 (drf2),Depósito,Operación,Tambomayo,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,53868.07381522
+-70.78455,-17.44989,Depósito de relave,Depósito,Operación,Toquepala,SOUTHERN PERU COPPER CORPORATION SUCURSA L DEL PERU,Minería,17851861.942884
+-77.37467,-8.19777,Depósito de relaves 	,Depósito,Operación,La Estrella,COMPAñIA MINERA CARAVELI S.A.C.,Minería,24618.95670686
+-74.9891,-13.05489,Depósito de relaves Otungocucho,Depósito,Cerrado,Huachocolpa Uno,COMPAÑIA MINERA KOLPA S.A.,Minería,3778.0758581
+-75.14887,-13.1953,Deposito de relaves n° 1,Depósito,Operación,San Genaro,CIA MINERA SANTA INES Y MOROCOCHA S A,Minería,64327.39121426
+-76.59798,-12.69784,Depósito de relaves n° 2,Depósito,Inoperativo,Acumulación Condestable,COMPAñIA MINERA CONDESTABLE S.A.,Minería,78194.44298758
+-75.99246,-13.09054,Depósito de relaves Pahuaypite 2,Depósito,Operación,Cerro Lindo,NEXA RESOURCES PERU S.A.A.,Minería,189342.16924854
+-76.28344,-10.69971,Deposito de Relaves Quiulacocha,Depósito,Operación,Pasivos Ambientales Mineros del Depósito de Relaves Quiulacocha,ACTIVOS MINEROS S.A.C.,Minería,385873.218881
+-78.32983,-7.04208,Depósito de relaves,Depósito,Cerrado,Pasivos Ambientales Mineros del Proyecto Michiquillay,ACTIVOS MINEROS S.A.C.,Minería,7333.12524248
+-77.49971,-7.96998,Depósito de relaves Chilcapampa,Depósito,Inoperativo,Acumulación Parcoy N° 1,CONSORCIO MINERO HORIZONTE S.A.,Minería,20073.12748756
+-77.09025,-9.95525,Deposito de relaves Pachapaqui,Depósito,Operación,Pachapaqui,ICM PACHAPAQUI S.A.C.,Minería,70084.25477728
+-75.99779,-11.75512,Depósito de relaves Andaychagua Bajo,Depósito,Operación,Andaychagua,VOLCAN COMPANIA MINERA S.A.A.,Minería,367953.45900871
+-76.30774,-11.78373,Deposito de Relave Triana,Depósito,Operación,Coricancha,GREAT PANTHER CORICANCHA S.A.,Minería,13625.80251753
+-76.30608,-11.78211,Deposito de Relave N°1 y 2,Depósito,Operación,Coricancha,GREAT PANTHER CORICANCHA S.A.,Minería,38122.32660314
+-77.08463,-9.80737,Depósito de relave Oasis.,Depósito,Operación,Pucarrajo,NYRSTAR ANCASH S.A.,Minería,15958.38268613
+-76.26581,-11.67496,Relavera Yauliyacu Nuevo (plataforma de finos),Depósito,Inoperativo,Casapalca 7,EMPRESA MINERA LOS QUENUALES S.A.,Minería,43603.83364825
+-75.07018,-13.98215,Depósito de relave Huinchulla,Depósito,Operación,Antapite,SIERRA ANTAPITE S.A.C.,Minería,135591.20932573
+-75.66849,-12.05944,Depósito de relave nº 3 (PAM),Depósito,Cerrado,UEA Azulcocha,SIERRA POLI S.A.C.,Minería,9540.08158627
+-76.29841,-10.79821,Depósito de relaves nª 4,Depósito,Inoperativo,Colquijirca,SOCIEDAD MINERA EL BROCAL S.A.A.,Minería,62960.81365923
+-76.2943,-10.79695,Depósito de relave n° 2,Depósito,Inoperativo,Colquijirca,SOCIEDAD MINERA EL BROCAL S.A.A.,Minería,53270.76922534
+-75.05393,-12.67195,Relavera,Depósito,Operación,Mina Marta,COMPAÑIA MINERA BARBASTRO SOCIEDAD ANONIMA CERRADA,Minería,58808.78942076
+-75.33154,-11.19717,Depósito de relaves La Esperanza.,Depósito,Operación,San Vicente,COMPAÑIA MINERA SAN IGNACIO DE MOROCOCHA S.A.A.,Minería,140589.26300385
+-75.99663,-13.09332,Deposito de relaves Pahuaypite 1,Depósito,Operación,Cerro Lindo,NEXA RESOURCES PERU S.A.A.,Minería,104763.40211339
+-74.98674,-13.06073,Relavera D,Depósito,Operación,Huachocolpa Uno,COMPAÑIA MINERA KOLPA S.A.,Minería,66250.29317326
+-74.98791,-13.06349,Relavera c,Depósito,Operación,Huachocolpa Uno,COMPAÑIA MINERA KOLPA S.A.,Minería,36209.17369514
+-75.66117,-12.05156,Depósito de relaves n° 5 b 2,Depósito,Operación,UEA Azulcocha,SIERRA POLI S.A.C.,Minería,1747.59440191
+-75.70749,-12.31655,Deposito de relaves,Depósito,Operación,Acumulación Yauricocha,SOCIEDAD MINERA CORONA S.A.,Minería,426290.65200693
+-75.66106,-12.05202,Depósito de relaves n° 5 b 3,Depósito,Operación,UEA Azulcocha,SIERRA POLI S.A.C.,Minería,1634.69410837
+-74.98517,-13.07126,Presa de relaves Rubio,Depósito,Operación,Huachocolpa Uno,COMPAÑIA MINERA KOLPA S.A.,Minería,11674.88237611
+-72.32196,-14.08451,Depósito de relaves,Depósito,Operación,Las Bambas,MINERA LAS BAMBAS S.A.,Minería,2592677.4061832
+-71.86316,-15.2088,"Depósito de relaves n° 02, zona sur.",Depósito,Operación,San Cristóbal,MINERA BATEAS S.A.C.,Minería,77801.07880457
+-76.69464,-10.63249,Mesapata (deposito de relave n° 2),Depósito,Operación,Uchucchacua,COMPAÑIA DE MINAS BUENAVENTURA S.A.A.,Minería,32297.91910586
+-77.49797,-7.98318,Depósito de relaves filtrados Curaubamba (depósito n° 8),Depósito,Inoperativo,Acumulación Parcoy N° 1,CONSORCIO MINERO HORIZONTE S.A.,Minería,21947.30842232
+-77.51052,-7.96349,Depósito de relaves Alpamarca,Depósito,Inoperativo,Acumulación Parcoy N° 1,CONSORCIO MINERO HORIZONTE S.A.,Minería,105435.53056943
+-77.51044,-7.93343,Deposito de relaves filtrados de flotación Yurac Yacu,Depósito,Operación,Acumulación Parcoy N° 1,CONSORCIO MINERO HORIZONTE S.A.,Minería,44480.01510519
+-77.07142,-9.50917,Deposito de relaves Tucush,Depósito,Operación,Contonga,EMPRESA MINERA LOS QUENUALES S.A.,Minería,79350.32126226
+-78.64362,-6.76526,Depósito de relaves,Depósito,Operación,Cerro Corona,GOLD FIELDS LA CIMA S.A.,Minería,712259.99793932
+-77.64547,-7.7583,Depósito de relaves filtrados Hualanga,Depósito,Inoperativo,La Libertad y La Poderosa de Trujillo,CIA MINERA PODEROSA S A,Minería,77403.37823067
+-76.04341,-11.62299,Depósito de relave n° 6,Depósito,Operación,San Cristóbal - Mahr Túnel,VOLCAN COMPANIA MINERA S.A.A.,Minería,131536.85382785

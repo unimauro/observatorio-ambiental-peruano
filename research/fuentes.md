@@ -28,7 +28,7 @@ No existe (jul-2026) capa pública de **eventos** de derrame con fecha/volumen: 
 
 ## Pasivos y depósitos de relaves (OEFA)
 
-- **Capa oficial integrada (verificado):** `relaves-oefa-puntos.geojson` — 107 depósitos de relaves fiscalizados, con administrado (empresa), unidad fiscalizable, estado y área. Estados: 74 en operación, 18 inoperativos, 8 cerrados, 4 revegetados, 2 pasivo ambiental minero. Fuente: OEFA — PIFA, servidor ArcGIS:
+- **Capa oficial integrada (verificado):** `relaves-oefa-puntos.geojson` — 206 depósitos de relaves fiscalizados (actualizado 2026-08-05; antes 107), con administrado (empresa), unidad fiscalizable, estado y área. Estados: 173 en operación, 18 inoperativos, 8 cerrados, 4 revegetados, 2 pasivo ambiental minero, 1 en construcción. Fuente: OEFA — PIFA, servidor ArcGIS:
   - `https://pifa.oefa.gob.pe/arcgis/rest/services/RIESGOS/SERV_RIESGO_HIDROM_RELAVES_WMS/MapServer/4` (layer "Depósitos de Relaves"). Puntos = centroide de cada polígono.
 - **Nota:** la capa hosted "Emergencias Ambientales - Hidrocarburos" (services5.arcgis.com) figura como pública pero el servicio está huérfano (Invalid URL). Pendiente ubicar la capa de derrames vigente en PIFA (carpeta EMER_HIDRO no expone servicios públicos).
 
