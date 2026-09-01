@@ -11,6 +11,8 @@ Punto de retomada rápido. Estado al **2026-09-01**. Live: https://unimauro.gith
   - **`planes-rehabilitacion-amazonia`** — 30 sitios con costo de rehabilitación (MINEM, ≈ S/ 669 M).
 - ETL nuevo `etl/build_hidrocarburos_amazonia.py` (parte de Excel locales, convierte UTM→lat/lon, limpia coords sucias, fusiona `_manifest.json`). Requiere `openpyxl`.
 - Fuentes originales versionadas en `etl/fuentes/hidrocarburos-amazonia/`. Doc en `research/fuentes.md`. Contexto del asistente actualizado. `npm run build` OK.
+- **Desplegado en vivo** (commit `ee4d3f6`, GitHub Actions OK). Se resolvió un conflicto de `_manifest.json` con el refresco del bot ETL (2026-08-31) por rebase.
+- Reporte para compartir: [`ACTUALIZACION-2026-09-01.md`](ACTUALIZACION-2026-09-01.md) + PDF con branding en `~/Downloads/Actualizacion-Observatorio-Amazonia-2026-09-01.pdf` (regenerable desde `etl/fuentes/hidrocarburos-amazonia/` → HTML → weasyprint).
 
 ## ✅ Hecho (sesión derrames + refresco)
 
@@ -34,9 +36,18 @@ Punto de retomada rápido. Estado al **2026-09-01**. Live: https://unimauro.gith
 - [ ] Concesiones forestales (2,922) / energía GISEM — opcional, baja prioridad.
 - [ ] `apoyo.json` — Carlos debe dar Yape/Plin/PayPal reales y poner `activo:true`.
 
+### Del chat del equipo (WhatsApp, ago-2026) — quedan pendientes
+
+- [ ] **UNDP — Estudio técnico del Lote 8** (base SIG): ver si trae shapefiles/coordenadas para capa propia. https://www.undp.org/es/peru/publicaciones/estudio-tecnico-independiente-del-lote-8
+- [ ] **Concesiones — geoportal CooperAcción** (http://cooperaccion-geoportal.org/): mapear concesiones mineras/forestales.
+- [ ] **Bibliografía de Kely** (ResearchGate): subir a la Biblioteca sus docs de valoración económica y economía feminista de la zona. https://www.researchgate.net/profile/Kely-Alfaro-Montoya
+- [ ] **Visores ArcGIS instant** que pasó Kely (appid `97f64504…` y `5ce50d15…`): son otro tipo de visor; la data de fondo es la que ya integramos con el paquete de sitios impactados. Si comparten sus capas/puntos exactos, se mapean directo.
+
 ## ⚠️ Recordatorios de operación
 
 - **El cron semanal NO refresca las 4 capas OEFA** (PIFA da 403 a IPs de datacenter). Hay que correr `python etl/build_data.py` **local** (IP residencial) cada cierto tiempo para actualizar relaves, riesgo, pasivos y suelos.
+- **El refresco del bot deja `_manifest.json` incompleto:** como falla el fetch de las 4 capas OEFA, el manifest que commitea el cron NO las lista (baja de 13 a 9 capas base). Los **archivos geojson sí persisten** en el repo, así que el mapa (catálogo hardcodeado en `Mapa.tsx`) no se ve afectado; es solo cosmético/documental. Se corrige corriendo `build_data.py` local.
+- **Las capas de la Amazonía** (`monitoreo-indigena`, `oefa-isim-amazonia`, `pash-amazonia`, `planes-rehabilitacion-amazonia`) NO las toca ningún cron: se regeneran con `python etl/build_hidrocarburos_amazonia.py` (que re-fusiona el manifest) solo si cambian los Excel de `etl/fuentes/`.
 - Al pushear: el bot ETL puede haber commiteado antes → `git pull --rebase` primero.
 - No levantar servidores en local para probar; el deploy y la verificación van por GitHub Actions / en vivo.
 
@@ -45,7 +56,8 @@ Punto de retomada rápido. Estado al **2026-09-01**. Live: https://unimauro.gith
 ```bash
 cd ~/Documents/Repos/observatorio-ambiental-peruano
 git pull --rebase origin main
-python etl/build_data.py        # refresca datos (correr local por el 403 de OEFA)
-npm run build                   # verifica que compila
-git add -A && git commit && git push   # deploy automático a Pages
+python etl/build_data.py                     # refresca capas oficiales (correr local por el 403 de OEFA)
+python etl/build_hidrocarburos_amazonia.py   # regenera capas Amazonía si cambiaron los Excel (needs openpyxl)
+npm run build                                # verifica que compila
+git add -A && git commit && git push         # deploy automático a Pages
 ```
