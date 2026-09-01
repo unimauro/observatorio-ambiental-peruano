@@ -63,6 +63,34 @@
       "features": 4,
       "titulo": "Oleoducto Norperuano (traza por tramos)",
       "fuente": "Petroperú, vía OSINERGMIN GISEM — progresivas kilométricas oficiales (capa 17)."
+    },
+    {
+      "archivo": "monitoreo-indigena.geojson",
+      "csv": "csv/monitoreo-indigena.csv",
+      "features": 567,
+      "titulo": "Monitoreo ambiental indígena (PUINAMUDT)",
+      "fuente": "PUINAMUDT — monitores indígenas de las cuencas Pastaza, Corrientes, Tigre y Marañón (2007-2025)."
+    },
+    {
+      "archivo": "oefa-isim-amazonia.geojson",
+      "csv": "csv/oefa-isim-amazonia.csv",
+      "features": 86,
+      "titulo": "Monitoreo OEFA de sitios impactados (agua, suelo, sedimento y biota)",
+      "fuente": "OEFA — Datos abiertos, Evaluación ambiental para la Identificación de Sitios Impactados (ISIM), Amazonía 2022-2024."
+    },
+    {
+      "archivo": "pash-amazonia.geojson",
+      "csv": "csv/pash-amazonia.csv",
+      "features": 22,
+      "titulo": "Pasivos ambientales del subsector hidrocarburos — Amazonía",
+      "fuente": "MINEM — Dirección General de Asuntos Ambientales de Hidrocarburos (DGAAH), inventario 2015-2019."
+    },
+    {
+      "archivo": "planes-rehabilitacion-amazonia.geojson",
+      "csv": "csv/planes-rehabilitacion-amazonia.csv",
+      "features": 30,
+      "titulo": "Sitios impactados con plan de rehabilitación (MINEM)",
+      "fuente": "MINEM — DGAAH, consolidado de planes de rehabilitación (cuencas Pastaza, Corrientes, Tigre y Marañón)."
     }
   ],
   "errores": [
@@ -82,5 +110,6 @@
       "tarea": "suelos-empetrolados",
       "error": "fallo https://pifa.oefa.gob.pe/arcgis/rest/services/LOTEX/SERV_SUP_LOTX_REM/MapServer/0/query: HTTP Error 403: Forbidden"
     }
-  ]
+  ],
+  "generado_hidrocarburos_amazonia": "2026-09-01T18:36:30Z"
 }

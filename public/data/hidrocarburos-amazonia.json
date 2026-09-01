@@ -1,0 +1,205 @@
+{
+ "actualizado": "2026-09-01",
+ "fuente": "Paquete 'Sitios impactados por hidrocarburos' (PUINAMUDT, OEFA, MINEM), integrado 2026-09.",
+ "capas": {
+  "monitoreo_indigena": {
+   "total_registros": 994,
+   "mapeados": 567,
+   "sin_coordenada": 427,
+   "metodos_coord": {
+    "utm_deg": 1,
+    "utm": 232,
+    "latlon": 208,
+    "latlon_swap": 126
+   },
+   "por_tipo": [
+    [
+     "Derrame antiguo de petróleo",
+     285
+    ],
+    [
+     "Derrame nuevo de petróleo",
+     217
+    ],
+    [
+     "Botadero",
+     214
+    ],
+    [
+     "Derrame de crudo",
+     124
+    ],
+    [
+     "otro",
+     59
+    ],
+    [
+     "fuga",
+     40
+    ],
+    [
+     "agua producida",
+     17
+    ],
+    [
+     "derrame de diesel",
+     8
+    ],
+    [
+     "Derrame de agua de formación",
+     5
+    ],
+    [
+     "Sin especificar",
+     4
+    ],
+    [
+     "colpa artificial",
+     4
+    ],
+    [
+     "Crudo mezclado con agua",
+     3
+    ],
+    [
+     "Piscina de crudo",
+     3
+    ],
+    [
+     "Árboles talados",
+     1
+    ],
+    [
+     "Otro",
+     1
+    ],
+    [
+     "Peces muertos",
+     1
+    ],
+    [
+     "Derrame de agua de producción",
+     1
+    ],
+    [
+     "Depósito de material",
+     1
+    ],
+    [
+     "Descarga de agua",
+     1
+    ],
+    [
+     "vertedero, antiguo derrame de petróleo",
+     1
+    ],
+    [
+     "Fuga de agua de formación",
+     1
+    ],
+    [
+     "Lodos de perforación",
+     1
+    ],
+    [
+     "aguas de producción",
+     1
+    ],
+    [
+     "Agua producida",
+     1
+    ]
+   ],
+   "por_cuenca_federacion": [
+    [
+     "FECONACO",
+     361
+    ],
+    [
+     "FEDIQUEP",
+     236
+    ],
+    [
+     "OPIKAFPE",
+     213
+    ],
+    [
+     "OEFA, FECONACO",
+     64
+    ],
+    [
+     "FECONACOR",
+     64
+    ],
+    [
+     "OSINERGMIN, FECONACO",
+     19
+    ],
+    [
+     "OEFA, FEDIQUEP",
+     13
+    ],
+    [
+     "ACODECOSPAT",
+     10
+    ],
+    [
+     "OEFA, OPIKAFPE",
+     8
+    ],
+    [
+     "FECONACO, OPIKAFPE",
+     3
+    ],
+    [
+     "OEFA, OSINERGMIN, FECONACO",
+     2
+    ],
+    [
+     "OEFA,. FECONACO",
+     1
+    ]
+   ],
+   "por_lote": [
+    [
+     "Lote 1AB/192",
+     703
+    ],
+    [
+     "Lote 8",
+     203
+    ],
+    [
+     "Lote 101",
+     5
+    ],
+    [
+     "ONP",
+     3
+    ],
+    [
+     "Lote 143",
+     1
+    ]
+   ]
+  },
+  "oefa_isim": {
+   "puntos_unicos": 86,
+   "registros_por_componente": {
+    "Agua": 999,
+    "Sedimento": 999,
+    "Suelo": 999,
+    "Biota": 999
+   }
+  },
+  "pash_amazonia": {
+   "total": 22,
+   "mapeados": 22,
+   "sin_coordenada": 0
+  },
+  "planes_rehabilitacion": {
+   "sitios": 30,
+   "costo_total_soles": 668921387.4
+  }
+ }
+}

@@ -1,6 +1,16 @@
 # Backlog — Observatorio Ambiental Peruano
 
-Punto de retomada rápido. Estado al **2026-08-05**. Live: https://unimauro.github.io/observatorio-ambiental-peruano/
+Punto de retomada rápido. Estado al **2026-09-01**. Live: https://unimauro.github.io/observatorio-ambiental-peruano/
+
+## ✅ Hecho (sesión Amazonía — sitios impactados, 2026-09-01)
+
+- 4 capas nuevas desde el paquete de aliados "Bases de datos - sitios impactados por hidrocarburos" (grupo **"Amazonía: sitios impactados"** en el mapa, ver detalle en [`ACTUALIZACION-2026-09-01.md`](ACTUALIZACION-2026-09-01.md)):
+  - **`monitoreo-indigena`** (PUINAMUDT) — 994 impactos, 567 mapeados. **Es la data del StoryMap que pedía Kely.** Activa por defecto.
+  - **`oefa-isim-amazonia`** — 86 puntos únicos de monitoreo OEFA (agua/suelo/sedimento/biota).
+  - **`pash-amazonia`** — 22 pasivos hidrocarburos Amazonía (MINEM).
+  - **`planes-rehabilitacion-amazonia`** — 30 sitios con costo de rehabilitación (MINEM, ≈ S/ 669 M).
+- ETL nuevo `etl/build_hidrocarburos_amazonia.py` (parte de Excel locales, convierte UTM→lat/lon, limpia coords sucias, fusiona `_manifest.json`). Requiere `openpyxl`.
+- Fuentes originales versionadas en `etl/fuentes/hidrocarburos-amazonia/`. Doc en `research/fuentes.md`. Contexto del asistente actualizado. `npm run build` OK.
 
 ## ✅ Hecho (sesión derrames + refresco)
 

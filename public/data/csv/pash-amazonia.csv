@@ -1,0 +1,23 @@
+﻿lon,lat,id,cod_ficha,descripcion,lote,departamento,provincia,distrito,riesgo_salud,riesgo_seguridad,riesgo_ambiente,oficio_oefa
+-74.357865,-5.837228,2077.0,F03329,Pozo mal abandonado,Ex Lote 14,Loreto,Requena,Emilio San Martin,BAJO,MEDIO,BAJO,017-2016-OEFA/DE
+-74.279813,-5.342865,2309.0,F03636,Pozo mal abandonado,95,Loreto,Requena,Puinahua,BAJO,BAJO,BAJO,017-2016-OEFA/DE
+-76.326953,-2.98385,2558.0,F03970,"Instalaciones mal abandonadas, restos o depósitos de residuos.",Locación Tucunarú 1X y alrededores,Loreto,Loreto,Trompeteros,BAJO,BAJO,BAJO,017-2016-OEFA/DE
+-75.179117,-7.110752,2382.0,F02500,"Suelos contaminados con efluente o derrame, restos o depósitos de residuos.",100,Loreto,Ucayali,Pampa Hermosa,BAJO,BAJO,BAJO,070-2016-OEFA/DE
+-74.945294,-4.709272,1171.0,F01668,Pozo mal abandonado,65.0,Loreto,Loreto,Urarinas,BAJO,BAJO,BAJO,081-2015-OEFA/DE
+-75.235439,-4.753924,1506.0,F02188,"Pozo mal abandonado, instalaciones mal abandonadas.",7,Loreto,Loreto,Urarinas,BAJO,BAJO,BAJO,103-2016-OEFA/DE
+-74.08643,-4.467166,1265.0,F01861,"Pozo mal abandonado con afloramiento de líquidos, presencia de emisiones gaseosas fugitivas y suelo contaminado con bario",Sin Lote,Loreto,Loreto,Nauta,BAJO,BAJO,BAJO,124-2016-OEFA/DE
+-73.475785,-9.323314,1258.0,F01840,Pozo mal abandonado,126,Ucayali,Coronel Portillo,Masisea,BAJO,BAJO,BAJO,124-2016-OEFA/DE
+-74.15562,-9.2683,1290.0,F01892,"Pozo mal abandonado, restos o depósitos de residuos.",114.0,Ucayali,Coronel Portillo,Iparia,ALTO,ALTO,ALTO,124-2016-OEFA/DE
+-74.250336,-9.610651,1291.0,F01893,Pozo mal abandonado,114,Ucayali,Coronel Portillo,Iparia,BAJO,BAJO,BAJO,124-2016-OEFA/DE
+-77.237101,-3.936252,1.0,F00001,Restos o depósitos de residuos.,Sin Lote,Loreto,Dátem del Marañón,Morona,BAJO,BAJO,BAJO,156-2013-OEFA/DE
+-75.178981,-7.110345,1292.0,F01894,Pozo mal abandonado,100,Loreto,Ucayali,Pampa Hermosa,BAJO,BAJO,BAJO,161-2015-OEFA/DE
+-75.187584,-7.108677,1293.0,F01895,Pozo mal abandonado,100,Loreto,Ucayali,Pampa Hermosa,BAJO,BAJO,BAJO,161-2015-OEFA/DE
+-69.730772,-12.112526,1013.0,F01469,Pozo mal abandonado,157,Madre de Dios,Tambopata,Tambopata,BAJO,BAJO,BAJO,161-2015-OEFA/DE
+-74.882113,-8.550099,1295.0,F01897,Pozo mal abandonado,163.0,Ucayali,Coronel Portillo,Campoverde,BAJO,BAJO,BAJO,161-2015-OEFA/DE
+-77.238034,-3.934902,2.0,F00002,Instalaciones mal abandonadas.,Sin Lote,Loreto,Dátem del Marañón,Morona,BAJO,BAJO,BAJO,192-2014-OEFA/DE
+-75.206041,-6.96901,1294.0,F01896,Pozo mal abandonado,183,Loreto,Ucayali,Vargas Guerra,BAJO,BAJO,BAJO,210-2015-OEFA/DE
+-73.72193,-9.036114,1717.0,F01841,"Instalaciones mal abandonadas, restos o depósitos de residuos.",126,Ucayali,Coronel Portillo,Masisea,BAJO,BAJO,BAJO,210-2015-OEFA/DE
+-75.217249,-4.806699,1183.0,F01680,Pozo mal abandonado,7,Loreto,Loreto,Urarinas,BAJO,BAJO,BAJO,246-2015-OEFA/DE
+-74.786055,-4.526236,1504.0,F02187,Pozo mal abandonado,Sin Lote,Loreto,Loreto,Urarinas,BAJO,BAJO,BAJO,246-2015-OEFA/DE
+-77.95159,-4.727506,1014.0,F01471,"Pozo mal abandonado, restos o depósitos de residuos.",116.0,Amazonas,Condorcanqui,Nieva,MEDIO,MEDIO,MEDIO,72-2015-OEFA/DE
+-77.931452,-4.380495,1015.0,F01473,"Pozo mal abandonado, la instalación de hidrocarburos, restos y depósitos de residuos vinculados al pozo",116.0,Amazonas,Condorcanqui,Rio Santiago,BAJO,BAJO,BAJO,Oficio N° 317-2019-OEFA-DEAM

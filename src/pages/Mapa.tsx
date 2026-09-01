@@ -15,6 +15,7 @@ type CapaId =
   | 'anp' | 'lotes' | 'pueblos' | 'reservas' | 'comunidades' | 'campesinas'
   | 'unidades' | 'mineria' | 'relaves' | 'riesgo' | 'eventos' | 'departamentos'
   | 'pasivosHidro' | 'suelos' | 'oleoducto'
+  | 'monitoreoIndigena' | 'oefaIsim' | 'pashAmazonia' | 'planesRehab'
 type Geo = { type: string; features: any[] }
 
 const PERU_CENTER: L.LatLngTuple = [-9.6, -74.5]
@@ -141,6 +142,36 @@ const POPUP = {
     <div style="font-size:12px"><b>Pueblo:</b> ${p.pueblo ?? 's/d'}</div>
     <div style="font-size:12px"><b>Estado:</b> ${p.estado ?? 's/d'}</div>
     <div style="font-size:11px;color:#5b21b6;margin-top:4px">Fuente: Min. Cultura · GEOCATMIN</div></div>`,
+  monitoreoIndigena: (p: any) => `<div style="min-width:235px"><strong style="color:#b91c1c">${p.tipo_impacto ?? 'Impacto registrado'}</strong>
+    <div style="font-size:12px;margin-top:4px"><b>Federación:</b> ${p.federacion ?? 's/d'} · <b>Zona:</b> ${p.zona ?? 's/d'}</div>
+    <div style="font-size:12px"><b>Lote:</b> ${p.lote ?? 's/d'} · <b>Empresa:</b> ${p.empresa ?? 's/d'}</div>
+    <div style="font-size:12px"><b>Antigüedad:</b> ${p.antiguedad ?? 's/d'} · <b>Año:</b> ${p.anio || 's/d'}</div>
+    ${p.descripcion ? `<p style="margin:6px 0;font-size:12px">${p.descripcion}</p>` : ''}
+    ${p.remediacion ? `<div style="font-size:12px"><b>Remediación:</b> ${p.remediacion}</div>` : ''}
+    <div style="font-size:11px;color:#b91c1c;margin-top:4px">Fuente: PUINAMUDT — monitores indígenas · dato ${p.estado_validacion || 's/d'}</div></div>`,
+  oefaIsim: (p: any) => `<div style="min-width:225px"><strong style="color:#0e7490">Punto de monitoreo OEFA</strong>
+    <div style="font-size:12px;margin-top:4px"><b>Código:</b> ${p.punto ?? 's/d'}</div>
+    <div style="font-size:12px"><b>Componentes:</b> ${p.componentes ?? 's/d'}</div>
+    <div style="font-size:12px"><b>Registros analizados:</b> ${p.registros ? fmt(p.registros) : 's/d'}</div>
+    <div style="font-size:12px"><b>Informe:</b> ${p.informe ?? 's/d'}</div>
+    <div style="font-size:11px;color:#0e7490;margin-top:4px">Fuente: OEFA — datos abiertos (ISIM), Amazonía 2022-2024</div></div>`,
+  pashAmazonia: (p: any) => {
+    const alto = (v?: string) => ['alto', 'muy alto'].includes(String(v ?? '').trim().toLowerCase())
+    const rr = [alto(p.riesgo_salud) ? 'salud' : '', alto(p.riesgo_seguridad) ? 'seguridad' : '', alto(p.riesgo_ambiente) ? 'ambiente' : ''].filter(Boolean).join(' · ')
+    return `<div style="min-width:230px"><strong style="color:#9d174d">Pasivo hidrocarburos — Amazonía</strong>
+      <div style="font-size:12px;margin-top:4px"><b>Descripción:</b> ${p.descripcion ?? 's/d'}</div>
+      <div style="font-size:12px"><b>Lote:</b> ${p.lote ?? 's/d'} · <b>Ficha:</b> ${p.cod_ficha ?? 's/d'}</div>
+      <div style="font-size:12px"><b>Ubicación:</b> ${[p.distrito, p.provincia, p.departamento].filter(Boolean).join(', ') || 's/d'}</div>
+      <div style="font-size:12px"><b>Riesgo:</b> salud ${p.riesgo_salud ?? 's/d'} · seguridad ${p.riesgo_seguridad ?? 's/d'} · ambiente ${p.riesgo_ambiente ?? 's/d'}</div>
+      ${rr ? `<div style="font-size:12px;color:#b91c1c;margin-top:3px">⚠ Riesgo alto en: ${rr}</div>` : ''}
+      <div style="font-size:11px;color:#9d174d;margin-top:4px">Fuente: MINEM · DGAAH (inventario 2015-2019)</div></div>`
+  },
+  planesRehab: (p: any) => `<div style="min-width:230px"><strong style="color:#047857">Plan de rehabilitación — ${p.sitio ?? ''}</strong>
+    <div style="font-size:12px;margin-top:4px"><b>Cuenca:</b> ${p.cuenca ?? 's/d'} · <b>Área:</b> ${p.area_ha != null ? p.area_ha + ' ha' : 's/d'}</div>
+    <div style="font-size:12px"><b>Referencia:</b> ${p.referencia ?? 's/d'}</div>
+    <div style="font-size:12px"><b>Código OEFA:</b> ${p.codigo_oefa ?? 's/d'} · <b>Expediente:</b> ${p.expediente ?? 's/d'}</div>
+    <div style="font-size:12px"><b>Costo estimado:</b> ${p.costo_total_soles != null ? 'S/ ' + fmt(Math.round(p.costo_total_soles)) : 's/d'}</div>
+    <div style="font-size:11px;color:#047857;margin-top:4px">Fuente: MINEM · DGAAH — plan de rehabilitación</div></div>`,
 }
 
 const LAYERS: Record<CapaId, LayerDef> = {
@@ -182,11 +213,23 @@ const LAYERS: Record<CapaId, LayerDef> = {
       const fill = e.includes('con afecta') ? '#0f172a' : e.includes('ejecuci') ? '#f97316' : e.includes('sin afecta') ? '#94a3b8' : '#cbd5e1'
       return { radius: e.includes('con afecta') ? 5 : 3.5, color: '#fff', weight: 0.6, fillColor: fill, fillOpacity: 0.9 }
     }, popup: POPUP.suelos },
+  monitoreoIndigena: { kind: 'point', label: 'Monitoreo indígena (PUINAMUDT)', group: 'Amazonía: sitios impactados', file: 'monitoreo-indigena.geojson', cluster: true,
+    style: (f) => {
+      const t = String(f?.properties?.tipo_impacto ?? '').toLowerCase()
+      const fill = t.includes('nuevo') ? '#dc2626' : t.includes('antiguo') ? '#ea580c' : t.includes('botadero') || t.includes('vertedero') ? '#a16207' : t.includes('derrame') || t.includes('crudo') ? '#b91c1c' : '#7c3aed'
+      return { radius: 5, color: '#fff', weight: 0.8, fillColor: fill, fillOpacity: 0.9 }
+    }, popup: POPUP.monitoreoIndigena },
+  oefaIsim: { kind: 'point', label: 'Monitoreo OEFA sitios impactados', group: 'Amazonía: sitios impactados', file: 'oefa-isim-amazonia.geojson', cluster: true,
+    style: (f) => ({ radius: 4 + Math.min(4, Number(f?.properties?.n_componentes ?? 1)), color: '#fff', weight: 1, fillColor: '#0891b2', fillOpacity: 0.9 }), popup: POPUP.oefaIsim },
+  pashAmazonia: { kind: 'point', label: 'Pasivos hidrocarburos Amazonía (MINEM)', group: 'Amazonía: sitios impactados', file: 'pash-amazonia.geojson', cluster: false,
+    style: () => ({ radius: 6, color: '#fff', weight: 1.4, fillColor: '#9d174d', fillOpacity: 0.9 }), popup: POPUP.pashAmazonia },
+  planesRehab: { kind: 'point', label: 'Sitios con plan de rehabilitación (MINEM)', group: 'Amazonía: sitios impactados', file: 'planes-rehabilitacion-amazonia.geojson', cluster: false,
+    style: () => ({ radius: 6, color: '#fff', weight: 1.4, fillColor: '#047857', fillOpacity: 0.9 }), popup: POPUP.planesRehab },
 }
 
-const DEFAULT_ON: CapaId[] = ['anp', 'lotes', 'pueblos', 'reservas', 'unidades', 'mineria', 'relaves', 'riesgo', 'eventos', 'oleoducto', 'pasivosHidro']
+const DEFAULT_ON: CapaId[] = ['anp', 'lotes', 'pueblos', 'reservas', 'unidades', 'mineria', 'relaves', 'riesgo', 'eventos', 'oleoducto', 'pasivosHidro', 'monitoreoIndigena']
 
-const GROUPS = ['Territorios y pueblos', 'Hidrocarburos y minería', 'Derrames y pasivos', 'Áreas y base']
+const GROUPS = ['Territorios y pueblos', 'Hidrocarburos y minería', 'Derrames y pasivos', 'Amazonía: sitios impactados', 'Áreas y base']
 
 const LEYENDA: { c: string; t: string; sq?: boolean }[] = [
   { c: '#22c55e', t: 'Área protegida', sq: true },
@@ -205,6 +248,10 @@ const LEYENDA: { c: string; t: string; sq?: boolean }[] = [
   { c: '#dc2626', t: 'Pasivo con riesgo alto' },
   { c: '#0f172a', t: 'Suelo empetrolado con afectación' },
   { c: '#111827', t: 'Oleoducto Norperuano', sq: true },
+  { c: '#b91c1c', t: 'Impacto — monitoreo indígena' },
+  { c: '#0891b2', t: 'Punto de monitoreo OEFA' },
+  { c: '#9d174d', t: 'Pasivo hidrocarburos (Amazonía)' },
+  { c: '#047857', t: 'Sitio con plan de rehabilitación' },
 ]
 
 export default function Mapa() {
@@ -340,8 +387,10 @@ export default function Mapa() {
         <h1 className="text-3xl font-extrabold">Mapa interactivo</h1>
         <p className="text-sm text-slate-500">
           Capas oficiales del SERNANP, OEFA, MINEM, Petroperú y Cultura — incluye los pasivos de
-          hidrocarburos, los suelos empetrolados del Lote X y la traza del Oleoducto Norperuano.
-          Filtra por región o explora todo el país. Solo los 5 eventos emblemáticos tienen
+          hidrocarburos, los suelos empetrolados del Lote X, la traza del Oleoducto Norperuano y el
+          grupo <span className="font-medium">Amazonía: sitios impactados</span> (monitoreo indígena
+          de PUINAMUDT, monitoreo OEFA y planes de rehabilitación en Pastaza, Corrientes, Tigre y
+          Marañón). Filtra por región o explora todo el país. Solo los 5 eventos emblemáticos tienen
           coordenadas referenciales — ver <span className="font-medium">Acerca</span>.
         </p>
       </div>

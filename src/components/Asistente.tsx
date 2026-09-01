@@ -36,13 +36,25 @@ const SUGERENCIAS = [
 
 interface FaqCtx { grupos: { tema: string; items: { q: string; a: string }[] }[] }
 
+interface HidroAmz {
+  actualizado: string
+  fuente: string
+  capas: {
+    monitoreo_indigena?: { total_registros: number; mapeados: number; por_tipo: [string, number][]; por_cuenca_federacion: [string, number][] }
+    oefa_isim?: { puntos_unicos: number; registros_por_componente: Record<string, number> }
+    pash_amazonia?: { total: number; mapeados: number }
+    planes_rehabilitacion?: { sitios: number; costo_total_soles: number }
+  }
+}
+
 async function buildContext(): Promise<string> {
   try {
-    const [ind, ejes, faq, der] = await Promise.all([
+    const [ind, ejes, faq, der, amz] = await Promise.all([
       loadJSON<Indicadores>('indicadores.json'),
       loadJSON<Eje[]>('ejes.json'),
       loadJSON<FaqCtx>('faq.json').catch(() => ({ grupos: [] }) as FaqCtx),
       loadJSON<Derrames>('derrames.json').catch(() => null),
+      loadJSON<HidroAmz>('hidrocarburos-amazonia.json').catch(() => null),
     ])
     const kpis = ind.kpis
       .map((k) => `- ${k.etiqueta}: ${k.valor.toLocaleString('es-PE')} ${k.unidad} (${k.estado}; ${k.fuente})`)
@@ -59,7 +71,18 @@ async function buildContext(): Promise<string> {
         + `\n- Departamentos con más pasivos: ${der.pasivosPorDepartamento.slice(0, 5).map((d) => `${d.clave} (${d.valor})`).join(', ')}`
         + `\n- Nota metodológica: ${der.nota}`
       : ''
-    return `INDICADORES NACIONALES ACTUALES:\n${kpis}\n\nEJES TEMÁTICOS:\n${temas}${hidro}\n\nPREGUNTAS FRECUENTES:\n${faqs}`
+    const c = amz?.capas
+    const amazonia = c
+      ? '\n\nSITIOS IMPACTADOS POR HIDROCARBUROS EN LA AMAZONÍA (cuencas Pastaza, Corrientes, Tigre y Marañón, Loreto):\n'
+        + (c.monitoreo_indigena
+          ? `- Monitoreo indígena (PUINAMUDT, 2007-2025): ${c.monitoreo_indigena.total_registros.toLocaleString('es-PE')} impactos registrados por monitores indígenas, ${c.monitoreo_indigena.mapeados.toLocaleString('es-PE')} con coordenada en el mapa. Tipos más frecuentes: ${c.monitoreo_indigena.por_tipo.slice(0, 4).map((t) => `${t[0]} (${t[1]})`).join(', ')}. Federaciones: ${c.monitoreo_indigena.por_cuenca_federacion.slice(0, 4).map((t) => `${t[0]} (${t[1]})`).join(', ')}.\n`
+          : '')
+        + (c.oefa_isim ? `- Monitoreo OEFA de sitios impactados (ISIM, 2022-2024): ${c.oefa_isim.puntos_unicos} puntos con muestreo de ${Object.keys(c.oefa_isim.registros_por_componente).join(', ').toLowerCase()}.\n` : '')
+        + (c.pash_amazonia ? `- Pasivos de hidrocarburos en la Amazonía (MINEM/DGAAH): ${c.pash_amazonia.total} registros oficiales.\n` : '')
+        + (c.planes_rehabilitacion ? `- Sitios con plan de rehabilitación (MINEM): ${c.planes_rehabilitacion.sitios} sitios, con un costo estimado total de S/ ${Math.round(c.planes_rehabilitacion.costo_total_soles).toLocaleString('es-PE')}.` : '')
+        + `\n- Fuente: ${amz.fuente} Se ven en [Mapa](#/mapa), grupo "Amazonía: sitios impactados".`
+      : ''
+    return `INDICADORES NACIONALES ACTUALES:\n${kpis}\n\nEJES TEMÁTICOS:\n${temas}${hidro}${amazonia}\n\nPREGUNTAS FRECUENTES:\n${faqs}`
   } catch {
     return '(No se pudo cargar el contexto de datos.)'
   }

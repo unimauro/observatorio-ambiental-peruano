@@ -26,6 +26,23 @@ No existe (jul-2026) capa pública de **eventos** de derrame con fecha/volumen: 
 
 > Catálogo completo de endpoints sondeados —los que sirven y los que están caídos— en [`research/endpoints.json`](endpoints.json).
 
+## Sitios impactados por hidrocarburos en la Amazonía (integrado 2026-09-01)
+
+Paquete de bases de datos aportado por aliados (PUINAMUDT y datos abiertos OEFA/MINEM) sobre las cuencas del **Pastaza, Corrientes, Tigre y Marañón** (Loreto), donde operaron los lotes 1AB/192 y 8. Fuentes en `etl/fuentes/hidrocarburos-amazonia/` (con su `Diccionario de Bases de datos.xlsx`); ETL en `etl/build_hidrocarburos_amazonia.py` (requiere `openpyxl`, corre local). Todas las coordenadas se convirtieron de UTM WGS84 (zona 18S; 19S para el suroriente) a lat/lon.
+
+- **`monitoreo-indigena.geojson` (verificado)** — **994 impactos** registrados por monitores indígenas (2007–2025), **567 con coordenada mapeable** (las 427 restantes no traen ubicación utilizable en la fuente). Tipos más frecuentes: derrame antiguo (285), derrame nuevo (217), botadero (214), derrame de crudo (124). Federaciones: FECONACO, FEDIQUEP, OPIKAFPE, FECONACOR. Cada punto trae tipo de impacto, lote, empresa, año, descripción, remediación y estado de validación.
+  - Fuente: **PUINAMUDT** — StoryMap https://storymaps.arcgis.com/stories/fb42dd1bac994c19a04206b0b42ce395
+  - *Limpieza:* la base original mezcla lat/lon intercambiadas, grados metidos en columnas UTM y eastings corruptos; el ETL resuelve cada fila por heurística y descarta lo no recuperable.
+- **`oefa-isim-amazonia.geojson` (verificado)** — **86 puntos únicos** de monitoreo del OEFA (agua, suelo, sedimento y biota acuática) en las evaluaciones para la Identificación de Sitios Impactados (ISIM), 2022–2024. Agrega los ~4,000 registros muestra-parámetro de los 4 Excel del OEFA por punto de muestreo.
+  - Fuente: **OEFA — datos abiertos** https://datosabiertos.oefa.gob.pe/dashboards/21358/ *(las descargas vienen topadas a 1,000 filas por componente; el universo real es mayor).*
+- **`pash-amazonia.geojson` (verificado)** — **22 pasivos** ambientales del subsector hidrocarburos en la Amazonía (inventario MINEM/DGAAH 2015–2019), con lote, ubicación distrital y niveles de riesgo salud/seguridad/ambiente.
+  - Fuente: **MINEM — DGAAH** https://www.minem.gob.pe/_detalle.php?idSector=22&idTitular=8884
+- **`planes-rehabilitacion-amazonia.geojson` (verificado)** — **30 sitios** con propuesta oficial de rehabilitación (cuencas Pastaza/Corrientes/Tigre/Marañón), con área, código OEFA, expediente y **costo estimado por sitio** (suma ≈ S/ 669 millones).
+  - Fuente: **MINEM — DGAAH** https://www.minem.gob.pe/descripcion.php?idSector=22&idTitular=9448
+- **`hidrocarburos-amazonia.json`** — resumen agregado de las 4 capas que consume el asistente.
+
+En el mapa se muestran en el grupo **"Amazonía: sitios impactados"** (el monitoreo indígena viene activo por defecto).
+
 ## Pasivos y depósitos de relaves (OEFA)
 
 - **Capa oficial integrada (verificado):** `relaves-oefa-puntos.geojson` — 206 depósitos de relaves fiscalizados (actualizado 2026-08-05; antes 107), con administrado (empresa), unidad fiscalizable, estado y área. Estados: 173 en operación, 18 inoperativos, 8 cerrados, 4 revegetados, 2 pasivo ambiental minero, 1 en construcción. Fuente: OEFA — PIFA, servidor ArcGIS:
@@ -63,6 +80,7 @@ No existe (jul-2026) capa pública de **eventos** de derrame con fecha/volumen: 
 ## Pendientes / próximas integraciones
 
 - [x] Rastro georreferenciado de los derrames: pasivos de hidrocarburos, suelos empetrolados del Lote X y traza del ONP (2026-07-24).
+- [x] Sitios impactados por hidrocarburos en la Amazonía: monitoreo indígena PUINAMUDT, monitoreo OEFA ISIM, pasivos PASH y planes de rehabilitación (2026-09-01).
 - [ ] Eventos de derrame con fecha/volumen/responsable: no hay capa pública; evaluar sistematizar los informes PAS del OEFA o la base CNDDHH 2000–2019.
 - [ ] Deforestación por departamento/distrito desde Geobosques.
 - [ ] Cuencas hidrográficas (ANA) y ANP (SERNANP WFS).
