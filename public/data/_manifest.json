@@ -1,17 +1,10 @@
 {
-  "generado": "2026-09-07T15:07:04Z",
+  "generado": "2026-09-14T16:02:48Z",
   "capas": [
-    {
-      "archivo": "anp-sernanp.geojson",
-      "csv": "csv/anp-sernanp.csv",
-      "features": 104,
-      "titulo": "Áreas Naturales Protegidas (administración nacional)",
-      "fuente": "SERNANP — ArcGIS REST servicios_ogc/peru_sernanp_0102"
-    },
     {
       "archivo": "mineria-ilegal-anp.geojson",
       "csv": "csv/mineria-ilegal-anp.csv",
-      "features": 179,
+      "features": 0,
       "titulo": "Minería ilegal en ámbito de ANP",
       "fuente": "SERNANP — ArcGIS REST servicios_ogc/peru_sernanp_0201"
     },
@@ -66,6 +59,10 @@
     }
   ],
   "errores": [
+    {
+      "tarea": "anp-sernanp.geojson",
+      "error": "fallo https://geoservicios.sernanp.gob.pe/arcgis/rest/services/servicios_ogc/peru_sernanp_0102/MapServer/0/query: HTTP Error 500: Internal Server Error"
+    },
     {
       "tarea": "relaves-oefa-puntos.geojson",
       "error": "fallo https://pifa.oefa.gob.pe/arcgis/rest/services/RIESGOS/SERV_RIESGO_HIDROM_RELAVES_WMS/MapServer/4/query: HTTP Error 403: Forbidden"
