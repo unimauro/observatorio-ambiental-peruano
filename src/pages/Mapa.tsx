@@ -172,12 +172,12 @@ const POPUP = {
     <div style="font-size:12px"><b>Código OEFA:</b> ${p.codigo_oefa ?? 's/d'} · <b>Expediente:</b> ${p.expediente ?? 's/d'}</div>
     <div style="font-size:12px"><b>Costo estimado:</b> ${p.costo_total_soles != null ? 'S/ ' + fmt(Math.round(p.costo_total_soles)) : 's/d'}</div>
     <div style="font-size:11px;color:#047857;margin-top:4px">Fuente: MINEM · DGAAH — plan de rehabilitación</div></div>`,
-  emergencias: (p) => `<div style="min-width:220px"><div style="font-weight:700">${p.codigo ?? 'Emergencia ambiental'} · ${p.fecha ?? 's/f'}</div>
+  emergencias: (p: any) => `<div style="min-width:220px"><div style="font-weight:700">${p.codigo ?? 'Emergencia ambiental'} · ${p.fecha ?? 's/f'}</div>
     <div style="font-size:12px;margin-top:4px">${p.descripcion ?? ''}</div>
     <div style="font-size:12px;margin-top:4px"><b>Administrado:</b> ${p.administrado ?? 's/d'} · <b>Unidad:</b> ${p.unidad ?? 's/d'}</div>
     <div style="font-size:12px"><b>Subsector:</b> ${p.subsector ?? 's/d'} · ${p.distrito ?? ''}, ${p.provincia ?? ''} (${p.departamento ?? ''})</div>
     <div style="font-size:11px;color:#047857;margin-top:4px">Fuente: OEFA · PIFA ODES (emergencias ambientales) · <a href="https://unimauro.github.io/observatorio-peru/#/distrito" target="_blank" rel="noreferrer">ver distrito en Observatorio Perú</a></div></div>`,
-  mineriaIlegal: (p) => `<div style="min-width:200px"><div style="font-weight:700">${p.nombre ?? 'Área de minería ilegal'}</div>
+  mineriaIlegal: (p: any) => `<div style="min-width:200px"><div style="font-weight:700">${p.nombre ?? 'Área de minería ilegal'}</div>
     <div style="font-size:12px;margin-top:4px"><b>Código:</b> ${p.cod ?? 's/d'} · <b>Fuente del registro:</b> ${p.fuente ?? 's/d'}</div>
     <div style="font-size:12px"><b>Área aprox.:</b> ${p.area_ha != null ? p.area_ha + ' ha' : 's/d'}</div>
     <div style="font-size:11px;color:#047857;margin-top:4px">Fuente: OEFA · PIFA (UFAFEMA-PPO, GORE, REINFO excluido). Geometría simplificada.</div></div>`,
