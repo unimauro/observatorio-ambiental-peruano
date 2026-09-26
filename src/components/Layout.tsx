@@ -91,8 +91,9 @@ export default function Layout() {
             </p>
           </div>
           <div className="sm:text-right">
-            <p className="text-slate-400">Código y datos: open source · Fase 1 — Observatorio</p>
+            <p className="text-slate-400">Código y datos: open source · Fase 1.5 — capas oficiales</p>
             <Link to="/acerca" className="text-forest-light hover:underline">Acerca y fuentes →</Link>
+            <p className="mt-2 text-slate-400">Red de observatorios: <a href="https://unimauro.github.io/observatorio-peru/" className="text-forest-light hover:underline">Observatorio Perú (contaminación, salud y educación por distrito)</a> · <a href="https://unimauro.github.io/mortalidad-peru/" className="text-forest-light hover:underline">Mortalidad</a> · <a href="https://unimauro.github.io/educacion-peru/" className="text-forest-light hover:underline">Educación</a> · <a href="https://unimauro.github.io/qhaway-dashboard/" className="text-forest-light hover:underline">QHAWAY</a></p>
           </div>
         </div>
       </footer>

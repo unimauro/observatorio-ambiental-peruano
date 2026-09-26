@@ -15,7 +15,7 @@ type CapaId =
   | 'anp' | 'lotes' | 'pueblos' | 'reservas' | 'comunidades' | 'campesinas'
   | 'unidades' | 'mineria' | 'relaves' | 'riesgo' | 'eventos' | 'departamentos'
   | 'pasivosHidro' | 'suelos' | 'oleoducto'
-  | 'monitoreoIndigena' | 'oefaIsim' | 'pashAmazonia' | 'planesRehab'
+  | 'monitoreoIndigena' | 'oefaIsim' | 'pashAmazonia' | 'planesRehab' | 'emergencias' | 'mineriaIlegal'
 type Geo = { type: string; features: any[] }
 
 const PERU_CENTER: L.LatLngTuple = [-9.6, -74.5]
@@ -172,6 +172,15 @@ const POPUP = {
     <div style="font-size:12px"><b>Código OEFA:</b> ${p.codigo_oefa ?? 's/d'} · <b>Expediente:</b> ${p.expediente ?? 's/d'}</div>
     <div style="font-size:12px"><b>Costo estimado:</b> ${p.costo_total_soles != null ? 'S/ ' + fmt(Math.round(p.costo_total_soles)) : 's/d'}</div>
     <div style="font-size:11px;color:#047857;margin-top:4px">Fuente: MINEM · DGAAH — plan de rehabilitación</div></div>`,
+  emergencias: (p) => `<div style="min-width:220px"><div style="font-weight:700">${p.codigo ?? 'Emergencia ambiental'} · ${p.fecha ?? 's/f'}</div>
+    <div style="font-size:12px;margin-top:4px">${p.descripcion ?? ''}</div>
+    <div style="font-size:12px;margin-top:4px"><b>Administrado:</b> ${p.administrado ?? 's/d'} · <b>Unidad:</b> ${p.unidad ?? 's/d'}</div>
+    <div style="font-size:12px"><b>Subsector:</b> ${p.subsector ?? 's/d'} · ${p.distrito ?? ''}, ${p.provincia ?? ''} (${p.departamento ?? ''})</div>
+    <div style="font-size:11px;color:#047857;margin-top:4px">Fuente: OEFA · PIFA ODES (emergencias ambientales) · <a href="https://unimauro.github.io/observatorio-peru/#/distrito" target="_blank" rel="noreferrer">ver distrito en Observatorio Perú</a></div></div>`,
+  mineriaIlegal: (p) => `<div style="min-width:200px"><div style="font-weight:700">${p.nombre ?? 'Área de minería ilegal'}</div>
+    <div style="font-size:12px;margin-top:4px"><b>Código:</b> ${p.cod ?? 's/d'} · <b>Fuente del registro:</b> ${p.fuente ?? 's/d'}</div>
+    <div style="font-size:12px"><b>Área aprox.:</b> ${p.area_ha != null ? p.area_ha + ' ha' : 's/d'}</div>
+    <div style="font-size:11px;color:#047857;margin-top:4px">Fuente: OEFA · PIFA (UFAFEMA-PPO, GORE, REINFO excluido). Geometría simplificada.</div></div>`,
 }
 
 const LAYERS: Record<CapaId, LayerDef> = {
@@ -225,6 +234,10 @@ const LAYERS: Record<CapaId, LayerDef> = {
     style: () => ({ radius: 6, color: '#fff', weight: 1.4, fillColor: '#9d174d', fillOpacity: 0.9 }), popup: POPUP.pashAmazonia },
   planesRehab: { kind: 'point', label: 'Sitios con plan de rehabilitación (MINEM)', group: 'Amazonía: sitios impactados', file: 'planes-rehabilitacion-amazonia.geojson', cluster: false,
     style: () => ({ radius: 6, color: '#fff', weight: 1.4, fillColor: '#047857', fillOpacity: 0.9 }), popup: POPUP.planesRehab },
+  emergencias: { kind: 'point', label: 'Emergencias ambientales (OEFA, 2011–2026)', group: 'Derrames y pasivos', file: 'oefa-emergencias.geojson', cluster: true,
+    style: (f) => ({ radius: 5, color: '#fff', weight: 0.8, fillColor: f?.properties?.subsector === 'Hidrocarburos' ? '#1f2937' : f?.properties?.subsector === 'Minería' ? '#b45309' : '#0e7490', fillOpacity: 0.9 }), popup: POPUP.emergencias },
+  mineriaIlegal: { kind: 'poly', label: 'Áreas de minería ilegal (OEFA, nacional)', group: 'Hidrocarburos y minería', file: 'oefa-mineria-ilegal.geojson',
+    style: { color: '#7f1d1d', weight: 0.8, fillColor: '#ef4444', fillOpacity: 0.5 }, popup: POPUP.mineriaIlegal },
 }
 
 const DEFAULT_ON: CapaId[] = ['anp', 'lotes', 'pueblos', 'reservas', 'unidades', 'mineria', 'relaves', 'riesgo', 'eventos', 'oleoducto', 'pasivosHidro', 'monitoreoIndigena']

@@ -1,6 +1,6 @@
 {
-  "construccion": "En construcción",
-  "atribucion": "Este observatorio se encuentra en construcción y es desarrollado por Kely Alfaro.",
+  "construccion": "",
+  "atribucion": "Observatorio desarrollado por Kely Alfaro (dirección temática) y Carlos Cárdenas (tecnología y datos). Fase 1.5: capas oficiales georreferenciadas.",
   "autorRol": "Dirección, tecnología y sistematización de datos",
   "autor": "Carlos Cárdenas Fernández",
   "autorLink": "https://unimauro.github.io",
