@@ -1,5 +1,5 @@
 {
-  "generado": "2026-10-05T18:34:45Z",
+  "generado": "2026-10-12T19:08:28Z",
   "capas": [
     {
       "archivo": "anp-sernanp.geojson",
@@ -14,6 +14,13 @@
       "features": 179,
       "titulo": "Minería ilegal en ámbito de ANP",
       "fuente": "SERNANP — ArcGIS REST servicios_ogc/peru_sernanp_0201"
+    },
+    {
+      "archivo": "riesgo-ambiental-oefa.geojson",
+      "csv": "csv/riesgo-ambiental-oefa.csv",
+      "features": 195,
+      "titulo": "Unidades fiscalizables con riesgo ambiental Muy alto / Alto",
+      "fuente": "OEFA — PIFA, RIESGOS/SERV_RIES_AMB_UF"
     },
     {
       "archivo": "lotes-petroleros.geojson",
@@ -69,10 +76,6 @@
     {
       "tarea": "relaves-oefa-puntos.geojson",
       "error": "fallo https://pifa.oefa.gob.pe/arcgis/rest/services/RIESGOS/SERV_RIESGO_HIDROM_RELAVES_WMS/MapServer/4/query: HTTP Error 403: Forbidden"
-    },
-    {
-      "tarea": "riesgo-ambiental-oefa.geojson",
-      "error": "fallo https://pifa.oefa.gob.pe/arcgis/rest/services/RIESGOS/SERV_RIES_AMB_UF/MapServer/5/query: HTTP Error 403: Forbidden"
     },
     {
       "tarea": "pasivos-hidro",
