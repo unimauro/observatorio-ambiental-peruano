@@ -9,7 +9,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
-    "test": "python3 -m unittest discover -s etl/tests && tsc src/lib/incendios.ts --outDir .test-build --target es2022 --module es2022 --moduleResolution bundler --skipLibCheck && node --test tests/"
+    "test": "python3 -m unittest discover -s etl/tests && tsc src/lib/incendios.ts --outDir .test-build --target es2022 --module es2022 --moduleResolution bundler --skipLibCheck && node --test tests/incendios.test.mjs"
   },
   "dependencies": {
     "leaflet": "^1.9.4",
