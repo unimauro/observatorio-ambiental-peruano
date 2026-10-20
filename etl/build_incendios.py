@@ -49,7 +49,12 @@ UA = "Mozilla/5.0 (ObservatorioAmbientalPeruano ETL incendios)"
 CTX = ssl.create_default_context()
 CTX_GOB = ssl.create_default_context()
 CTX_GOB.check_hostname = False
-CTX_GOB.verify_mode = ssl.CERT_NONE  # cadenas TLS incompletas en .gob.pe
+CTX_GOB.verify_mode = ssl.CERT_NONE  # solo como respaldo: cadenas TLS incompletas en .gob.pe
+
+MAX_BYTES = 150 * 1024 * 1024  # el CSV 7d más grande de FIRMS pesa ~5 MB
+MAX_TEXTO = 500                # campos de texto libre del MINAM
+SALIDA_TODAS_CAIDAS = 3
+MAX_PAGINAS = 50               # 50 000 registros: tope de seguridad de la paginación ArcGIS
 
 LIMA = timezone(timedelta(hours=-5))  # Perú no usa horario de verano
 BBOX = {"peru": (-81.4, -18.4, -68.6, 0.1), "sudamerica": (-92.0, -56.0, -32.0, 13.5)}
@@ -98,6 +103,17 @@ class NoModificado(Exception):
     pass
 
 
+class RespuestaDemasiadoGrande(RuntimeError):
+    pass
+
+
+def _leer_limitado(r):
+    datos = r.read(MAX_BYTES + 1)
+    if len(datos) > MAX_BYTES:
+        raise RespuestaDemasiadoGrande(f"respuesta mayor a {MAX_BYTES // 2**20} MB")
+    return datos.decode("utf-8", errors="replace")
+
+
 def http_get(url, *, timeout=60, reintentos=3, ctx=CTX, cabeceras=None, condicional=None):
     """GET con reintentos limitados y backoff. `condicional` = {'etag','last_modified'}.
     Devuelve (texto, metadatos). Lanza NoModificado ante un 304."""
@@ -125,7 +141,9 @@ def http_get(url, *, timeout=60, reintentos=3, ctx=CTX, cabeceras=None, condicio
             req = urllib.request.Request(url, headers=h)
             with urllib.request.urlopen(req, timeout=timeout, context=ctx) as r:
                 meta = {"etag": r.headers.get("ETag"), "last_modified": r.headers.get("Last-Modified")}
-                return r.read().decode("utf-8", errors="replace"), meta
+                return _leer_limitado(r), meta
+        except RespuestaDemasiadoGrande:
+            raise
         except urllib.error.HTTPError as e:
             if e.code == 304:
                 raise NoModificado() from None
@@ -137,6 +155,8 @@ def http_get(url, *, timeout=60, reintentos=3, ctx=CTX, cabeceras=None, condicio
                 continue
         except Exception as e:  # noqa: BLE001 — red, timeout, TLS
             ultimo = f"{type(e).__name__}: {e}"
+            if "CERTIFICATE_VERIFY_FAILED" in ultimo:  # no se arregla reintentando
+                break
         time.sleep(2 * (i + 1))
     raise RuntimeError(ultimo or "error desconocido")
 
@@ -302,20 +322,43 @@ def deduplicar(registros):
 
 
 # ------------------------------------------------------------------ previos
-def leer_json(nombre, defecto=None):
+def leer_json(nombre, defecto=None, tipo=None):
+    """Lee un archivo previo. Puede venir de la versión publicada en Pages, así que se
+    trata como no confiable: si no parsea o no es del tipo esperado, se usa `defecto`."""
     try:
         with open(os.path.join(OUT_DIR, nombre), encoding="utf-8") as fh:
-            return json.load(fh)
+            d = json.load(fh)
     except Exception:  # noqa: BLE001
         return defecto
+    return d if tipo is None or isinstance(d, tipo) else defecto
+
+
+def foco_previo_valido(r):
+    """Revalida una detección previa con las mismas reglas que una nueva."""
+    if r.get("fuente_id") not in FIRMS_FUENTES or not isinstance(r.get("id"), str):
+        return None
+    lat, lon = _num(r.get("lat")), _num(r.get("lon"))
+    if not coord_valida(lat, lon) or not isinstance(r.get("adq_utc"), str):
+        return None
+    try:
+        datetime.strptime(r["adq_utc"], "%Y-%m-%dT%H:%M:%SZ")
+    except ValueError:
+        return None
+    r = {c: r.get(c) for c in CAMPOS}
+    r.update(lat=lat, lon=lon, instrumento=FIRMS_FUENTES[r["fuente_id"]][1])
+    for c in ("satelite", "departamento", "anp", "recibido_utc", "confianza", "confianza_raw"):
+        if r[c] is not None and not isinstance(r[c], str):
+            r[c] = None
+    return r
 
 
 def focos_previos():
-    d = leer_json("focos.json")
-    if not d or "filas" not in d:
+    d = leer_json("focos.json", tipo=dict)
+    if not d or not isinstance(d.get("campos"), list) or not isinstance(d.get("filas"), list):
         return []
     campos = d["campos"]
-    return [dict(zip(campos, fila)) for fila in d["filas"]]
+    filas = (foco_previo_valido(dict(zip(campos, f))) for f in d["filas"] if isinstance(f, list))
+    return [r for r in filas if r]
 
 
 def escribir(nombre, obj, carpeta=None):
@@ -329,6 +372,13 @@ def escribir(nombre, obj, carpeta=None):
     os.replace(tmp, ruta)  # escritura atómica: nunca se publica un archivo a medias
 
 
+def celda_csv(v):
+    """Evita inyección de fórmulas al abrir el CSV en Excel/Sheets (OWASP CSV injection)."""
+    if isinstance(v, str) and v[:1] in ("=", "+", "-", "@", "\t", "\r"):
+        return "'" + v
+    return v
+
+
 def escribir_csv(nombre, campos, filas):
     os.makedirs(CSV_DIR, exist_ok=True)
     ruta = os.path.join(CSV_DIR, nombre)
@@ -336,7 +386,7 @@ def escribir_csv(nombre, campos, filas):
     with os.fdopen(fd, "w", encoding="utf-8-sig", newline="") as fh:  # BOM para Excel
         w = csv.writer(fh)
         w.writerow(campos)
-        w.writerows(filas)
+        w.writerows([celda_csv(v) for v in fila] for fila in filas)
     os.chmod(tmp, 0o644)
     os.replace(tmp, ruta)
 
@@ -373,8 +423,14 @@ def descargar_firms(fuente_id, dias, clave, bbox, cond_previa, fetch=http_get):
 
 # ---------------------------------------------------------------- MINAM
 def _minam_query(capa, params, fetch=http_get):
-    q = urllib.parse.urlencode({"f": "json", **params})
-    texto, _ = fetch(f"{MINAM_BASE}/{capa}/query?{q}", ctx=CTX_GOB, timeout=90)
+    url = f"{MINAM_BASE}/{capa}/query?{urllib.parse.urlencode({'f': 'json', **params})}"
+    try:
+        texto, _ = fetch(url, ctx=CTX, timeout=90)
+    except RuntimeError as e:
+        if "CERTIFICATE_VERIFY_FAILED" not in str(e):
+            raise
+        log("aviso_tls", fuente="MINAM", detalle="certificado no verificable; se reintenta sin verificar")
+        texto, _ = fetch(url, ctx=CTX_GOB, timeout=90)
     d = json.loads(texto)
     if "error" in d:
         raise RuntimeError(f"ArcGIS: {d['error'].get('message')}")
@@ -390,7 +446,7 @@ def _fecha_ddmmyyyy(s):
 
 def _txt(v):
     s = str(v).strip() if v is not None else ""
-    return s or None
+    return (s[:MAX_TEXTO] + "…" if len(s) > MAX_TEXTO else s) or None
 
 
 def descargar_minam_2026(fetch=http_get):
@@ -398,7 +454,7 @@ def descargar_minam_2026(fetch=http_get):
               "DES_FUENTE,FTE_INF,ORIGEN,REGION_NAT,anp_nomb,anp_cate,COB_AFECTA,CULTI_AFEC,"
               "DES_DANO,OBSERVACIO,ACTIVIDAD")
     feats, offset = [], 0
-    while True:
+    for _ in range(MAX_PAGINAS):
         d = _minam_query(0, {"where": "1=1", "outFields": campos, "outSR": 4326, "returnGeometry": "true",
                              "orderByFields": "OBJECTID_12", "resultOffset": offset, "resultRecordCount": 1000},
                          fetch)
@@ -427,7 +483,7 @@ def descargar_minam_2026(fetch=http_get):
                               "danos": _txt(a.get("DES_DANO")),
                               "observacion": _txt(a.get("OBSERVACIO")),
                           }})
-        if len(lote) < 1000 and not d.get("exceededTransferLimit"):
+        if not lote or (len(lote) < 1000 and not d.get("exceededTransferLimit")):
             break
         offset += len(lote)
     return feats
@@ -470,15 +526,17 @@ def actualizar_serie(serie_previa, focos, desde, hasta):
 def ejecutar(fetch=http_get, now=None):
     t0 = time.time()
     clave = os.environ.get("FIRMS_MAP_KEY", "").strip()
-    dias = max(1, min(10, int(os.environ.get("INCENDIOS_DIAS", "7") or 7)))
+    dias = os.environ.get("INCENDIOS_DIAS", "7").strip()
+    dias = max(1, min(10, int(dias))) if dias.isdigit() else 7
     alcance = os.environ.get("INCENDIOS_ALCANCE", "peru").strip().lower()
     alcance = alcance if alcance in BBOX else "peru"
     bbox = BBOX[alcance]
     hasta = now or ahora()
     desde = hasta - timedelta(days=dias)
 
-    estado_previo = leer_json("estado.json", {}) or {}
-    fuentes_previas = {f["id"]: f for f in estado_previo.get("fuentes", [])}
+    estado_previo = leer_json("estado.json", {}, tipo=dict)
+    fuentes_previas = {f["id"]: f for f in estado_previo.get("fuentes") or []
+                       if isinstance(f, dict) and isinstance(f.get("id"), str)}
     previos = focos_previos()
     recibido = {p["id"]: p.get("recibido_utc") for p in previos}
 
@@ -489,18 +547,21 @@ def ejecutar(fetch=http_get, now=None):
     for fuente_id in FIRMS_FUENTES:
         ti = time.time()
         prev = fuentes_previas.get(fuente_id, {})
+        previos_fuente = [p for p in previos if p["fuente_id"] == fuente_id]
+        # el ETag solo vale si todavía tenemos los datos que representa
+        cache = prev.get("cache") if previos_fuente and isinstance(prev.get("cache"), dict) else None
         st = {"id": fuente_id, "nombre": f"NASA FIRMS · {fuente_id}", "tipo": "satelital",
               "modo": "api-map-key" if clave else "archivo-publico", "ultimo_exito": prev.get("ultimo_exito"),
               "cache": prev.get("cache") if not clave else None}
         try:
-            regs, invalidos, meta = descargar_firms(fuente_id, dias, clave, bbox, prev.get("cache"), fetch)
+            regs, invalidos, meta = descargar_firms(fuente_id, dias, clave, bbox, cache, fetch)
             st.update(estado="ok", invalidos=invalidos, ultimo_exito=ahora_iso(hasta), error=None,
                       cache=meta if not clave else None)
         except NoModificado:
-            regs = [p for p in previos if p["fuente_id"] == fuente_id]
+            regs = previos_fuente
             st.update(estado="sin-cambios", invalidos=0, ultimo_exito=ahora_iso(hasta), error=None)
         except Exception as e:  # noqa: BLE001
-            regs = [p for p in previos if p["fuente_id"] == fuente_id]  # última versión válida
+            regs = previos_fuente  # última versión válida
             st.update(estado="error", error=ocultar(e, clave), invalidos=0)
         # recorte espacial + temporal, enriquecimiento
         utiles = []
@@ -533,7 +594,9 @@ def ejecutar(fetch=http_get, now=None):
         for r in focos if en_ventana(r, hace24, hasta + timedelta(hours=1))]})
     escribir_csv("incendios-focos.csv", ["lon", "lat"] + [c for c in CAMPOS if c not in ("lat", "lon")],
                  [[r["lon"], r["lat"]] + [r.get(c) for c in CAMPOS if c not in ("lat", "lon")] for r in focos])
-    escribir("serie-diaria.json", actualizar_serie(leer_json("serie-diaria.json", []), focos, desde, hasta))
+    serie_previa = [s for s in leer_json("serie-diaria.json", [], tipo=list)
+                    if isinstance(s, dict) and isinstance(s.get("fecha"), str)]
+    escribir("serie-diaria.json", actualizar_serie(serie_previa, focos, desde, hasta))
 
     # MINAM (administrativo): no debe tumbar la ingesta satelital
     if os.environ.get("INCENDIOS_SIN_MINAM") != "1":
@@ -564,7 +627,7 @@ def ejecutar(fetch=http_get, now=None):
                     st.update(registros=res["total"])
                 st.update(estado="ok", error=None, ultimo_exito=ahora_iso(hasta))
             except Exception as e:  # noqa: BLE001
-                st.update(estado="error", error=str(e)[:300])  # se conserva el archivo previo
+                st.update(estado="error", error=ocultar(e, clave)[:300])  # se conserva el archivo previo
             st["duracion_ms"] = int((time.time() - ti) * 1000)
             fuentes_estado.append(st)
             log("fuente", **st)
@@ -592,7 +655,8 @@ def main():
     lock_path = os.path.join(tempfile.gettempdir(), "oap-incendios.lock")
     try:
         import fcntl
-        lock = open(lock_path, "w")
+        # O_NOFOLLOW: /tmp es compartido; no seguir un enlace simbólico plantado
+        lock = os.fdopen(os.open(lock_path, os.O_WRONLY | os.O_CREAT | getattr(os, "O_NOFOLLOW", 0), 0o600), "w")
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)  # evita ejecuciones simultáneas
     except BlockingIOError:
         log("omitido", motivo="otra ejecución en curso")
@@ -600,9 +664,9 @@ def main():
     except ImportError:
         lock = None  # Windows: sin bloqueo
     estado = ejecutar()
-    # código ≠ 0 solo si TODAS las fuentes satelitales fallaron (alerta en CI)
+    # 3 = TODAS las fuentes satelitales fallaron (alerta en CI). Un error no capturado sale con 1.
     sat = [f for f in estado["fuentes"] if f["tipo"] == "satelital"]
-    return 1 if sat and all(f["estado"] == "error" for f in sat) else 0
+    return SALIDA_TODAS_CAIDAS if sat and all(f["estado"] == "error" for f in sat) else 0
 
 
 if __name__ == "__main__":

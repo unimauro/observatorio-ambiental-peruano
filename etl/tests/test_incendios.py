@@ -127,8 +127,8 @@ class Unitarias(unittest.TestCase):
         self.assertNotIn("2026-10-12", s)
 
 
-class Integracion(unittest.TestCase):
-    """ejecutar() completo con fuentes simuladas y directorio temporal."""
+class EntornoTemporal(unittest.TestCase):
+    """Base: ejecutar() completo con fuentes simuladas y directorio temporal."""
 
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -171,6 +171,9 @@ class Integracion(unittest.TestCase):
             "-9.5,-73.5,330,0.4,0.5,2026-10-01,1200,N,h,2.0NRT,290,9,D",   # fuera de la ventana de 7 días
         ), {"etag": '"v"'}
 
+
+
+class Integracion(EntornoTemporal):
     def test_flujo_completo(self):
         estado, _ = self.correr(self.fetch_ok)
         focos = self.focos()
@@ -288,6 +291,129 @@ class Integracion(unittest.TestCase):
         st = {f["id"]: f for f in estado["fuentes"]}
         self.assertEqual(st["MINAM_REGISTRO_2026"]["ultimo_registro"], "2026-07-22")
         self.assertEqual(st["MINAM_HISTORICO"]["registros"], 10)
+
+
+class Adversariales(EntornoTemporal):
+    """Entradas hostiles o corruptas: la ingesta no debe caerse ni publicar basura."""
+
+    def escribir_previo(self, nombre, contenido):
+        os.makedirs(bi.OUT_DIR, exist_ok=True)
+        with open(os.path.join(bi.OUT_DIR, nombre), "w") as fh:
+            fh.write(contenido if isinstance(contenido, str) else json.dumps(contenido))
+
+    def test_previos_corruptos_no_tumban_la_ingesta(self):
+        # focos.json recuperado de Pages con filas rotas: sin lon, fecha basura, tipos raros
+        self.escribir_previo("focos.json", {"campos": ["id", "fuente_id", "lat", "adq_utc"], "filas": [
+            ["x", "VIIRS_NOAA20_NRT", -9.5, "ayer"], ["y", "VIIRS_NOAA20_NRT", "abc", None], "no-es-fila"]})
+
+        def fetch(url, **kw):
+            if "J1_VIIRS" in url:
+                raise RuntimeError("HTTP 503")  # obliga a usar los previos corruptos
+            return self.fetch_ok(url, **kw)
+
+        estado, _ = self.correr(fetch)
+        self.assertEqual(estado["total_focos"], 5)  # SNPP 2 + NOAA-21 2 + MODIS 1; basura descartada
+
+    def test_focos_json_que_no_es_json(self):
+        self.escribir_previo("focos.json", "<html>404</html>")
+        self.escribir_previo("estado.json", "[1,2,3]")
+        estado, _ = self.correr(self.fetch_ok)
+        self.assertEqual(estado["total_focos"], 7)
+
+    def test_sin_cambios_sin_datos_previos_descarga_igual(self):
+        # estado.json conserva el ETag pero focos.json se perdió → no se debe confiar en el caché
+        self.correr(self.fetch_ok)
+        os.remove(os.path.join(bi.OUT_DIR, "focos.json"))
+        vistos = []
+
+        def fetch(url, condicional=None, **_):
+            vistos.append(condicional)
+            if condicional:
+                raise bi.NoModificado()
+            return self.fetch_ok(url)
+
+        estado, _ = self.correr(fetch)
+        self.assertEqual(estado["total_focos"], 7)
+        self.assertTrue(all(c is None for c in vistos))
+
+    def test_variables_de_entorno_basura(self):
+        os.environ["INCENDIOS_DIAS"] = "7d; rm -rf /"
+        os.environ["INCENDIOS_ALCANCE"] = "../../etc"
+        estado, _ = self.correr(self.fetch_ok)
+        self.assertEqual((estado["dias"], estado["alcance"]), (7, "peru"))
+
+    def test_csv_no_permite_inyeccion_de_formulas(self):
+        os.environ.pop("INCENDIOS_SIN_MINAM")
+
+        def fetch(url, **kw):
+            if "/0/query" in url:
+                return json.dumps({"features": [{"attributes": {
+                    "OBJECTID_12": 1, "FEC_EMERGE": "01/08/2026", "NOMBDEP": "CUSCO",
+                    "LOCALIDAD": '=HYPERLINK("http://malo","x")', "OBSERVACIO": "+cmd|' /C calc'!A0"},
+                    "geometry": {"x": -72, "y": -13}}]}), {}
+            if "/1/query" in url:
+                return json.dumps({"features": [{"attributes": {"AñO": 2024, "NOMBDEP": "CUSCO", "n": 1}}]}), {}
+            return self.fetch_ok(url, **kw)
+
+        self.correr(fetch)
+        with open(os.path.join(bi.CSV_DIR, "incendios-minam-2026.csv"), encoding="utf-8-sig") as fh:
+            celdas = [c for fila in __import__("csv").reader(fh) for c in fila]
+        self.assertFalse([c for c in celdas if c[:1] in ("=", "+", "@")], celdas)
+        self.assertIn("-72.0", celdas)  # los números negativos no se alteran
+
+    def test_paginacion_minam_no_entra_en_bucle(self):
+        llamadas = []
+
+        def fetch(url, **_):
+            llamadas.append(url)
+            return json.dumps({"features": [], "exceededTransferLimit": True}), {}
+
+        self.assertEqual(bi.descargar_minam_2026(fetch), [])
+        self.assertLess(len(llamadas), 5)
+
+    def test_minam_verifica_tls_y_solo_cae_al_respaldo_si_falla(self):
+        contextos = []
+
+        def fetch(url, ctx=None, **_):
+            contextos.append(ctx)
+            if ctx is bi.CTX:
+                raise RuntimeError("URLError: [SSL: CERTIFICATE_VERIFY_FAILED] unable to get local issuer")
+            return json.dumps({"features": []}), {}
+
+        with redirect_stdout(io.StringIO()):
+            bi._minam_query(0, {"where": "1=1"}, fetch)
+        self.assertEqual(contextos, [bi.CTX, bi.CTX_GOB])
+
+    def test_respuesta_gigante_se_corta(self):
+        class Resp(io.BytesIO):
+            headers = {}
+            def __enter__(self): return self
+            def __exit__(self, *a): return False
+
+        orig = bi.urllib.request.urlopen
+        bi.urllib.request.urlopen = lambda *a, **k: Resp(b"x" * (bi.MAX_BYTES + 10))
+        try:
+            with self.assertRaises(RuntimeError):
+                bi.http_get("https://ejemplo.test/a.csv", reintentos=1)
+        finally:
+            bi.urllib.request.urlopen = orig
+
+    def test_campos_de_texto_largos_se_truncan(self):
+        os.environ.pop("INCENDIOS_SIN_MINAM")
+
+        def fetch(url, **kw):
+            if "/0/query" in url:
+                return json.dumps({"features": [{"attributes": {
+                    "OBJECTID_12": 1, "FEC_EMERGE": "01/08/2026", "OBSERVACIO": "A" * 50_000},
+                    "geometry": {"x": -72, "y": -13}}]}), {}
+            if "/1/query" in url:
+                return json.dumps({"features": [{"attributes": {"AñO": 2024, "NOMBDEP": "CUSCO", "n": 1}}]}), {}
+            return self.fetch_ok(url, **kw)
+
+        self.correr(fetch)
+        with open(os.path.join(bi.OUT_DIR, "minam-2026.geojson")) as fh:
+            obs = json.load(fh)["features"][0]["properties"]["observacion"]
+        self.assertLessEqual(len(obs), bi.MAX_TEXTO + 1)
 
 
 if __name__ == "__main__":

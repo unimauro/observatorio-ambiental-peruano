@@ -58,8 +58,8 @@ export interface EstadoIngesta {
 
 export interface Filtros {
   horas: number
-  satelites: string[] // vacío = todos
-  confianzas: string[] // vacío = todas
+  satelites: string[] | null // null = todos; [] = ninguno
+  confianzas: string[] | null // null = todas; [] = ninguna
   departamento: string // '' = todo el Perú
 }
 
@@ -71,7 +71,16 @@ export const VENTANAS = [
   { horas: 168, etiqueta: '7 días' },
 ]
 
-export const FILTROS_INICIALES: Filtros = { horas: 24, satelites: [], confianzas: [], departamento: '' }
+export const FILTROS_INICIALES: Filtros = { horas: 24, satelites: null, confianzas: null, departamento: '' }
+
+/** Marca/desmarca `v`. Si al final están todas marcadas vuelve a `null` (= todas, incluso las que aparezcan luego). */
+export function alternarSeleccion(actual: string[] | null, v: string, todos: string[]): string[] | null {
+  const base = actual ?? todos
+  const sig = base.includes(v) ? base.filter((x) => x !== v) : [...base, v]
+  return todos.every((t) => sig.includes(t)) ? null : sig
+}
+
+export const seleccionado = (sel: string[] | null, v: string) => sel === null || sel.includes(v)
 
 /** Antigüedad de la detección → color de la leyenda. */
 export const EDADES = [
@@ -85,20 +94,22 @@ export const EDADES = [
 const H = 3_600_000
 
 export function parseFocos(d: FocosArchivo): Foco[] {
-  return d.filas.map((fila) => {
+  if (!d || !Array.isArray(d.campos) || !Array.isArray(d.filas)) return []
+  return d.filas.filter(Array.isArray).map((fila) => {
     const o: Record<string, unknown> = {}
     d.campos.forEach((c, i) => { o[c] = fila[i] })
     o.t = Date.parse(o.adq_utc as string)
     return o as unknown as Foco
-  }).filter((f) => Number.isFinite(f.t) && Number.isFinite(f.lat) && Number.isFinite(f.lon))
+  }).filter((f) => Number.isFinite(f.t) && Number.isFinite(f.lat) && Number.isFinite(f.lon) &&
+    Math.abs(f.lat) <= 90 && Math.abs(f.lon) <= 180)
 }
 
 export function filtrarFocos(focos: Foco[], f: Filtros, ahora: number): Foco[] {
   const desde = ahora - f.horas * H
   return focos.filter((x) =>
     x.t >= desde && x.t <= ahora + H &&
-    (f.satelites.length === 0 || f.satelites.includes(x.satelite ?? '')) &&
-    (f.confianzas.length === 0 || f.confianzas.includes(x.confianza ?? 'sin dato')) &&
+    seleccionado(f.satelites, x.satelite ?? '') &&
+    seleccionado(f.confianzas, x.confianza ?? 'sin dato') &&
     (!f.departamento || x.departamento === f.departamento))
 }
 
@@ -173,5 +184,7 @@ export function indicadores(focos: Foco[], ahora: number) {
 
 /** Enlace al visor oficial de FIRMS centrado en la detección. */
 export function enlaceFirms(f: Pick<Foco, 'lat' | 'lon' | 'adq_utc'>): string {
-  return `https://firms.modaps.eosdis.nasa.gov/map/#d:${f.adq_utc.slice(0, 10)};@${f.lon.toFixed(4)},${f.lat.toFixed(4)},12.00z`
+  // la fecha viene de un archivo publicado: solo se acepta YYYY-MM-DD
+  const dia = /^\d{4}-\d{2}-\d{2}/.exec(String(f.adq_utc))?.[0] ?? ''
+  return `https://firms.modaps.eosdis.nasa.gov/map/#d:${dia};@${f.lon.toFixed(4)},${f.lat.toFixed(4)},12.00z`
 }

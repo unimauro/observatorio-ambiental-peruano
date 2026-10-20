@@ -2,6 +2,11 @@
 
 Punto de retomada rápido. Estado al **2026-10-19**. Live: https://unimauro.github.io/observatorio-ambiental-peruano/
 
+## ✅ Hecho (revisión adversarial/seguridad Incendios, 2026-10-20)
+- 13 hallazgos corregidos (bucle infinito MINAM, previos corruptos, bug de filtros, mapa que se rehacía cada minuto, inyección CSV, TLS MINAM verificado, límites de tamaño, acciones por SHA…). Detalle en docs/INCENDIOS.md §9.
+- Rediseño visual: cabecera con indicador "En vivo", filtros como chips táctiles (≥36 px), KPIs con acento, avisos de carga/vacío sobre el mapa, estado de fuentes plegable.
+- Mapa e Incendios con carga diferida: JS inicial 936 → 698 kB. Pruebas: 28 Python + 10 Node.
+
 ## ✅ Hecho (módulo Incendios forestales, 2026-10-19)
 
 - Nueva sección **Incendios** (`#/incendios`, en el menú): mapa Leaflet con clustering de focos de calor NASA FIRMS (VIIRS SNPP/NOAA-20/NOAA-21 + MODIS), filtros 6/12/24/72 h/7 d, satélite, confianza, departamento; leyenda por antigüedad; popup con UTC + hora de Lima + fecha de recepción + enlace a FIRMS; indicador de última sincronización/fuentes caídas/datos desactualizados; restablecer filtros y centrar en Perú; KPIs y 6 gráficos; capa opcional del **registro MINAM 2026** y serie histórica 2000–2025.
@@ -34,6 +39,7 @@ Punto de retomada rápido. Estado al **2026-10-19**. Live: https://unimauro.gith
 - **Refresco 2026-08-05:** ETL corrido local (salta el 403 de OEFA). Relaves 107 → 206.
 
 ## 🔜 Pendiente / próximo
+- [ ] Incendios: CSP en index.html (requiere permitir estilos en línea de Leaflet/Recharts) y revisar en celular real.
 
 - [x] ~~Incendios NASA FIRMS~~ → hecho 2026-10-19 (ver arriba).
 - [ ] **Incendios — opcional:** pedir `FIRMS_MAP_KEY` gratuita y cargarla con `gh secret set FIRMS_MAP_KEY` (hoy funciona sin clave con los CSV públicos).

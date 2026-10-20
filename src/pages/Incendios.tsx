@@ -9,7 +9,7 @@ import {
 import { fmt } from '../lib/data'
 import {
   parseFocos, filtrarFocos, edad, frescura, hace, horaLima, horaUTC, contarPor, serieHoraria,
-  indicadores, enlaceFirms, VENTANAS, EDADES, FILTROS_INICIALES,
+  indicadores, enlaceFirms, alternarSeleccion, seleccionado, VENTANAS, EDADES, FILTROS_INICIALES,
 } from '../lib/incendios'
 import type { Foco, FocosArchivo, EstadoIngesta, Filtros } from '../lib/incendios'
 
@@ -48,7 +48,7 @@ function popupFoco(f: Foco, ahora: number) {
     ${fila('Departamento', f.departamento)}
     ${f.anp ? `<div style="font-size:12px;color:#15803d"><b>Dentro de ANP:</b> ${esc(f.anp)}</div>` : ''}
     ${fila('Coordenadas', `${f.lat.toFixed(4)}, ${f.lon.toFixed(4)}`)}
-    <div style="font-size:11px;margin-top:5px"><a href="${enlaceFirms(f)}" target="_blank" rel="noreferrer noopener">Ver en NASA FIRMS ↗</a>
+    <div style="font-size:11px;margin-top:5px"><a href="${esc(enlaceFirms(f))}" target="_blank" rel="noreferrer noopener">Ver en NASA FIRMS ↗</a>
     <span style="color:#94a3b8"> · ${esc(f.fuente_id)} ${esc(f.version ?? '')}</span></div></div>`
 }
 
@@ -83,6 +83,16 @@ function Barras({ data, alto = 288, color = '#dc2626', ancho = 120 }: { data: { 
   )
 }
 
+function Chip({ activo, onClick, children, color = 'red' }: { activo: boolean; onClick: () => void; children: React.ReactNode; color?: 'red' | 'slate' }) {
+  const on = color === 'red' ? 'bg-red-600 border-red-600 text-white shadow-sm' : 'bg-slate-800 border-slate-800 text-white'
+  return (
+    <button type="button" aria-pressed={activo} onClick={onClick}
+      className={`min-h-[36px] px-3 py-1.5 rounded-full border text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 ${activo ? on : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'}`}>
+      {children}
+    </button>
+  )
+}
+
 function Tarjeta({ titulo, children, nota }: { titulo: string; children: React.ReactNode; nota?: string }) {
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-4">
@@ -107,7 +117,10 @@ export default function Incendios() {
   const [serie, setSerie] = useState<SerieDia[]>([])
   const [errorCarga, setErrorCarga] = useState<string | null>(null)
   const [cargando, setCargando] = useState(true)
-  const [ahora, setAhora] = useState(Date.now())
+  // `corte` = instante de la última lectura: fija la ventana de filtrado para que el mapa
+  // no se reconstruya cada minuto (cerraba popups abiertos). `reloj` solo mueve los "hace X min".
+  const [corte, setCorte] = useState(Date.now())
+  const [reloj, setReloj] = useState(Date.now())
   const [filtros, setFiltros] = useState<Filtros>(FILTROS_INICIALES)
   const [verMinam, setVerMinam] = useState(false)
 
@@ -120,22 +133,24 @@ export default function Incendios() {
       if (rEst.status === 'fulfilled') setEstado(rEst.value)
       if (rFocos.status === 'fulfilled') { setFocos(parseFocos(rFocos.value)); setErrorCarga(null) }
       else setErrorCarga('No se pudieron cargar las detecciones. Reintentando automáticamente.')
-      setAhora(Date.now())
+      setCorte(Date.now())
+      setReloj(Date.now())
       setCargando(false)
     }
     void leer()
     cargar<SerieDia[]>('serie-diaria.json').then((s) => vivo && setSerie(s)).catch(() => {})
     cargar<MinamResumen>('minam-resumen.json').then((s) => vivo && setMinamRes(s)).catch(() => {})
     const id = setInterval(leer, REFRESCO_MS)
-    const reloj = setInterval(() => setAhora(Date.now()), 60_000)
-    return () => { vivo = false; clearInterval(id); clearInterval(reloj) }
+    const tic = setInterval(() => setReloj(Date.now()), 60_000)
+    return () => { vivo = false; clearInterval(id); clearInterval(tic) }
   }, [])
 
-  const sel = useMemo(() => filtrarFocos(focos, filtros, ahora), [focos, filtros, ahora])
-  const kpi = useMemo(() => indicadores(sel, ahora), [sel, ahora])
+  const sel = useMemo(() => filtrarFocos(focos, filtros, corte), [focos, filtros, corte])
+  const kpi = useMemo(() => indicadores(sel, corte), [sel, corte])
   const satelites = useMemo(() => [...new Set(focos.map((f) => f.satelite).filter(Boolean) as string[])].sort(), [focos])
   const departamentos = useMemo(() => contarPor(focos, (f) => f.departamento).filter((d) => d.name !== 'sin dato'), [focos])
-  const fresc = frescura(estado, ahora)
+  const fresc = frescura(estado, reloj)
+  const dias = estado?.dias ?? 7
   const minamEstado = estado?.fuentes.find((f) => f.id === 'MINAM_REGISTRO_2026')
 
   // Mapa
@@ -158,14 +173,14 @@ export default function Incendios() {
     const grp: any = (L as any).markerClusterGroup({ chunkedLoading: true, maxClusterRadius: 45, disableClusteringAtZoom: 10, spiderfyOnMaxZoom: true })
     // los más recientes al final → quedan encima
     for (const f of [...sel].sort((a, b) => a.t - b.t)) {
-      const c = edad(f.t, ahora).color
+      const c = edad(f.t, corte).color
       const m = L.circleMarker([f.lat, f.lon], { radius: 5, color: '#ffffff', weight: 0.8, fillColor: c, fillOpacity: 0.9 })
       m.bindPopup(() => popupFoco(f, Date.now()))
       grp.addLayer(m)
     }
     grp.addTo(map)
     focosLayer.current = grp
-  }, [sel])
+  }, [sel, corte])
 
   useEffect(() => {
     const map = mapRef.current
@@ -177,7 +192,8 @@ export default function Incendios() {
     for (const f of minam.features) {
       const p = f.properties ?? {}
       if (filtros.departamento && p.departamento !== filtros.departamento) continue
-      const [lon, lat] = f.geometry.coordinates
+      const [lon, lat] = f.geometry?.coordinates ?? []
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue
       L.circleMarker([lat, lon], { radius: 6, color: '#7c2d12', weight: 2, fillColor: '#fde68a', fillOpacity: 0.85 })
         .bindPopup(popupMinam(p)).addTo(grp)
     }
@@ -194,18 +210,14 @@ export default function Incendios() {
     else centrarPeru()
   }
 
-  // Lista vacía = todos. Desmarcar parte de "todos"; si se desmarcan todos, no se muestra nada.
   function alternar(campo: 'satelites' | 'confianzas', v: string, todos: string[]) {
-    setFiltros((s) => {
-      const actual = s[campo].length ? s[campo] : todos
-      const sig = actual.includes(v) ? actual.filter((x) => x !== v) : [...actual, v]
-      return { ...s, [campo]: sig.length === todos.length ? [] : sig.length ? sig : ['__ninguno__'] }
-    })
+    setFiltros((s) => ({ ...s, [campo]: alternarSeleccion(s[campo], v, todos) }))
   }
 
   function restablecer() { setFiltros(FILTROS_INICIALES); setVerMinam(false); centrarPeru() }
 
-  const serieVentana = useMemo(() => serieHoraria(sel, filtros.horas, ahora), [sel, filtros.horas, ahora])
+  const serieVentana = useMemo(() => serieHoraria(sel, filtros.horas, corte), [sel, filtros.horas, corte])
+  const filtrosActivos = filtros.satelites !== null || filtros.confianzas !== null || !!filtros.departamento
   const porDep = useMemo(() => contarPor(sel, (f) => f.departamento).slice(0, 12), [sel])
   const porSat = useMemo(() => contarPor(sel, (f) => `${f.satelite ?? 's/d'} (${f.instrumento})`), [sel])
   const porConf = useMemo(() => contarPor(sel, (f) => f.confianza), [sel])
@@ -214,19 +226,29 @@ export default function Incendios() {
 
   const avisos: Record<string, { cls: string; txt: string }> = {
     'sin-datos': { cls: 'bg-slate-100 border-slate-300 text-slate-700', txt: 'Aún no hay una sincronización exitosa con NASA FIRMS. El mapa puede estar vacío.' },
-    desactualizado: { cls: 'bg-amber-50 border-amber-300 text-amber-900', txt: `Datos desactualizados: la última sincronización fue ${hace(estado?.ultima_sincronizacion_utc ?? null, ahora)}. Las detecciones más recientes pueden faltar.` },
+    desactualizado: { cls: 'bg-amber-50 border-amber-300 text-amber-900', txt: `Datos desactualizados: la última sincronización fue ${hace(estado?.ultima_sincronizacion_utc ?? null, reloj)}. Las detecciones más recientes pueden faltar.` },
     parcial: { cls: 'bg-amber-50 border-amber-300 text-amber-900', txt: 'Una o más fuentes satelitales fallaron en la última consulta; se muestran sus últimos datos válidos.' },
   }
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-3xl font-extrabold">🔥 Incendios forestales</h1>
-        <p className="text-sm text-slate-500 mt-1 max-w-3xl">
+      <header className="rounded-2xl bg-gradient-to-br from-red-700 via-orange-600 to-amber-500 text-white px-5 py-5 sm:px-7 sm:py-6 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">🔥 Incendios forestales</h1>
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/15 backdrop-blur px-3 py-1 text-xs font-medium" role="status">
+            <span className="relative flex h-2.5 w-2.5">
+              {fresc === 'ok' && <span className="absolute inline-flex h-full w-full rounded-full bg-green-300 opacity-75 animate-ping motion-reduce:animate-none" />}
+              <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${fresc === 'ok' ? 'bg-green-300' : fresc === 'sin-datos' ? 'bg-slate-300' : 'bg-amber-300'}`} />
+            </span>
+            {fresc === 'ok' ? 'En vivo' : fresc === 'parcial' ? 'Parcial' : fresc === 'desactualizado' ? 'Desactualizado' : cargando ? 'Cargando…' : 'Sin datos'}
+            {estado?.ultima_sincronizacion_utc && <span className="opacity-80">· {hace(estado.ultima_sincronizacion_utc, reloj)}</span>}
+          </span>
+        </div>
+        <p className="text-sm text-white/90 mt-2 max-w-3xl">
           Focos de calor detectados por satélite en el Perú (NASA FIRMS: VIIRS y MODIS), actualizados
           de forma automática cada ~15 minutos, junto al registro administrativo de incendios del MINAM.
         </p>
-      </div>
+      </header>
 
       <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
         <b>Cómo leer este mapa.</b> Cada punto es una <b>detección satelital de una anomalía térmica</b> (un píxel
@@ -236,15 +258,20 @@ export default function Incendios() {
       </div>
 
       {/* Estado de la sincronización */}
-      <div className="bg-white border border-slate-200 rounded-lg px-4 py-3 text-sm">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-          <span className="flex items-center gap-1.5">
-            <span className={`inline-block w-2.5 h-2.5 rounded-full ${fresc === 'ok' ? 'bg-green-500' : fresc === 'sin-datos' ? 'bg-slate-400' : 'bg-amber-500'}`} />
+      <details className="group bg-white border border-slate-200 rounded-lg px-4 py-3 text-sm">
+        <summary className="flex flex-wrap items-center gap-x-4 gap-y-1 cursor-pointer list-none">
+          <span>
             <b>Última sincronización:</b>{' '}
-            {estado?.ultima_sincronizacion_utc ? `${horaLima(estado.ultima_sincronizacion_utc)} · ${hace(estado.ultima_sincronizacion_utc, ahora)}` : cargando ? 'cargando…' : 'sin datos'}
+            {estado?.ultima_sincronizacion_utc ? `${horaLima(estado.ultima_sincronizacion_utc)} · ${horaUTC(estado.ultima_sincronizacion_utc)}` : cargando ? 'cargando…' : 'sin datos'}
           </span>
-          {estado?.ultima_sincronizacion_utc && <span className="text-slate-400 text-xs">{horaUTC(estado.ultima_sincronizacion_utc)}</span>}
-        </div>
+          {estado && (
+            <span className="text-xs text-slate-500">
+              {estado.fuentes.filter((f) => f.estado !== 'error').length}/{estado.fuentes.length} fuentes ok
+              <span className="ml-1 text-slate-400 group-open:hidden">· ver detalle ▾</span>
+              <span className="ml-1 text-slate-400 hidden group-open:inline">· ocultar ▴</span>
+            </span>
+          )}
+        </summary>
         {estado && (
           <div className="mt-2 flex flex-wrap gap-1.5">
             {estado.fuentes.map((f) => (
@@ -257,87 +284,91 @@ export default function Incendios() {
             ))}
           </div>
         )}
-      </div>
+      </details>
       {(avisos[fresc] || errorCarga) && (
-        <div className={`rounded-lg border px-4 py-2.5 text-sm ${errorCarga ? 'bg-red-50 border-red-300 text-red-900' : avisos[fresc].cls}`}>
+        <div role="alert" className={`rounded-lg border px-4 py-2.5 text-sm ${errorCarga ? 'bg-red-50 border-red-300 text-red-900' : avisos[fresc].cls}`}>
           ⚠ {errorCarga ?? avisos[fresc].txt}
         </div>
       )}
 
       {/* Filtros */}
-      <div className="bg-white border border-slate-200 rounded-lg px-3 py-3 space-y-2.5 text-sm">
+      <section aria-label="Filtros" className="bg-white border border-slate-200 rounded-xl px-3 py-3 sm:px-4 space-y-3 text-sm">
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="font-medium mr-1">Periodo:</span>
+          <span className="font-medium w-full sm:w-auto sm:mr-1">Periodo</span>
           {VENTANAS.map((v) => (
-            <button key={v.horas} onClick={() => setFiltros((s) => ({ ...s, horas: v.horas }))}
-              className={`px-3 py-1 rounded-full border ${filtros.horas === v.horas ? 'bg-red-600 border-red-600 text-white' : 'border-slate-300 hover:bg-slate-50'}`}>
+            <Chip key={v.horas} activo={filtros.horas === v.horas} onClick={() => setFiltros((s) => ({ ...s, horas: v.horas }))}>
               {v.etiqueta}
-            </button>
+            </Chip>
           ))}
         </div>
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-          <span className="font-medium">Satélite:</span>
-          {satelites.map((s) => (
-            <label key={s} className="flex items-center gap-1 cursor-pointer">
-              <input type="checkbox" checked={filtros.satelites.length === 0 || filtros.satelites.includes(s)}
-                onChange={() => alternar('satelites', s, satelites)} />
-              {s}
-            </label>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="font-medium w-full sm:w-auto sm:mr-1">Satélite</span>
+          {satelites.map((x) => (
+            <Chip key={x} color="slate" activo={seleccionado(filtros.satelites, x)} onClick={() => alternar('satelites', x, satelites)}>{x}</Chip>
           ))}
         </div>
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-          <span className="font-medium">Confianza:</span>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="font-medium w-full sm:w-auto sm:mr-1">Confianza</span>
           {CONFIANZAS.map((c) => (
-            <label key={c} className="flex items-center gap-1 cursor-pointer capitalize">
-              <input type="checkbox" checked={filtros.confianzas.length === 0 || filtros.confianzas.includes(c)}
-                onChange={() => alternar('confianzas', c, CONFIANZAS)} />
-              {c}
-            </label>
+            <Chip key={c} color="slate" activo={seleccionado(filtros.confianzas, c)} onClick={() => alternar('confianzas', c, CONFIANZAS)}>
+              <span className="capitalize">{c}</span>
+            </Chip>
           ))}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="font-medium">Departamento:</span>
-          <select value={filtros.departamento} onChange={(e) => elegirDepartamento(e.target.value)}
-            className="border border-slate-300 rounded-lg px-2 py-1.5 bg-white max-w-full">
+          <label htmlFor="inc-dep" className="font-medium w-full sm:w-auto">Departamento</label>
+          <select id="inc-dep" value={filtros.departamento} onChange={(e) => elegirDepartamento(e.target.value)}
+            className="min-h-[36px] border border-slate-300 rounded-lg px-2 py-1.5 bg-white w-full sm:w-auto max-w-full">
             <option value="">Todo el Perú</option>
-            {departamentos.map((d) => <option key={d.name} value={d.name}>{d.name} ({fmt(d.value)} en 7 días)</option>)}
+            {departamentos.map((d) => <option key={d.name} value={d.name}>{d.name} ({fmt(d.value)} en {dias} días)</option>)}
           </select>
-          <label className="flex items-center gap-1.5 cursor-pointer ml-1">
-            <input type="checkbox" checked={verMinam} onChange={(e) => setVerMinam(e.target.checked)} />
+          <label className="flex items-center gap-2 cursor-pointer min-h-[36px] sm:ml-1">
+            <input type="checkbox" className="h-4 w-4 accent-red-600" checked={verMinam} onChange={(e) => setVerMinam(e.target.checked)} />
             Registro MINAM 2026 <span className="text-xs text-slate-400">(administrativo)</span>
           </label>
-          <div className="flex gap-2 ml-auto">
-            <button onClick={centrarPeru} className="px-3 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-50">⌖ Centrar en Perú</button>
-            <button onClick={restablecer} className="px-3 py-1.5 rounded-lg bg-forest-dark text-white hover:bg-forest">↺ Restablecer filtros</button>
+          <div className="flex gap-2 w-full sm:w-auto sm:ml-auto">
+            <button type="button" onClick={centrarPeru} className="flex-1 sm:flex-none min-h-[36px] px-3 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-50">⌖ Centrar en Perú</button>
+            <button type="button" onClick={restablecer} disabled={!filtrosActivos && filtros.horas === FILTROS_INICIALES.horas && !verMinam}
+              className="flex-1 sm:flex-none min-h-[36px] px-3 py-1.5 rounded-lg bg-forest-dark text-white hover:bg-forest disabled:opacity-40 disabled:cursor-not-allowed">↺ Restablecer</button>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { v: kpi.total, t: `Detecciones · ${ventana}`, n: 'con los filtros activos' },
+          { v: kpi.total, t: `Detecciones · ${ventana}`, n: filtrosActivos ? 'con los filtros activos' : 'todo el Perú', c: 'border-l-red-600' },
           filtros.horas > 24
-            ? { v: kpi.ult24, t: 'Detecciones · últimas 24 h', n: 'dentro de la selección' }
-            : { v: kpi.altaConfianza, t: 'Detecciones de alta confianza', n: `en ${ventana}` },
-          { v: kpi.departamentos, t: 'Departamentos con detecciones', n: `en ${ventana}` },
-          { v: kpi.enAnp, t: 'Detecciones dentro de ANP', n: 'límites SERNANP' },
+            ? { v: kpi.ult24, t: 'Últimas 24 h', n: 'dentro de la selección', c: 'border-l-orange-500' }
+            : { v: kpi.altaConfianza, t: 'Alta confianza', n: `en ${ventana}`, c: 'border-l-orange-500' },
+          { v: kpi.departamentos, t: 'Departamentos', n: `con detecciones en ${ventana}`, c: 'border-l-amber-500' },
+          { v: kpi.enAnp, t: 'Dentro de ANP', n: 'áreas naturales protegidas (SERNANP)', c: 'border-l-forest' },
         ].map((k) => (
-          <div key={k.t} className="bg-white border border-slate-200 rounded-xl p-4">
-            <div className="text-2xl sm:text-3xl font-extrabold text-red-700">{fmt(k.v)}</div>
+          <div key={k.t} className={`bg-white border border-slate-200 border-l-4 ${k.c} rounded-xl p-3 sm:p-4`}>
+            <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 tabular-nums">{cargando ? '—' : fmt(k.v)}</div>
             <div className="text-sm font-medium mt-0.5">{k.t}</div>
             <div className="text-xs text-slate-400">{k.n}</div>
           </div>
         ))}
       </div>
 
-      <div ref={ref} className="h-[62vh] sm:h-[70vh] w-full rounded-xl overflow-hidden border border-slate-200 shadow-sm z-0" />
+      <div className="relative">
+        <div ref={ref} role="region" aria-label="Mapa de detecciones de calor en el Perú"
+          className="h-[60vh] min-h-[360px] sm:h-[70vh] w-full rounded-xl overflow-hidden border border-slate-200 shadow-sm z-0" />
+        {(cargando || (!cargando && sel.length === 0)) && (
+          <div className="pointer-events-none absolute inset-x-0 top-3 z-[500] flex justify-center px-3">
+            <div className="rounded-full bg-white/95 border border-slate-200 shadow px-4 py-1.5 text-sm text-slate-700">
+              {cargando ? 'Cargando detecciones…' : `Sin detecciones en ${ventana} con estos filtros`}
+            </div>
+          </div>
+        )}
+      </div>
 
-      <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-slate-600 items-center">
+      <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-slate-600 items-center bg-white border border-slate-200 rounded-lg px-3 py-2">
         <span className="font-medium">Antigüedad de la detección:</span>
         {EDADES.map((e) => (
           <span key={e.etiqueta} className="flex items-center gap-1.5">
-            <span className="inline-block w-3 h-3 rounded-full" style={{ background: e.color }} /> {e.etiqueta}
+            <span className="inline-block w-3 h-3 rounded-full ring-1 ring-white" style={{ background: e.color }} /> {e.etiqueta}
           </span>
         ))}
         <span className="flex items-center gap-1.5">

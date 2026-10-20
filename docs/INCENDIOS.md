@@ -111,7 +111,10 @@ Para cambiar la frecuencia, editar el `cron` de `deploy.yml` (GitHub no permite 
 - Logs: cada corrida imprime una línea JSON por fuente (`estado`, `registros`, `invalidos`, `duracion_ms`,
   `error`) en el job *Ingesta de incendios*. La MAP_KEY se enmascara (`***`) en errores y logs.
 - `estado.json` publicado = diagnóstico en vivo: `…/data/incendios/estado.json`.
-- Si todas las fuentes satelitales fallan, el paso emite un *warning* y se publica la última versión válida;
+- Códigos de salida del ETL: `0` ok · `3` todas las fuentes satelitales fallaron (el paso emite un *warning*
+  y se publica la última versión válida) · cualquier otro = error del propio ETL (el job falla y Pages
+  conserva el despliegue anterior).
+- Si todas las fuentes satelitales fallan,
   la página muestra el aviso "datos desactualizados" si pasan > 2 h sin sincronizar.
 - **GitHub desactiva los workflows programados tras 60 días sin actividad en el repo**: si el mapa deja de
   actualizarse, reactivarlo en *Actions → Deploy to GitHub Pages → Enable workflow* (el ETL semanal que
@@ -121,11 +124,14 @@ Para cambiar la frecuencia, editar el `cron` de `deploy.yml` (GitHub no permite 
 
 ## 6. Pruebas
 
-`npm test` = 19 pruebas Python (`etl/tests/test_incendios.py`: normalización, coordenadas, fechas,
+`npm test` = 28 pruebas Python (`etl/tests/test_incendios.py`: normalización, coordenadas, fechas,
 confianza, deduplicación, troceo de la API, serie diaria; integración con fuentes simuladas: caída de una
 fuente, respuestas vacías o HTML, todas caídas, 304/sin cambios, MINAM caído, la clave no aparece en logs
-ni archivos) + 8 pruebas Node de la lógica de filtros (`tests/incendios.test.mjs`: ventanas 6/12/24/72 h/7 d,
-satélite, confianza, departamento, frescura, indicadores, hora de Lima). Las fixtures son sintéticas y viven
+ni archivos; **adversariales**: archivos previos corruptos o que no son JSON, ETag sin datos detrás, variables
+de entorno basura, inyección de fórmulas en CSV, paginación ArcGIS infinita, respuesta gigante, texto de
+50 000 caracteres, respaldo TLS) + 10 pruebas Node (`tests/incendios.test.mjs`: ventanas 6/12/24/72 h/7 d,
+satélite, confianza, departamento, selección de filtros, frescura, indicadores, hora de Lima, archivos
+malformados, fecha inyectada en el enlace a FIRMS). Las fixtures son sintéticas y viven
 solo en las pruebas; **nunca** se escriben datos de demostración en `public/data`.
 
 ## 7. Alternativa VPS (no implementada)
@@ -152,3 +158,33 @@ Persistent=true
 - Departamento/ANP por punto-en-polígono con límites simplificados: puntos en el borde pueden asignarse al vecino.
 - Los archivos públicos de FIRMS cubren 7 días como máximo; el histórico lo acumula `serie-diaria.json`.
 - El registro MINAM tiene rezago de ~2 meses y depende de reportes de INDECI/COER.
+
+## 9. Revisión adversarial y de seguridad (20-oct-2026)
+
+Modelo de amenazas: el sitio es estático y público; la única credencial es la `FIRMS_MAP_KEY` (opcional,
+solo en CI). Las entradas no confiables son las respuestas de FIRMS/MINAM y la **versión publicada en
+Pages** que el workflow recupera antes de cada corrida.
+
+| # | Hallazgo | Severidad | Corrección |
+|---|---|---|---|
+| 1 | Paginación MINAM en bucle infinito si ArcGIS responde `exceededTransferLimit` con un lote vacío (el job colgaba 15 min) | Alta | corte con lote vacío + tope `MAX_PAGINAS` |
+| 2 | Un `focos.json`/`estado.json` previo corrupto (filas sin `lon`, fechas basura, JSON que no es objeto) tumbaba toda la ingesta | Alta | `leer_json(tipo=…)` + `foco_previo_valido()` revalida cada fila previa |
+| 3 | Filtros: desmarcar todo y volver a marcar 2 de 3 mostraba las 3 (centinela `__ninguno__`) | Media | modelo `null` = todas / `[]` = ninguna, `alternarSeleccion()` pura y probada |
+| 4 | El mapa reconstruía ~12 000 marcadores cada minuto (reloj en las dependencias) y cerraba el popup abierto | Media | `corte` (lectura de datos) separado de `reloj` (textos "hace X min") |
+| 5 | CSV descargables vulnerables a inyección de fórmulas (texto libre del MINAM que empiece con `= + - @`) | Media | `celda_csv()` antepone `'` |
+| 6 | MINAM se consultaba siempre **sin verificar TLS** | Media | primero TLS verificado; solo si el certificado falla se reintenta sin verificar y se registra `aviso_tls` |
+| 7 | Respuestas sin límite de tamaño (memoria) y texto libre sin límite | Baja | `MAX_BYTES` 150 MB por respuesta, `MAX_TEXTO` 500 caracteres |
+| 8 | `INCENDIOS_DIAS` no numérico rompía el ETL | Baja | se valida y cae al valor por defecto |
+| 9 | Un ETag guardado sin los datos que representa dejaba la fuente "sin cambios" pero vacía | Baja | el caché solo se usa si hay detecciones previas de esa fuente |
+| 10 | Un error del propio ETL se ocultaba como *warning* (mismo código que "fuentes caídas") | Baja | código 3 para fuentes caídas; otro código hace fallar el job |
+| 11 | Acciones de GitHub por etiqueta móvil y `checkout` con credenciales persistidas | Baja | acciones fijadas por SHA, `persist-credentials: false` |
+| 12 | Archivo de bloqueo en `/tmp` compartido podía seguir un enlace simbólico | Baja | `O_NOFOLLOW` y permisos 0600 |
+| 13 | El enlace a FIRMS del popup interpolaba `adq_utc` sin validar | Baja | solo acepta `YYYY-MM-DD` y se escapa el `href` |
+
+Verificado sin cambios necesarios: todo texto externo del popup pasa por `esc()`; React escapa el resto;
+la MAP_KEY solo existe en el entorno del paso de ingesta, se enmascara en errores y el build falla si
+aparece en `dist/`; escrituras atómicas con permisos 0644. Rendimiento: Mapa e Incendios se cargan bajo
+demanda (`React.lazy`), el JS inicial bajó de 936 kB a 698 kB.
+
+Riesgo aceptado: el workflow confía en la versión publicada en Pages (mismo dueño); una CSP en
+`index.html` queda pendiente porque Leaflet y Recharts usan estilos en línea.

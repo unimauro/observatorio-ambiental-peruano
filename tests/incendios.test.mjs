@@ -4,7 +4,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
   parseFocos, filtrarFocos, edad, frescura, indicadores, serieHoraria, contarPor, enlaceFirms, horaLima,
-  FILTROS_INICIALES,
+  alternarSeleccion, FILTROS_INICIALES,
 } from '../.test-build/incendios.js'
 
 const AHORA = Date.parse('2026-10-19T18:00:00Z')
@@ -35,6 +35,7 @@ test('ventanas temporales 6/12/24/72 h y 7 días', () => {
 test('filtros por satélite, confianza y departamento se combinan', () => {
   const base = { ...FILTROS_INICIALES, horas: 168 }
   assert.equal(filtrarFocos(focos, { ...base, satelites: ['Suomi NPP'] }, AHORA).length, 2)
+  assert.equal(filtrarFocos(focos, { ...base, satelites: [] }, AHORA).length, 0)
   assert.equal(filtrarFocos(focos, { ...base, confianzas: ['alta'] }, AHORA).length, 2)
   assert.equal(filtrarFocos(focos, { ...base, confianzas: ['sin dato'] }, AHORA).length, 1)
   assert.equal(filtrarFocos(focos, { ...base, departamento: 'CUSCO', satelites: ['Suomi NPP'] }, AHORA).length, 1)
@@ -74,4 +75,24 @@ test('hora local de Lima es UTC-5 y enlace a FIRMS', () => {
   assert.match(horaLima('2026-10-19T07:05:00Z'), /02:05/)
   assert.equal(enlaceFirms({ lat: -9.5, lon: -73.5, adq_utc: '2026-10-19T07:05:00Z' }),
     'https://firms.modaps.eosdis.nasa.gov/map/#d:2026-10-19;@-73.5000,-9.5000,12.00z')
+})
+
+test('selección: desmarcar todo y volver a marcar dos de tres no muestra la tercera', () => {
+  const T = ['alta', 'nominal', 'baja']
+  let s = null
+  for (const v of T) s = alternarSeleccion(s, v, T)
+  assert.deepEqual(s, [])
+  s = alternarSeleccion(s, 'alta', T)
+  s = alternarSeleccion(s, 'nominal', T)
+  assert.deepEqual(s, ['alta', 'nominal'])
+  assert.equal(alternarSeleccion(s, 'baja', T), null)
+})
+
+test('entradas hostiles: archivo malformado, coordenadas fuera de rango y fecha inyectada', () => {
+  assert.deepEqual(parseFocos(null), [])
+  assert.deepEqual(parseFocos({ campos: 'x', filas: {} }), [])
+  const raros = parseFocos({ campos: ['lat', 'lon', 'adq_utc'], filas: [[95, 0, '2026-10-19T00:00:00Z'], 'x', [1, 2, '2026-10-19T00:00:00Z']] })
+  assert.equal(raros.length, 1)
+  const url = enlaceFirms({ lat: 1, lon: 2, adq_utc: '"><img src=x onerror=alert(1)>' })
+  assert.ok(!url.includes('<') && !url.includes('"'))
 })
