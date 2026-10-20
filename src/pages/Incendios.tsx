@@ -14,7 +14,7 @@ import {
 import type { Foco, FocosArchivo, EstadoIngesta, Filtros } from '../lib/incendios'
 
 const base = import.meta.env.BASE_URL
-const PERU_CENTER: L.LatLngTuple = [-9.6, -74.5]
+const PERU_BOUNDS: L.LatLngBoundsExpression = [[-18.4, -81.4], [-0.03, -68.6]]
 const REFRESCO_MS = 10 * 60_000 // la página vuelve a leer los archivos cada 10 min
 const CONFIANZAS = ['alta', 'nominal', 'baja']
 
@@ -141,7 +141,7 @@ export default function Incendios() {
   // Mapa
   useEffect(() => {
     if (!ref.current || mapRef.current) return
-    const map = L.map(ref.current, { scrollWheelZoom: true, preferCanvas: true }).setView(PERU_CENTER, 5)
+    const map = L.map(ref.current, { scrollWheelZoom: true, preferCanvas: true }).fitBounds(PERU_BOUNDS)
     mapRef.current = map
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap · Focos: NASA FIRMS', maxZoom: 18 }).addTo(map)
     fetch(`${base}data/peru-departamentos.geojson`).then((r) => r.json()).then((gj) => {
@@ -185,7 +185,7 @@ export default function Incendios() {
     minamLayer.current = grp
   }, [verMinam, minam, filtros.departamento])
 
-  function centrarPeru() { mapRef.current?.setView(PERU_CENTER, 5) }
+  function centrarPeru() { mapRef.current?.fitBounds(PERU_BOUNDS) }
 
   function elegirDepartamento(dep: string) {
     setFiltros((s) => ({ ...s, departamento: dep }))
@@ -317,7 +317,9 @@ export default function Incendios() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           { v: kpi.total, t: `Detecciones · ${ventana}`, n: 'con los filtros activos' },
-          { v: kpi.ult24, t: 'Detecciones · últimas 24 h', n: 'dentro de la selección' },
+          filtros.horas > 24
+            ? { v: kpi.ult24, t: 'Detecciones · últimas 24 h', n: 'dentro de la selección' }
+            : { v: kpi.altaConfianza, t: 'Detecciones de alta confianza', n: `en ${ventana}` },
           { v: kpi.departamentos, t: 'Departamentos con detecciones', n: `en ${ventana}` },
           { v: kpi.enAnp, t: 'Detecciones dentro de ANP', n: 'límites SERNANP' },
         ].map((k) => (
