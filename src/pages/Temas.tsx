@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell,
   PieChart, Pie, Legend, LineChart, Line, LabelList,
@@ -12,6 +13,7 @@ interface Agua {
   embalses: { fuente: string; datos: { nombre: string; capacidad_mmc: number; llenado_pct: number }[] }
 }
 type Serie = { name: string; value: number }[]
+interface IncendiosResumen { total: number; porAnio: { anio: number; registros: number }[]; porDepartamento: { departamento: string; registros: number }[] }
 
 const PALETA = ['#15803d', '#b45309', '#0e7490', '#7c3aed', '#dc2626', '#059669', '#0369a1', '#92400e', '#a16207']
 
@@ -83,6 +85,7 @@ export default function Temas() {
   const [mineriaTipo, setMineriaTipo] = useState<Serie>([])
   const [pueblosFam, setPueblosFam] = useState<Serie>([])
   const [der, setDer] = useState<Derrames | null>(null)
+  const [inc, setInc] = useState<IncendiosResumen | null>(null)
   const [openId, setOpenId] = useState<string>('')
 
   useEffect(() => {
@@ -93,6 +96,7 @@ export default function Temas() {
     loadJSON<Clima>('clima.json').then(setClima).catch(console.error)
     loadJSON<Agua>('agua.json').then(setAgua).catch(console.error)
     loadJSON<Derrames>('derrames.json').then(setDer).catch(console.error)
+    loadJSON<IncendiosResumen>('incendios/minam-resumen.json').then(setInc).catch(() => {})
     aggregateGeo('riesgo-ambiental-oefa.geojson', 'subsector').then(setRiesgoSub).catch(() => {})
     aggregateGeo('relaves-oefa-puntos.geojson', 'estado_dr').then(setRelavesEstado).catch(() => {})
     aggregateGeo('mineria-ilegal-anp.geojson', 'idtipact').then((d) => setMineriaTipo(d.slice(0, 8))).catch(() => {})
@@ -117,6 +121,19 @@ export default function Temas() {
 
   function graficos(id: string): React.ReactNode[] {
     switch (id) {
+      case 'incendios':
+        return [
+          <Bloque key="in1" titulo={`Incendios registrados por año, 2000–2025 (${fmt(inc?.total ?? 0)})`} fuente="MINAM — registro administrativo">
+            <BarMini color="#dc2626" data={(inc?.porAnio ?? []).map((a) => ({ name: String(a.anio), value: a.registros }))} />
+          </Bloque>,
+          <Bloque key="in2" titulo="Incendios registrados por departamento, 2000–2025" fuente="MINAM — registro administrativo">
+            <BarMini color="#b91c1c" data={(inc?.porDepartamento ?? []).slice(0, 10).map((d) => ({ name: d.departamento, value: d.registros }))} />
+          </Bloque>,
+          <div key="in3" className="lg:col-span-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-900">
+            Los focos de calor satelitales (NASA FIRMS) de los últimos 7 días, con filtros por periodo, satélite,
+            confianza y departamento, están en <Link to="/incendios" className="font-semibold underline">Incendios forestales →</Link>
+          </div>,
+        ]
       case 'deforestacion':
         return [
           <Bloque key="d1" titulo="Pérdida anual de bosque (ha)" fuente="Geobosques/MINAM">

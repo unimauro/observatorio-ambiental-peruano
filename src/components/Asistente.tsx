@@ -47,14 +47,19 @@ interface HidroAmz {
   }
 }
 
+interface IncEstado { dias: number; total_focos: number; ultima_sincronizacion_utc: string | null }
+interface IncResumen { total: number; porAnio: { anio: number; registros: number }[]; porDepartamento: { departamento: string; registros: number }[] }
+
 async function buildContext(): Promise<string> {
   try {
-    const [ind, ejes, faq, der, amz] = await Promise.all([
+    const [ind, ejes, faq, der, amz, incE, incR] = await Promise.all([
       loadJSON<Indicadores>('indicadores.json'),
       loadJSON<Eje[]>('ejes.json'),
       loadJSON<FaqCtx>('faq.json').catch(() => ({ grupos: [] }) as FaqCtx),
       loadJSON<Derrames>('derrames.json').catch(() => null),
       loadJSON<HidroAmz>('hidrocarburos-amazonia.json').catch(() => null),
+      loadJSON<IncEstado>('incendios/estado.json').catch(() => null),
+      loadJSON<IncResumen>('incendios/minam-resumen.json').catch(() => null),
     ])
     const kpis = ind.kpis
       .map((k) => `- ${k.etiqueta}: ${k.valor.toLocaleString('es-PE')} ${k.unidad} (${k.estado}; ${k.fuente})`)
@@ -82,7 +87,12 @@ async function buildContext(): Promise<string> {
         + (c.planes_rehabilitacion ? `- Sitios con plan de rehabilitación (MINEM): ${c.planes_rehabilitacion.sitios} sitios, con un costo estimado total de S/ ${Math.round(c.planes_rehabilitacion.costo_total_soles).toLocaleString('es-PE')}.` : '')
         + `\n- Fuente: ${amz.fuente} Se ven en [Mapa](#/mapa), grupo "Amazonía: sitios impactados".`
       : ''
-    return `INDICADORES NACIONALES ACTUALES:\n${kpis}\n\nEJES TEMÁTICOS:\n${temas}${hidro}${amazonia}\n\nPREGUNTAS FRECUENTES:\n${faqs}`
+    const incendios = incE || incR
+      ? '\n\nINCENDIOS FORESTALES:\n'
+        + (incE ? `- Focos de calor satelitales (NASA FIRMS, VIIRS/MODIS) en el Perú en los últimos ${incE.dias} días: ${incE.total_focos.toLocaleString('es-PE')} detecciones (última sincronización ${incE.ultima_sincronizacion_utc ?? 'sin datos'} UTC). Una detección NO es un incendio confirmado ni sirve para calcular hectáreas quemadas. Detalle y filtros en [Incendios](#/incendios).\n` : '')
+        + (incR ? `- Registro administrativo de incendios del MINAM 2000–2025: ${incR.total.toLocaleString('es-PE')} registros. Años con más registros: ${[...incR.porAnio].sort((a, b) => b.registros - a.registros).slice(0, 3).map((a) => `${a.anio} (${a.registros})`).join(', ')}. Departamentos: ${incR.porDepartamento.slice(0, 5).map((d) => `${d.departamento} (${d.registros})`).join(', ')}.` : '')
+      : ''
+    return `INDICADORES NACIONALES ACTUALES:\n${kpis}\n\nEJES TEMÁTICOS:\n${temas}${hidro}${amazonia}${incendios}\n\nPREGUNTAS FRECUENTES:\n${faqs}`
   } catch {
     return '(No se pudo cargar el contexto de datos.)'
   }

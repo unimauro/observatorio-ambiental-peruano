@@ -79,8 +79,9 @@ npm run build    # genera dist/
 npm run preview
 ```
 
-El despliegue a GitHub Pages es automático en cada push a `main`
-(`.github/workflows/deploy.yml`).
+El despliegue a GitHub Pages es automático en cada push a `main` y cada 15 min
+(`.github/workflows/deploy.yml`), que además refresca los focos de calor.
+`npm test` corre las pruebas del módulo de incendios. Ver [`docs/INCENDIOS.md`](docs/INCENDIOS.md).
 
 ## Cómo contribuir datos
 

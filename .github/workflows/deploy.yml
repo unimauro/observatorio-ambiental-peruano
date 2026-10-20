@@ -1,8 +1,13 @@
 name: Deploy to GitHub Pages
 
+# Además de cada push, se ejecuta cada 15 min para refrescar los focos de calor
+# (NASA FIRMS + MINAM) sin commitear: los datos de incendios viajan solo en el
+# artefacto de Pages. Ver docs/INCENDIOS.md.
 on:
   push:
     branches: [main]
+  schedule:
+    - cron: '*/15 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -12,19 +17,62 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false   # nunca cortar una ingesta a medias; las siguientes esperan
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
+
+      - name: Recuperar la última versión publicada de incendios
+        # Conserva fechas de recepción, la serie diaria acumulada y el último dato
+        # válido de cada fuente. Solo reemplaza la copia del repo si el JSON es válido.
+        run: |
+          SITE="https://unimauro.github.io/observatorio-ambiental-peruano/data"
+          for f in incendios/estado.json incendios/focos.json incendios/serie-diaria.json \
+                   incendios/minam-2026.geojson incendios/minam-resumen.json; do
+            if curl -fsS --max-time 60 "$SITE/$f" -o /tmp/prev.json \
+               && python -c "import json,sys; json.load(open('/tmp/prev.json'))"; then
+              mv /tmp/prev.json "public/data/$f"; echo "recuperado $f"
+            else
+              echo "::notice::sin versión publicada válida de $f; se usa la del repo"
+            fi
+          done
+
+      - name: Ingesta de incendios (NASA FIRMS + MINAM)
+        env:
+          FIRMS_MAP_KEY: ${{ secrets.FIRMS_MAP_KEY }}
+          INCENDIOS_DIAS: ${{ vars.INCENDIOS_DIAS || '7' }}
+          INCENDIOS_ALCANCE: ${{ vars.INCENDIOS_ALCANCE || 'peru' }}
+        run: python etl/build_incendios.py || echo "::warning::Todas las fuentes satelitales fallaron; se publica la última versión válida"
+
+      - name: Pruebas
+        if: github.event_name != 'schedule'
+        run: |
+          npm ci
+          npm test
+
       - run: npm ci
+        if: github.event_name == 'schedule'
       - run: npm run build
+
+      - name: Verificar que no se publiquen secretos
+        env:
+          FIRMS_MAP_KEY: ${{ secrets.FIRMS_MAP_KEY }}
+        run: |
+          if [ -n "$FIRMS_MAP_KEY" ] && grep -rqF "$FIRMS_MAP_KEY" dist; then
+            echo "::error::La MAP_KEY aparece en dist/"; exit 1
+          fi
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

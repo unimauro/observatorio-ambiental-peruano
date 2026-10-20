@@ -15,6 +15,7 @@ interface Creditos {
 const nav = [
   { to: '/', label: 'Dashboard', end: true },
   { to: '/mapa', label: 'Mapa' },
+  { to: '/incendios', label: 'Incendios' },
   { to: '/temas', label: 'Temas' },
   { to: '/biblioteca', label: 'Biblioteca' },
   { to: '/faq', label: 'FAQ' },

@@ -8,6 +8,17 @@
     "www.datosabiertos.gob.pe no expone API CKAN funcional (/api/3/action/* responde vacío); solo búsqueda HTML."
   ],
   "servidores": {
+    "FIRMS_NASA": {
+      "root": "https://firms.modaps.eosdis.nasa.gov",
+      "publico_sin_clave": "/data/active_fire/<producto>/csv/<archivo>_South_America_{24h,7d}.csv",
+      "api_con_clave": "/api/area/csv/{MAP_KEY}/{SOURCE}/{O,S,E,N}/{1-5}/{YYYY-MM-DD}",
+      "nota": "Ignora If-None-Match: usar HEAD y comparar ETag. Verificado 2026-10-19."
+    },
+    "MINAM_GEOSERVIDOR": {
+      "root": "https://geoservidorperu.minam.gob.pe/arcgis/rest/services",
+      "servicio": "ServicioCFOI/MapServer",
+      "nota": "UTM 18S nativo (pedir outSR=4326); maxRecordCount 1000 con paginación; sin Referer. Capas 0 (2026), 1 (2000-2025), 18-19 ráster condiciones favorables. Verificado 2026-10-19."
+    },
     "PIFA_OEFA": {
       "root": "https://pifa.oefa.gob.pe/arcgis/rest/services",
       "referer": "https://pifa.oefa.gob.pe/",
@@ -23,6 +34,9 @@
     "COOPERACCION_WFS": { "root": "http://cooperaccion-geoportal.org:8082/geoserver/ows", "referer": null }
   },
   "capas_en_uso": [
+    { "salida": "incendios/focos.json", "url": "https://firms.modaps.eosdis.nasa.gov/data/active_fire/", "estrategia": "CSV público 7d o API con FIRMS_MAP_KEY; cada 15 min (etl/build_incendios.py)" },
+    { "salida": "incendios/minam-2026.geojson", "url": "https://geoservidorperu.minam.gob.pe/arcgis/rest/services/ServicioCFOI/MapServer/0", "estrategia": "json paginado outSR=4326" },
+    { "salida": "incendios/minam-resumen.json", "url": "https://geoservidorperu.minam.gob.pe/arcgis/rest/services/ServicioCFOI/MapServer/1", "estrategia": "outStatistics por AñO y NOMBDEP" },
     { "salida": "anp-sernanp.geojson", "url": "https://geoservicios.sernanp.gob.pe/arcgis/rest/services/servicios_ogc/peru_sernanp_0102/MapServer/0", "estrategia": "geojson paginado" },
     { "salida": "mineria-ilegal-anp.geojson", "url": "https://geoservicios.sernanp.gob.pe/arcgis/rest/services/servicios_ogc/peru_sernanp_0201/MapServer/1", "estrategia": "geojson paginado" },
     { "salida": "relaves-oefa-puntos.geojson", "url": "https://pifa.oefa.gob.pe/arcgis/rest/services/RIESGOS/SERV_RIESGO_HIDROM_RELAVES_WMS/MapServer/4", "estrategia": "geojson paginado + centroide" },

@@ -57,6 +57,12 @@ En el mapa se muestran en el grupo **"Amazonía: sitios impactados"** (el monito
 
 - `etl/build_data.py` descarga las capas oficiales (SERNANP + OEFA) sin dependencias externas y escribe GeoJSON + `_manifest.json`. El workflow `update-data.yml` lo corre cada lunes y commitea los cambios. Cada capa lleva `metadata.actualizado` con la fecha de descarga.
 
+## Incendios forestales (integrado 2026-10-19)
+
+- **Focos de calor — NASA FIRMS** (VIIRS Suomi NPP/NOAA-20/NOAA-21 375 m + MODIS 1 km, NRT). Ingesta `etl/build_incendios.py` cada 15 min desde GitHub Actions; sin clave usa los CSV públicos de Sudamérica, con `FIRMS_MAP_KEY` la API de área. Estado: **verificado** (dato satelital oficial). Una detección es una anomalía térmica, no un incendio confirmado, y no permite estimar superficie quemada.
+- **Registro de incendios — MINAM GeoServidor** `ServicioCFOI/MapServer` capa 0 (2026, 770 registros, último 27-ago-2026) y capa 1 (histórico 2000–2025, 54 493). Registro administrativo con rezago (INDECI/COER/MINAM).
+- Detalle completo, operación y límites en [`docs/INCENDIOS.md`](../docs/INCENDIOS.md).
+
 ## Deforestación
 
 - **2022: 146,575 ha · 2023: 132,216 ha · acumulado 2001–2023: 3,053,354 ha (4.3% de la cobertura amazónica).** — **Geobosques**, Programa Nacional de Conservación de Bosques (MINAM).
