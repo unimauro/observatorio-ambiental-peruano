@@ -2,6 +2,10 @@
 
 Punto de retomada rápido. Estado al **2026-10-19**. Live: https://unimauro.github.io/observatorio-ambiental-peruano/
 
+## ✅ Hecho (cadencia de incendios, 2026-10-23)
+- El cron `*/15` de `deploy.yml` lo ejecutaba GitHub en realidad cada 3–6 h (la UI mostraba "sin actualización en 4 h"). Se pasó a `23 * * * *` (horario, minuto fuera de pico) y se actualizaron docs/UI.
+- [ ] Si GitHub sigue retrasando el schedule: cron en el VPS que dispare `workflow_dispatch` vía `gh api` con un PAT fine-grained (solo `actions: write` de este repo) — cadencia garantizada.
+
 ## ✅ Hecho (revisión adversarial/seguridad Incendios, 2026-10-20)
 - 13 hallazgos corregidos (bucle infinito MINAM, previos corruptos, bug de filtros, mapa que se rehacía cada minuto, inyección CSV, TLS MINAM verificado, límites de tamaño, acciones por SHA…). Detalle en docs/INCENDIOS.md §9.
 - Rediseño visual: cabecera con indicador "En vivo", filtros como chips táctiles (≥36 px), KPIs con acento, avisos de carga/vacío sobre el mapa, estado de fuentes plegable.

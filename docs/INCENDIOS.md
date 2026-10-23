@@ -13,7 +13,7 @@ satelitales casi en tiempo real en el Perú y registro administrativo de incendi
 | Datos | 100 % estático en `public/data/` | JSON/GeoJSON estático generado por la ingesta |
 | Backend | No existe | No hace falta: la ingesta corre en GitHub Actions |
 | ETL | Python **solo stdlib** + Actions semanal | `etl/build_incendios.py` con el mismo estilo |
-| Deploy | GitHub Pages vía `deploy.yml` | `deploy.yml` corre además **cada 15 min** |
+| Deploy | GitHub Pages vía `deploy.yml` | `deploy.yml` corre además **cada hora** (min 23) |
 
 PostgreSQL/PostGIS no se justifica todavía: Perú genera ~10–15 mil detecciones por semana
 (≈2,7 MB en JSON columnar, ~400 kB comprimido). Ver §7 si se necesita histórico completo.
@@ -79,14 +79,14 @@ frp, brillo, brillo2, scan, track, dia_noche, version, recibido_utc, departament
 
 ## 5. Ejecución automática
 
-`.github/workflows/deploy.yml` corre en cada push y **cada 15 min** (`cron: '*/15 * * * *'`; GitHub puede
-retrasarlo algunos minutos en horas pico):
+`.github/workflows/deploy.yml` corre en cada push y **cada hora** (`cron: '23 * * * *'`; GitHub puede
+retrasarlo; el `*/15` anterior se ejecutaba en realidad cada 3–6 h, por eso se pasó a un cron horario en minuto impar):
 
 1. Descarga la versión publicada de `incendios/*` desde Pages (solo si es JSON válido).
 2. `python etl/build_incendios.py` (si falla una fuente, conserva su último dato válido).
 3. En push: `npm test`. Luego `npm run build`, verificación de que la MAP_KEY no está en `dist/`, y deploy.
 
-No se commitea cada 15 min: los datos viajan en el artefacto de Pages. Ningún visitante dispara
+No se commitea cada hora: los datos viajan en el artefacto de Pages. Ningún visitante dispara
 consultas a FIRMS/MINAM; el navegador solo lee los archivos estáticos (y los relee cada 10 min).
 `concurrency: pages` + `cancel-in-progress: false` evita ejecuciones simultáneas; localmente lo
 evita un `flock` en `/tmp/oap-incendios.lock`.

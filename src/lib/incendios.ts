@@ -139,7 +139,7 @@ export function hace(iso: string | null, ahora: number): string {
 
 export type Frescura = 'ok' | 'parcial' | 'desactualizado' | 'sin-datos'
 
-/** La ingesta corre cada ~15 min; >2 h sin sincronizar = desactualizado. */
+/** La ingesta corre cada ~1 h (cron de GitHub, puede retrasarse); >2 h sin sincronizar = desactualizado. */
 export function frescura(e: EstadoIngesta | null, ahora: number, limiteHoras = 2): Frescura {
   if (!e || !e.ultima_sincronizacion_utc) return 'sin-datos'
   if (ahora - Date.parse(e.ultima_sincronizacion_utc) > limiteHoras * H) return 'desactualizado'

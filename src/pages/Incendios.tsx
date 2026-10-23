@@ -246,7 +246,7 @@ export default function Incendios() {
         </div>
         <p className="text-sm text-white/90 mt-2 max-w-3xl">
           Focos de calor detectados por satélite en el Perú (NASA FIRMS: VIIRS y MODIS), actualizados
-          de forma automática cada ~15 minutos, junto al registro administrativo de incendios del MINAM.
+          de forma automática cada hora, junto al registro administrativo de incendios del MINAM.
         </p>
       </header>
 

@@ -1,13 +1,13 @@
 name: Deploy to GitHub Pages
 
-# Además de cada push, se ejecuta cada 15 min para refrescar los focos de calor
-# (NASA FIRMS + MINAM) sin commitear: los datos de incendios viajan solo en el
-# artefacto de Pages. Ver docs/INCENDIOS.md.
+# Además de cada push, se ejecuta cada hora (min 23, fuera del pico de :00) para refrescar
+# los focos de calor (NASA FIRMS + MINAM) sin commitear: los datos viajan solo en el
+# artefacto de Pages. GitHub throttleaba el '*/15' a 3–6 h reales. Ver docs/INCENDIOS.md.
 on:
   push:
     branches: [main]
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '23 * * * *'
   workflow_dispatch:
 
 permissions:
