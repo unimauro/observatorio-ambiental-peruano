@@ -1,6 +1,14 @@
 # Backlog — Observatorio Ambiental Peruano
 
-Punto de retomada rápido. Estado al **2026-10-19**. Live: https://unimauro.github.io/observatorio-ambiental-peruano/
+Punto de retomada rápido. Estado al **2026-10-28**. Live: https://unimauro.github.io/observatorio-ambiental-peruano/
+
+## ✅ Hecho (módulo El Niño, lluvias y calor, 2026-10-28)
+- Nueva sección **El Niño** (`#/nino`, en el menú y tarjeta en el Dashboard): semáforo (proxy del ICEN con categoría ENFEN, anomalías Niño 1+2 / 3.4), último comunicado ENFEN, **alertas** nivel 1–4 con origen oficial/modelo/calculado y filtros por tipo, mapa con capas WMS del SENAMHI (quebradas, SILVIA, SONICS, aviso meteorológico, lluvia 24 h, verano) + puntos propios, tabla de pronóstico 7 días para 30 ciudades (lluvia/calor), bloque de huaycos (centros poblados, población y viviendas expuestas, distritos nivel 4, EESS/IIEE/vías), ríos (SONICS 7 días, avisos hidrológicos, caudal GloFAS 18 ríos), series NOAA desde 1982 con episodios, pronóstico estacional por sector.
+- ETL `etl/build_nino.py` (stdlib, 13 fuentes en paralelo, ~100 s, última versión válida por fuente) dentro de `deploy.yml` cada hora. Contexto del Asistente y FAQ actualizados; 3 docs nuevos en Biblioteca. Pruebas: 44 Python + 18 Node. Doc: [`docs/NINO.md`](docs/NINO.md).
+- [ ] Daños reales por lluvias (INDECI/COEN) — no hay fuente accesible por script; evaluar boletines COEN.
+- [ ] Validar campos de `g_aviso:view_aviso` con un aviso meteorológico real (la capa estaba vacía el 28-oct).
+- [ ] Notificaciones cuando aparezca una alerta nivel 4 nueva (WhatsApp vía Zernio / email).
+- [ ] Capa "El Niño" en el Mapa general; choropleth distrital de quebradas con geometría propia.
 
 ## ✅ Hecho (cadencia de incendios, 2026-10-23)
 - El cron `*/15` de `deploy.yml` lo ejecutaba GitHub en realidad cada 3–6 h (la UI mostraba "sin actualización en 4 h"). Se pasó a `23 * * * *` (horario, minuto fuera de pico) y se actualizaron docs/UI.

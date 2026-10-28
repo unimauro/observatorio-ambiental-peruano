@@ -1,8 +1,9 @@
 name: Deploy to GitHub Pages
 
 # Además de cada push, se ejecuta cada hora (min 23, fuera del pico de :00) para refrescar
-# los focos de calor (NASA FIRMS + MINAM) sin commitear: los datos viajan solo en el
-# artefacto de Pages. GitHub throttleaba el '*/15' a 3–6 h reales. Ver docs/INCENDIOS.md.
+# los focos de calor (NASA FIRMS + MINAM) y el módulo El Niño (NOAA, ENFEN, SENAMHI, Open-Meteo)
+# sin commitear: los datos viajan solo en el artefacto de Pages. GitHub throttleaba el '*/15'
+# a 3–6 h reales. Ver docs/INCENDIOS.md y docs/NINO.md.
 on:
   push:
     branches: [main]
@@ -35,13 +36,16 @@ jobs:
           node-version: 24
           cache: npm
 
-      - name: Recuperar la última versión publicada de incendios
+      - name: Recuperar la última versión publicada de incendios y El Niño
         # Conserva fechas de recepción, la serie diaria acumulada y el último dato
         # válido de cada fuente. Solo reemplaza la copia del repo si el JSON es válido.
         run: |
           SITE="https://unimauro.github.io/observatorio-ambiental-peruano/data"
+          mkdir -p public/data/nino
           for f in incendios/estado.json incendios/focos.json incendios/serie-diaria.json \
-                   incendios/minam-2026.geojson incendios/minam-resumen.json; do
+                   incendios/minam-2026.geojson incendios/minam-resumen.json \
+                   nino/estado.json nino/enso.json nino/enfen.json nino/avisos.json nino/quebradas.json \
+                   nino/silvia.json nino/sonics.json nino/estacional.json nino/pronostico.json nino/caudales.json; do
             if curl -fsS --max-time 60 "$SITE/$f" -o /tmp/prev.json \
                && python -c "import json,sys; json.load(open('/tmp/prev.json'))"; then
               mv /tmp/prev.json "public/data/$f"; echo "recuperado $f"
@@ -62,6 +66,16 @@ jobs:
           python etl/build_incendios.py; rc=$?
           if [ "$rc" = 3 ]; then echo "::warning::Todas las fuentes satelitales fallaron; se publica la última versión válida"
           elif [ "$rc" != 0 ]; then echo "::error::El ETL de incendios terminó con código $rc"; exit "$rc"; fi
+
+      - name: Ingesta El Niño, lluvias y calor (NOAA + ENFEN + SENAMHI + Open-Meteo)
+        env:
+          NINO_TIMEOUT: ${{ vars.NINO_TIMEOUT || '90' }}
+        # 0 = ok · 3 = todas las fuentes cayeron (se publica la última versión válida)
+        run: |
+          set +e
+          python etl/build_nino.py; rc=$?
+          if [ "$rc" = 3 ]; then echo "::warning::Todas las fuentes de El Niño fallaron; se publica la última versión válida"
+          elif [ "$rc" != 0 ]; then echo "::error::El ETL de El Niño terminó con código $rc"; exit "$rc"; fi
 
       - name: Pruebas
         if: github.event_name != 'schedule'

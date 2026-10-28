@@ -130,6 +130,36 @@
       "categoria": "clima",
       "url": "https://www.gob.pe/inaigem",
       "resumen": "Información oficial sobre el retroceso glaciar y los ecosistemas de montaña del Perú."
+    },
+    {
+      "id": "doc-enfen-comunicados",
+      "titulo": "ENFEN — Comunicados oficiales sobre El Niño",
+      "tipo": "Informe / Boletín",
+      "anio": 2026,
+      "fuente": "ENFEN (IMARPE, SENAMHI, IGP, ANA, INDECI, DHN)",
+      "categoria": "clima",
+      "url": "https://enfen.imarpe.gob.pe/comunicados/",
+      "resumen": "Diagnóstico y perspectiva quincenal oficial del Fenómeno El Niño/La Niña en el Perú: estado del sistema de alerta, magnitud prevista y recomendaciones. El observatorio enlaza el último comunicado cada hora."
+    },
+    {
+      "id": "doc-senamhi-idesep",
+      "titulo": "SENAMHI — IDESEP, infraestructura de datos espaciales",
+      "tipo": "Plataforma / Datos",
+      "anio": 2026,
+      "fuente": "SENAMHI",
+      "categoria": "clima",
+      "url": "https://idesep.senamhi.gob.pe/",
+      "resumen": "Servicios WFS/WMS con los avisos meteorológicos e hidrológicos, activación de quebradas, SILVIA, SONICS, umbrales de precipitación y pronóstico estacional. Es la fuente de la sección El Niño."
+    },
+    {
+      "id": "doc-noaa-enso",
+      "titulo": "NOAA CPC — Índices Niño 1+2, 3, 3.4 y 4",
+      "tipo": "Plataforma / Datos",
+      "anio": 2026,
+      "fuente": "NOAA Climate Prediction Center",
+      "categoria": "clima",
+      "url": "https://www.cpc.ncep.noaa.gov/data/indices/",
+      "resumen": "Series semanales y mensuales de temperatura superficial del mar y anomalías en las regiones Niño (OISST v2.1, base 1991–2020)."
     }
   ]
 }

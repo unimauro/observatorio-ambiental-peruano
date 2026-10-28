@@ -12,7 +12,7 @@ ambiental del Perú mediante datos abiertos, mapas interactivos e inteligencia a
 ## Ejes temáticos
 
 🌳 Bosques y deforestación · 🛢️ Derrames petroleros · ⛏️ Minería y pasivos ·
-💧 Agua y cuencas · 🌎 Cambio climático · 🔥 Incendios forestales ·
+💧 Agua y cuencas · 🌎 Cambio climático · 🔥 Incendios forestales · 🌊 El Niño, lluvias y calor ·
 🏞️ Áreas naturales protegidas · 👥 Pueblos indígenas · 📊 Indicadores socioeconómicos
 
 ## Hoja de ruta
@@ -81,7 +81,8 @@ npm run preview
 
 El despliegue a GitHub Pages es automático en cada push a `main` y cada hora
 (`.github/workflows/deploy.yml`), que además refresca los focos de calor.
-`npm test` corre las pruebas del módulo de incendios. Ver [`docs/INCENDIOS.md`](docs/INCENDIOS.md).
+La misma corrida ejecuta `etl/build_nino.py` (El Niño: NOAA + ENFEN + SENAMHI + Open-Meteo).
+`npm test` corre las pruebas de los módulos de incendios y El Niño. Ver [`docs/INCENDIOS.md`](docs/INCENDIOS.md) y [`docs/NINO.md`](docs/NINO.md).
 
 ## Cómo contribuir datos
 

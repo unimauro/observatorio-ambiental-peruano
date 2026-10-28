@@ -196,6 +196,10 @@ export default function Temas() {
           <Bloque key="c1" titulo="Retroceso de la cobertura glaciar (km²)" fuente="INAIGEM (referencia)">
             <LineMini color="#0369a1" yLabel="km²" data={(clima?.glaciares.serie ?? []).map((s) => ({ x: String(s.anio), y: s.km2 }))} />
           </Bloque>,
+          <p key="c2" className="text-sm text-slate-600 lg:col-span-2">
+            El estado del Fenómeno El Niño, los avisos de lluvias, huaycos y ríos del SENAMHI y el pronóstico a 7 días están en{' '}
+            <Link to="/nino" className="font-semibold underline">El Niño, lluvias y calor →</Link>
+          </p>,
         ]
       case 'indigenas':
         return [

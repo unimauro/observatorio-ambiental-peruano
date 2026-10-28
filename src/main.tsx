@@ -12,6 +12,7 @@ import Acerca from './pages/Acerca'
 // Las páginas con Leaflet se cargan bajo demanda: la portada no descarga el mapa
 const Mapa = lazy(() => import('./pages/Mapa'))
 const Incendios = lazy(() => import('./pages/Incendios'))
+const Nino = lazy(() => import('./pages/Nino'))
 const cargandoPagina = <div className="py-16 text-center text-sm text-slate-500">Cargando…</div>
 
 createRoot(document.getElementById('root')!).render(
@@ -22,6 +23,7 @@ createRoot(document.getElementById('root')!).render(
           <Route index element={<Dashboard />} />
           <Route path="mapa" element={<Suspense fallback={cargandoPagina}><Mapa /></Suspense>} />
           <Route path="incendios" element={<Suspense fallback={cargandoPagina}><Incendios /></Suspense>} />
+          <Route path="nino" element={<Suspense fallback={cargandoPagina}><Nino /></Suspense>} />
           <Route path="temas" element={<Temas />} />
           <Route path="biblioteca" element={<Biblioteca />} />
           <Route path="faq" element={<Faq />} />

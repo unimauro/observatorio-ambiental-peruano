@@ -15,6 +15,9 @@ interface AnpResumen {
 }
 
 interface Cruce { id: string; etiqueta: string; valor: number; de: number; fuente: string }
+interface NinoAlertas { generado_utc: string; alertas: { id: string; tipo: string; nivel: number; origen: string; titulo: string }[]; resumen: { total: number; por_nivel: Record<string, number> } }
+interface NinoEnso { actual: { icen_proxy: number | null; icen_categoria: string | null; n12_anomalia_semanal: number | null; semana: string | null } }
+const NIVEL_COLOR: Record<number, string> = { 1: '#ca8a04', 2: '#ea580c', 3: '#dc2626', 4: '#7f1d1d' }
 interface Superposicion { nota: string; cruces: Cruce[]; topLotes: { lote: string; comunidades: number }[] }
 
 export default function Dashboard() {
@@ -24,6 +27,8 @@ export default function Dashboard() {
   const [anp, setAnp] = useState<AnpResumen | null>(null)
   const [sup, setSup] = useState<Superposicion | null>(null)
   const [der, setDer] = useState<Derrames | null>(null)
+  const [ninoAl, setNinoAl] = useState<NinoAlertas | null>(null)
+  const [ninoEnso, setNinoEnso] = useState<NinoEnso | null>(null)
 
   useEffect(() => {
     loadJSON<Indicadores>('indicadores.json').then(setInd).catch(console.error)
@@ -32,6 +37,8 @@ export default function Dashboard() {
     loadJSON<AnpResumen>('anp-resumen.json').then(setAnp).catch(console.error)
     loadJSON<Superposicion>('superposicion.json').then(setSup).catch(console.error)
     loadJSON<Derrames>('derrames.json').then(setDer).catch(console.error)
+    loadJSON<NinoAlertas>('nino/alertas.json').then(setNinoAl).catch(() => {})
+    loadJSON<NinoEnso>('nino/enso.json').then(setNinoEnso).catch(() => {})
   }, [])
 
   return (
@@ -53,6 +60,40 @@ export default function Dashboard() {
           </Link>
         </div>
       </section>
+
+      {/* El Niño, lluvias y calor — temporada de lluvias */}
+      {ninoAl && (
+        <section className="rounded-xl border border-sky-200 bg-sky-50 p-5 sm:p-6">
+          <div className="flex items-baseline justify-between flex-wrap gap-2">
+            <h2 className="text-lg font-bold text-sky-950">🌊 El Niño, lluvias y calor</h2>
+            <Link to="/nino" className="text-xs bg-sky-800 text-white hover:bg-sky-900 rounded-lg px-2.5 py-1.5">Ver alertas y pronóstico →</Link>
+          </div>
+          <p className="text-sm text-sky-900/80 mt-1">
+            Avisos oficiales del SENAMHI (lluvias, activación de quebradas, ríos), diagnóstico del ENFEN y pronóstico a 7 días. Se actualiza cada hora.
+          </p>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
+            <div className="bg-white rounded-xl border border-sky-200/60 p-4">
+              <div className="text-3xl font-extrabold text-sky-800 tabular-nums">{ninoEnso?.actual.icen_proxy !== null && ninoEnso?.actual.icen_proxy !== undefined ? `${ninoEnso.actual.icen_proxy > 0 ? '+' : ''}${ninoEnso.actual.icen_proxy.toFixed(1)} °C` : '—'}</div>
+              <div className="text-sm font-medium mt-1 leading-snug">Proxy del ICEN · {ninoEnso?.actual.icen_categoria ?? 's/d'}</div>
+              <div className="text-[11px] text-slate-400 mt-1">cálculo propio sobre NOAA; no es el ICEN oficial</div>
+            </div>
+            <div className="bg-white rounded-xl border border-sky-200/60 p-4">
+              <div className="text-3xl font-extrabold text-sky-800 tabular-nums">{ninoEnso?.actual.n12_anomalia_semanal !== null && ninoEnso?.actual.n12_anomalia_semanal !== undefined ? `${ninoEnso.actual.n12_anomalia_semanal > 0 ? '+' : ''}${ninoEnso.actual.n12_anomalia_semanal.toFixed(1)} °C` : '—'}</div>
+              <div className="text-sm font-medium mt-1 leading-snug">Anomalía del mar Niño 1+2</div>
+              <div className="text-[11px] text-slate-400 mt-1">semana del {ninoEnso?.actual.semana ?? '—'} · NOAA</div>
+            </div>
+            <div className="bg-white rounded-xl border border-sky-200/60 p-4">
+              <div className="text-3xl font-extrabold tabular-nums" style={{ color: NIVEL_COLOR[Math.max(0, ...ninoAl.alertas.map((a) => a.nivel))] ?? '#0369a1' }}>{fmt(ninoAl.resumen.total)}</div>
+              <div className="text-sm font-medium mt-1 leading-snug">Alertas activas</div>
+              <div className="text-[11px] text-slate-400 mt-1">{ninoAl.resumen.por_nivel['4'] ?? 0} de nivel 4 · {ninoAl.alertas.filter((a) => a.origen === 'oficial').length} oficiales</div>
+            </div>
+            <div className="bg-white rounded-xl border border-sky-200/60 p-4">
+              <div className="text-sm font-semibold leading-snug" style={{ color: NIVEL_COLOR[ninoAl.alertas[0]?.nivel ?? 1] }}>{ninoAl.alertas[0]?.titulo ?? 'Sin alertas'}</div>
+              <div className="text-[11px] text-slate-400 mt-2">alerta de mayor nivel · {ninoAl.alertas[0]?.origen === 'oficial' ? 'aviso oficial' : ninoAl.alertas[0]?.origen === 'modelo' ? 'modelo global' : 'cálculo propio'}</div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Superposición territorial — insight clave */}
       {sup && (

@@ -19,6 +19,10 @@
         {
           "q": "¿Es un proyecto oficial del Estado?",
           "a": "No. Es una iniciativa ciudadana independiente que reutiliza datos públicos del Estado peruano. No reemplaza a las fuentes oficiales; las hace más accesibles y comparables."
+        },
+        {
+          "q": "¿Qué muestra la sección El Niño y de dónde salen las alertas?",
+          "a": "Reúne cada hora el estado del Fenómeno El Niño (temperatura del mar NOAA y el último comunicado oficial del ENFEN) con los avisos del SENAMHI: meteorológicos, hidrológicos (ríos), activación de quebradas (huaycos), SILVIA (movimientos en masa) y SONICS (crecidas), más el pronóstico a 7 días de Open-Meteo para 30 ciudades y el caudal GloFAS en 18 ríos. Cada alerta indica su origen: 'oficial' (SENAMHI/ENFEN), 'modelo global' (referencial) o 'cálculo propio' (el proxy del ICEN). Las decisiones deben basarse en los avisos oficiales; ante una emergencia llama al 115 (INDECI)."
         }
       ]
     },
