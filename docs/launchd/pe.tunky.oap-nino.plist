@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- Refresca los datos SENAMHI/ENFEN del módulo El Niño desde la Mac (IP residencial) cada hora.
+       Instalar:  cp docs/launchd/pe.tunky.oap-nino.plist ~/Library/LaunchAgents/
+                  launchctl load ~/Library/LaunchAgents/pe.tunky.oap-nino.plist
+       Quitar:    launchctl unload ~/Library/LaunchAgents/pe.tunky.oap-nino.plist
+       Log:       /tmp/oap-nino-sync.log
+       Si la Mac está dormida, launchd corre la tarea pendiente al despertar. -->
+  <key>Label</key><string>pe.tunky.oap-nino</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/unimauro/Documents/Repos/observatorio-ambiental-peruano/etl/sync_nino_local.sh</string>
+  </array>
+  <key>StartInterval</key><integer>3600</integer>
+  <key>RunAtLoad</key><true/>
+  <key>StandardOutPath</key><string>/tmp/oap-nino-launchd.log</string>
+  <key>StandardErrorPath</key><string>/tmp/oap-nino-launchd.log</string>
+</dict>
+</plist>

@@ -63,6 +63,10 @@ test('frescura: ok, parcial (fuente en error), desactualizado (>3 h) y sin datos
   assert.equal(frescura({ ...base, ultima_sincronizacion_utc: new Date(AHORA - 3600e3).toISOString() }, AHORA), 'ok')
   assert.equal(frescura({ ...base, ultima_sincronizacion_utc: new Date(AHORA - 3600e3).toISOString(), fuentes: [{ estado: 'error' }] }, AHORA), 'parcial')
   assert.equal(frescura({ ...base, ultima_sincronizacion_utc: new Date(AHORA - 4 * 3600e3).toISOString() }, AHORA), 'desactualizado')
+  const reciente = new Date(AHORA - 3600e3).toISOString()
+  assert.equal(frescura({ ...base, ultima_sincronizacion_utc: reciente, fuentes: [{ estado: 'previo', ultimo_exito: new Date(AHORA - 5 * 3600e3).toISOString() }] }, AHORA), 'ok')
+  assert.equal(frescura({ ...base, ultima_sincronizacion_utc: reciente, fuentes: [{ estado: 'previo', ultimo_exito: new Date(AHORA - 30 * 3600e3).toISOString() }] }, AHORA), 'parcial')
+  assert.equal(frescura({ ...base, ultima_sincronizacion_utc: reciente, fuentes: [{ estado: 'previo', ultimo_exito: null }] }, AHORA), 'parcial')
 })
 
 test('hace y diaCorto', () => {

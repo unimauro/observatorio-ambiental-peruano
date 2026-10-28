@@ -113,6 +113,13 @@ RIOS = [
 
 MESES = {1: "enero", 2: "febrero", 3: "marzo", 4: "abril", 5: "mayo", 6: "junio", 7: "julio", 8: "agosto",
          9: "septiembre", 10: "octubre", 11: "noviembre", 12: "diciembre"}
+# Archivo de salida que respalda a cada fuente (para saber si hay "última versión válida")
+ARCHIVO_FUENTE = {
+    "NOAA_MENSUAL": "enso.json", "NOAA_SEMANAL": "enso.json", "ENFEN": "enfen.json",
+    "SENAMHI_AVISO": "avisos.json", "SENAMHI_AVISO24H": "avisos.json", "SENAMHI_HIDRO": "avisos.json", "SENAMHI_UMBRALES": "avisos.json",
+    "SENAMHI_QUEBRADAS": "quebradas.json", "SENAMHI_SILVIA": "silvia.json", "SENAMHI_SONICS": "sonics.json", "SENAMHI_ESTACIONAL": "estacional.json",
+    "OPEN_METEO": "pronostico.json", "OPEN_METEO_CAUDAL": "caudales.json",
+}
 CAMPOS_CCPP = ["nombre", "departamento", "provincia", "distrito", "nivel", "poblacion", "viviendas", "lat", "lon"]
 
 
@@ -766,7 +773,9 @@ def ejecutar(fetch=http_get, now=None):
             st.update(estado="ok", error=None, ultimo_exito=ahora_iso(hasta), registros=n)
             return fid, st, res, int((time.time() - ti) * 1000)
         except Exception as e:  # noqa: BLE001
-            st.update(estado="error", error=str(e)[:300])
+            # "previo" = la fuente falló pero existe una versión válida anterior (se sigue publicando)
+            st.update(estado="previo" if prev.get("ultimo_exito") and os.path.exists(os.path.join(OUT_DIR, ARCHIVO_FUENTE.get(fid, "estado.json"))) else "error",
+                      error=str(e)[:300])
             return fid, st, None, int((time.time() - ti) * 1000)
 
     with ThreadPoolExecutor(max_workers=4) as ex:
@@ -783,17 +792,23 @@ def ejecutar(fetch=http_get, now=None):
 
     # ENSO (el archivo previo cubre cualquier fuente caída)
     enso_prev = leer_json("enso.json", {}, tipo=dict)
+    # generado_utc refleja la frescura REAL de los datos: si una fuente falló y se reutiliza la versión
+    # previa, se conserva su marca (el paso "Recuperar" del deploy compara esta marca entre repo y Pages).
+    def marca(fid, previo):
+        return ahora_iso(hasta) if ok(fid) else (previo or {}).get("generado_utc") or ahora_iso(hasta)
+
     enso = construir_enso(resultados.get("NOAA_MENSUAL"), resultados.get("NOAA_SEMANAL"), enso_prev) if ok("NOAA_MENSUAL") or ok("NOAA_SEMANAL") else enso_prev
     if enso:
-        escribir("enso.json", enso)
-    enfen = resultados.get("ENFEN") or leer_json("enfen.json", None, tipo=dict)
+        escribir("enso.json", {**enso, "generado_utc": ahora_iso(hasta) if ok("NOAA_MENSUAL") or ok("NOAA_SEMANAL") else enso_prev.get("generado_utc") or ahora_iso(hasta)})
+    enfen_prev = leer_json("enfen.json", None, tipo=dict)
+    enfen = resultados.get("ENFEN") or enfen_prev
     if enfen:
-        escribir("enfen.json", {**enfen, "generado_utc": ahora_iso(hasta)})
+        escribir("enfen.json", {**enfen, "generado_utc": marca("ENFEN", enfen_prev)})
 
     avisos_prev = leer_json("avisos.json", {}, tipo=dict)
     umb = resultados.get("SENAMHI_UMBRALES")
     avisos = {
-        "generado_utc": ahora_iso(hasta),
+        "generado_utc": ahora_iso(hasta) if any(ok(f) for f in ("SENAMHI_AVISO", "SENAMHI_AVISO24H", "SENAMHI_HIDRO", "SENAMHI_UMBRALES")) else avisos_prev.get("generado_utc") or ahora_iso(hasta),
         "meteorologicos": resultados["SENAMHI_AVISO"] if ok("SENAMHI_AVISO") else avisos_prev.get("meteorologicos", []),
         "lluvia_24h": resultados["SENAMHI_AVISO24H"] if ok("SENAMHI_AVISO24H") else avisos_prev.get("lluvia_24h", []),
         "hidrologicos": resultados["SENAMHI_HIDRO"] if ok("SENAMHI_HIDRO") else avisos_prev.get("hidrologicos", []),
@@ -805,28 +820,34 @@ def ejecutar(fetch=http_get, now=None):
                  [[h["lon"], h["lat"], h["fecha"], h["nivel"], h["color"], h["titulo"], h["estacion"], h["cuenca"], h["departamento"], h["provincia"], h["distrito"], h["peligro"], h["recomendacion"]]
                   for h in avisos["hidrologicos"]])
 
-    quebradas = resultados.get("SENAMHI_QUEBRADAS") or leer_json("quebradas.json", None, tipo=dict)
+    quebradas_prev = leer_json("quebradas.json", None, tipo=dict)
+    quebradas = resultados.get("SENAMHI_QUEBRADAS") or quebradas_prev
     if quebradas:
-        escribir("quebradas.json", {**quebradas, "generado_utc": ahora_iso(hasta)})
+        escribir("quebradas.json", {**quebradas, "generado_utc": marca("SENAMHI_QUEBRADAS", quebradas_prev)})
         escribir_csv("nino-quebradas-ccpp.csv", ["lon", "lat"] + [c for c in CAMPOS_CCPP if c not in ("lat", "lon")],
                      [[r[8], r[7]] + r[:7] for r in quebradas.get("filas", []) if isinstance(r, list) and len(r) >= 9])
-    silvia = resultados.get("SENAMHI_SILVIA") or (leer_json("silvia.json", {}, tipo=dict).get("dias"))
+    silvia_prev = leer_json("silvia.json", {}, tipo=dict)
+    silvia = resultados.get("SENAMHI_SILVIA") or silvia_prev.get("dias")
     if silvia:
-        escribir("silvia.json", {"generado_utc": ahora_iso(hasta), "dias": silvia})
-    sonics = resultados.get("SENAMHI_SONICS") or leer_json("sonics.json", None, tipo=dict)
+        escribir("silvia.json", {"generado_utc": marca("SENAMHI_SILVIA", silvia_prev), "dias": silvia})
+    sonics_prev = leer_json("sonics.json", None, tipo=dict)
+    sonics = resultados.get("SENAMHI_SONICS") or sonics_prev
     if sonics:
-        escribir("sonics.json", {**sonics, "generado_utc": ahora_iso(hasta)})
-    estacional = resultados.get("SENAMHI_ESTACIONAL") or leer_json("estacional.json", None, tipo=dict)
+        escribir("sonics.json", {**sonics, "generado_utc": marca("SENAMHI_SONICS", sonics_prev)})
+    estacional_prev = leer_json("estacional.json", None, tipo=dict)
+    estacional = resultados.get("SENAMHI_ESTACIONAL") or estacional_prev
     if estacional:
-        escribir("estacional.json", {**estacional, "generado_utc": ahora_iso(hasta)})
-    pron = resultados.get("OPEN_METEO") or leer_json("pronostico.json", {}, tipo=dict).get("ciudades")
+        escribir("estacional.json", {**estacional, "generado_utc": marca("SENAMHI_ESTACIONAL", estacional_prev)})
+    pron_prev = leer_json("pronostico.json", {}, tipo=dict)
+    pron = resultados.get("OPEN_METEO") or pron_prev.get("ciudades")
     if pron:
-        escribir("pronostico.json", {"generado_utc": ahora_iso(hasta), "atribucion": "Datos meteorológicos de Open-Meteo.com (CC BY 4.0)", "ciudades": pron})
+        escribir("pronostico.json", {"generado_utc": marca("OPEN_METEO", pron_prev), "atribucion": "Datos meteorológicos de Open-Meteo.com (CC BY 4.0)", "ciudades": pron})
         escribir_csv("nino-pronostico-ciudades.csv", ["ciudad", "departamento", "lat", "lon", "fecha", "pp_mm", "prob_pp_pct", "tmax_c", "tmin_c", "t_aparente_max_c"],
                      [[c["ciudad"], c["departamento"], c["lat"], c["lon"], d["fecha"], d["pp"], d["prob"], d["tmax"], d["tmin"], d["tapp"]] for c in pron for d in c["dias"]])
-    caud = resultados.get("OPEN_METEO_CAUDAL") or leer_json("caudales.json", {}, tipo=dict).get("rios")
+    caud_prev = leer_json("caudales.json", {}, tipo=dict)
+    caud = resultados.get("OPEN_METEO_CAUDAL") or caud_prev.get("rios")
     if caud:
-        escribir("caudales.json", {"generado_utc": ahora_iso(hasta), "atribucion": "GloFAS v4 (Copernicus EMS) vía Open-Meteo (CC BY 4.0)", "rios": caud})
+        escribir("caudales.json", {"generado_utc": marca("OPEN_METEO_CAUDAL", caud_prev), "atribucion": "GloFAS v4 (Copernicus EMS) vía Open-Meteo (CC BY 4.0)", "rios": caud})
 
     alertas = construir_alertas(enso, enfen, avisos, quebradas, silvia, sonics, pron, caud)
     escribir("alertas.json", {"generado_utc": ahora_iso(hasta), "alertas": alertas,
@@ -834,12 +855,17 @@ def ejecutar(fetch=http_get, now=None):
                                           "por_tipo": {t: sum(1 for a in alertas if a["tipo"] == t) for t in ("enso", "lluvias", "huaycos", "rios", "calor")}}})
 
     hubo_exito = any(f["estado"] == "ok" for f in fuentes_estado if f["id"] in tareas)
+    # ¿SENAMHI/ENFEN bloquean esta IP? (datacenters: GitHub Actions, VPS). Se anota para la UI.
+    gob = [f for f in fuentes_estado if f["id"].startswith("SENAMHI")]
+    bloqueo_gob = bool(gob) and all(f["estado"] in ("error", "previo") for f in gob)
     estado = {
         "ultima_ejecucion_utc": ahora_iso(hasta),
         "ultima_sincronizacion_utc": ahora_iso(hasta) if hubo_exito else estado_previo.get("ultima_sincronizacion_utc"),
         "duracion_ms": int((time.time() - t0) * 1000),
         "fuentes": fuentes_estado,
         "alertas": len(alertas),
+        "senamhi_ultimo_exito": max((f.get("ultimo_exito") or "" for f in gob), default=None) or None,
+        "senamhi_bloqueado": bloqueo_gob,
         "wms": WMS,
     }
     escribir("estado.json", estado)
@@ -859,8 +885,8 @@ def main():
     except ImportError:
         lock = None
     estado = ejecutar()
-    vivas = [f for f in estado["fuentes"] if f.get("estado") in ("ok", "error")]
-    return SALIDA_TODAS_CAIDAS if vivas and all(f["estado"] == "error" for f in vivas) else 0
+    vivas = [f for f in estado["fuentes"] if f.get("estado") in ("ok", "error", "previo")]
+    return SALIDA_TODAS_CAIDAS if vivas and all(f["estado"] != "ok" for f in vivas) else 0
 
 
 if __name__ == "__main__":

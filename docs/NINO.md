@@ -33,6 +33,25 @@ lluvias 2026–27, con El Niño costero en condición extraordinaria.
 
 Descartados: INDECI/SINPAD (403 a scripts), datosabiertos.gob.pe (redirección/HTML), `met.igp.gob.pe/datos/icen.txt` (404).
 
+### ⚠️ GOTCHA: el SENAMHI bloquea IPs de datacenter
+
+Verificado el 28-oct-2026: `idesep.senamhi.gob.pe` y `www.senamhi.gob.pe` **no responden** (timeout)
+desde el runner de GitHub Actions ni desde el VPS Hostinger (217.15.168.100); `enfen.imarpe.gob.pe`
+tampoco resuelve DNS desde el runner. Desde una IP residencial todo funciona (mismo caso que el
+OEFA, ver `build_data.py`). Consecuencias y diseño:
+
+- En CI las fuentes `SENAMHI_*` y `ENFEN` quedan en estado **`previo`** (no `error`): se publica su
+  última versión válida con su `generado_utc` real y la UI muestra "datos de hace X". NOAA y
+  Open-Meteo sí se refrescan cada hora en CI.
+- Los datos del SENAMHI se refrescan con **`etl/sync_nino_local.sh`** desde una IP residencial: corre
+  el ETL completo, commitea solo `public/data/nino/*` + CSV y hace push (el push despliega).
+  Programable cada hora con `docs/launchd/pe.tunky.oap-nino.plist` (macOS launchd; corre al
+  despertar si la Mac estaba dormida). Log en `/tmp/oap-nino-sync.log`.
+- El paso "Recuperar" de `deploy.yml` compara `generado_utc` y conserva la copia **más nueva**
+  entre repo y Pages, para que un commit residencial fresco no sea pisado por la copia de Pages.
+- Alternativas si se quiere independencia de la Mac: proxy residencial, una Raspberry en casa,
+  o pedir al SENAMHI acceso para la IP del VPS.
+
 ## 3. Ejecución automática
 
 `.github/workflows/deploy.yml` corre `python etl/build_nino.py` después del ETL de incendios, en cada

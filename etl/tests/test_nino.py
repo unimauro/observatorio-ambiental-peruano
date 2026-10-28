@@ -179,9 +179,9 @@ class EntornoTemporal(unittest.TestCase):
         with open(os.path.join(bn.OUT_DIR, nombre), encoding="utf-8") as fh:
             return json.load(fh)
 
-    def correr(self, fetch=fetch_falso):
+    def correr(self, fetch=fetch_falso, now=None):
         with redirect_stdout(io.StringIO()) as out:
-            estado = bn.ejecutar(fetch=fetch, now=AHORA)
+            estado = bn.ejecutar(fetch=fetch, now=now or AHORA)
         return estado, out.getvalue()
 
 
@@ -242,8 +242,9 @@ class Integracion(EntornoTemporal):
                 raise RuntimeError("HTTP 503")
             return fetch_falso(url, **kw)
         estado, _ = self.correr(fetch_roto)
-        caidas = sorted(f["id"] for f in estado["fuentes"] if f["estado"] == "error")
+        caidas = sorted(f["id"] for f in estado["fuentes"] if f["estado"] == "previo")  # con datos previos → "previo", no "error"
         self.assertEqual(caidas, ["NOAA_SEMANAL", "SENAMHI_QUEBRADAS"])
+        self.assertFalse(estado["senamhi_bloqueado"])
         self.assertEqual(self.leer("quebradas.json")["resumen"], q_antes["resumen"])
         self.assertEqual(self.leer("enso.json")["actual"]["n12_anomalia_semanal"], 5.2)  # se conserva la semanal previa
         self.assertEqual(estado["ultima_sincronizacion_utc"], "2026-10-28T15:00:00Z")
@@ -255,8 +256,10 @@ class Integracion(EntornoTemporal):
         def todo_roto(url, **kw):
             raise RuntimeError("sin red")
         estado, _ = self.correr(todo_roto)
-        self.assertTrue(all(f["estado"] == "error" for f in estado["fuentes"]))
+        self.assertTrue(all(f["estado"] == "error" for f in estado["fuentes"]))  # sin previos → "error"
         self.assertIsNone(estado["ultima_sincronizacion_utc"])
+        self.assertTrue(estado["senamhi_bloqueado"])
+        self.assertIsNone(estado["senamhi_ultimo_exito"])
         self.assertEqual(self.leer("alertas.json")["alertas"], [])
         self.assertFalse(os.path.exists(os.path.join(bn.OUT_DIR, "quebradas.json")))
 
@@ -301,6 +304,24 @@ class Integracion(EntornoTemporal):
         ids = {f["id"] for f in estado["fuentes"]}
         self.assertNotIn("SENAMHI_QUEBRADAS", ids)
         self.assertIn("OPEN_METEO", ids)
+
+    def test_senamhi_bloqueado_conserva_todo_y_lo_marca(self):
+        """Caso GitHub Actions / VPS: SENAMHI y ENFEN no responden pero hay datos previos."""
+        self.correr()
+
+        def fetch_bloqueado(url, **kw):
+            if "senamhi" in url or "imarpe" in url:
+                raise RuntimeError("URLError: timed out")
+            return fetch_falso(url, **kw)
+        estado, _ = self.correr(fetch_bloqueado, now=AHORA.replace(hour=16))
+        self.assertTrue(estado["senamhi_bloqueado"])
+        self.assertEqual(self.leer("pronostico.json")["generado_utc"], "2026-10-28T16:00:00Z")  # Open-Meteo sí se refrescó
+        self.assertEqual(estado["senamhi_ultimo_exito"], "2026-10-28T15:00:00Z")
+        self.assertEqual({f["estado"] for f in estado["fuentes"] if f["id"].startswith("SENAMHI")}, {"previo"})
+        self.assertEqual(self.leer("quebradas.json")["resumen"]["ccpp"], 3)
+        self.assertEqual(self.leer("quebradas.json")["generado_utc"], "2026-10-28T15:00:00Z")  # marca de los datos reales, no de esta corrida
+        self.assertEqual(len(self.leer("alertas.json")["alertas"]), 11)
+        self.assertEqual(estado["ultima_sincronizacion_utc"], "2026-10-28T16:00:00Z")  # NOAA/Open-Meteo sí sincronizaron
 
     def test_escritura_atomica_sin_tmp_residuales(self):
         self.correr()

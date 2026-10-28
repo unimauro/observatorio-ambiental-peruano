@@ -312,7 +312,8 @@ export default function Nino() {
           <span><b>Última sincronización:</b> {estado?.ultima_sincronizacion_utc ? horaLima(estado.ultima_sincronizacion_utc) : cargando ? 'cargando…' : 'sin datos'}</span>
           {estado && (
             <span className="text-xs text-slate-500">
-              {estado.fuentes.filter((f) => f.estado !== 'error').length}/{estado.fuentes.length} fuentes ok
+              {estado.fuentes.filter((f) => f.estado === 'ok').length}/{estado.fuentes.length} fuentes al día
+              {estado.senamhi_ultimo_exito && estado.fuentes.some((f) => f.estado === 'previo') && ` · SENAMHI: datos de ${hace(estado.senamhi_ultimo_exito, reloj)}`}
               <span className="ml-1 text-slate-400 group-open:hidden">· ver detalle ▾</span>
               <span className="ml-1 text-slate-400 hidden group-open:inline">· ocultar ▴</span>
             </span>
@@ -322,8 +323,9 @@ export default function Nino() {
           <div className="mt-2 flex flex-wrap gap-1.5">
             {estado.fuentes.map((f) => (
               <span key={f.id} title={f.error ?? `Último éxito: ${f.ultimo_exito ?? 'nunca'}`}
-                className={`text-[11px] px-2 py-0.5 rounded-full border ${f.estado === 'error' ? 'bg-red-50 border-red-200 text-red-800' : 'bg-slate-50 border-slate-200 text-slate-600'}`}>
-                {f.estado === 'error' ? '⚠ ' : '✓ '}{f.nombre}{f.registros !== null && f.registros !== undefined && ` · ${fmt(f.registros)}`}{f.estado === 'error' && ' · error, se conservan datos previos'}
+                className={`text-[11px] px-2 py-0.5 rounded-full border ${f.estado === 'error' ? 'bg-red-50 border-red-200 text-red-800' : f.estado === 'previo' ? 'bg-amber-50 border-amber-200 text-amber-800' : 'bg-slate-50 border-slate-200 text-slate-600'}`}>
+                {f.estado === 'error' ? '⚠ ' : f.estado === 'previo' ? '◔ ' : '✓ '}{f.nombre}{f.registros !== null && f.registros !== undefined && ` · ${fmt(f.registros)}`}
+                {f.estado === 'previo' && ` · datos de ${hace(f.ultimo_exito, reloj)}`}{f.estado === 'error' && ' · sin datos'}
               </span>
             ))}
           </div>

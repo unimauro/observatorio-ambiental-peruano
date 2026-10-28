@@ -99,8 +99,12 @@ export interface Pronostico { generado_utc: string; atribucion: string; ciudades
 export interface Rio { rio: string; departamento: string; lat: number; lon: number; serie: { fecha: string; q: number | null; qmax: number | null }[]; media_30d: number | null; pico_7d: number | null; ratio: number | null }
 export interface Caudales { generado_utc: string; atribucion: string; rios: Rio[] }
 
-export interface FuenteEstado { id: string; nombre: string; tipo: string; estado: 'ok' | 'error'; error: string | null; registros: number | null; ultimo_exito: string | null; duracion_ms: number }
-export interface EstadoNino { ultima_ejecucion_utc: string; ultima_sincronizacion_utc: string | null; duracion_ms: number; fuentes: FuenteEstado[]; alertas: number; wms: string }
+/** estado: ok · previo (la fuente no respondió, se publica su última versión válida) · error (sin datos) */
+export interface FuenteEstado { id: string; nombre: string; tipo: string; estado: 'ok' | 'previo' | 'error'; error: string | null; registros: number | null; ultimo_exito: string | null; duracion_ms: number }
+export interface EstadoNino {
+  ultima_ejecucion_utc: string; ultima_sincronizacion_utc: string | null; duracion_ms: number; fuentes: FuenteEstado[]; alertas: number; wms: string
+  senamhi_ultimo_exito?: string | null; senamhi_bloqueado?: boolean
+}
 
 export const TIPOS: { id: TipoAlerta | 'todas'; etiqueta: string; icono: string }[] = [
   { id: 'todas', etiqueta: 'Todas', icono: '' },
@@ -176,11 +180,13 @@ const H = 3_600_000
 
 export type Frescura = 'ok' | 'parcial' | 'desactualizado' | 'sin-datos'
 
-/** La ingesta corre cada ~1 h; >3 h sin sincronizar = desactualizado (SENAMHI/NOAA actualizan a diario). */
-export function frescura(e: EstadoNino | null, ahora: number, limiteHoras = 3): Frescura {
+/** La ingesta corre cada ~1 h; >3 h sin sincronizar = desactualizado. Una fuente en "previo" (no respondió,
+ *  se publica su última versión válida) solo degrada a "parcial" si esa versión tiene más de `previoHoras`. */
+export function frescura(e: EstadoNino | null, ahora: number, limiteHoras = 3, previoHoras = 24): Frescura {
   if (!e || !e.ultima_sincronizacion_utc) return 'sin-datos'
   if (ahora - Date.parse(e.ultima_sincronizacion_utc) > limiteHoras * H) return 'desactualizado'
   if (e.fuentes.some((f) => f.estado === 'error')) return 'parcial'
+  if (e.fuentes.some((f) => f.estado === 'previo' && (!f.ultimo_exito || ahora - Date.parse(f.ultimo_exito) > previoHoras * H))) return 'parcial'
   return 'ok'
 }
 

@@ -39,19 +39,41 @@ jobs:
       - name: Recuperar la última versión publicada de incendios y El Niño
         # Conserva fechas de recepción, la serie diaria acumulada y el último dato
         # válido de cada fuente. Solo reemplaza la copia del repo si el JSON es válido.
+        # Para El Niño se queda con la MÁS NUEVA entre repo y Pages: el SENAMHI bloquea las IP
+        # de datacenter, así que esos archivos los refresca un commit desde una IP residencial
+        # (etl/sync_nino_local.sh) y no deben pisarse con la copia vieja de Pages.
         run: |
           SITE="https://unimauro.github.io/observatorio-ambiental-peruano/data"
           mkdir -p public/data/nino
           for f in incendios/estado.json incendios/focos.json incendios/serie-diaria.json \
-                   incendios/minam-2026.geojson incendios/minam-resumen.json \
-                   nino/estado.json nino/enso.json nino/enfen.json nino/avisos.json nino/quebradas.json \
-                   nino/silvia.json nino/sonics.json nino/estacional.json nino/pronostico.json nino/caudales.json; do
+                   incendios/minam-2026.geojson incendios/minam-resumen.json; do
             if curl -fsS --max-time 60 "$SITE/$f" -o /tmp/prev.json \
                && python -c "import json,sys; json.load(open('/tmp/prev.json'))"; then
               mv /tmp/prev.json "public/data/$f"; echo "recuperado $f"
             else
               echo "::notice::sin versión publicada válida de $f; se usa la del repo"
             fi
+          done
+          for f in estado enso enfen avisos quebradas silvia sonics estacional pronostico caudales; do
+            curl -fsS --max-time 60 "$SITE/nino/$f.json" -o /tmp/prev.json || continue
+            python - "$f" <<'PY'
+          import json, sys
+          f = sys.argv[1]
+          try:
+              pages = json.load(open("/tmp/prev.json"))
+          except Exception:
+              sys.exit(0)
+          try:
+              repo = json.load(open(f"public/data/nino/{f}.json"))
+          except Exception:
+              repo = None
+          clave = "ultima_ejecucion_utc" if f == "estado" else "generado_utc"
+          if repo is None or str(pages.get(clave) or "") > str(repo.get(clave) or ""):
+              json.dump(pages, open(f"public/data/nino/{f}.json", "w"), ensure_ascii=False, separators=(",", ":"))
+              print(f"recuperado nino/{f}.json (Pages más nuevo)")
+          else:
+              print(f"conservado nino/{f}.json del repo (más nuevo)")
+          PY
           done
 
       - name: Ingesta de incendios (NASA FIRMS + MINAM)
