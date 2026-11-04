@@ -52,11 +52,14 @@ interface NinoCtx { generado_utc: string; alertas: { tipo: string; nivel: number
 interface NinoEnsoCtx { actual: { icen_proxy: number | null; icen_categoria: string | null; icen_proxy_mes: string | null; n12_anomalia_semanal: number | null; n34_anomalia_semanal: number | null; semana: string | null } }
 interface NinoAvisosCtx { generado_utc: string; meteorologicos: { numero: string; estado: string; color: string; tipo: string; titulo: string | null; inicio: string | null; fin: string | null; departamentos: string[]; descripcion?: string | null }[]; hidrologicos: { titulo: string | null; nivel: number | null; departamento: string | null; fecha: string | null }[] }
 interface NinoEmergCtx { generado_utc: string; items: { titulo: string; tipo: string; clase: string; evento: string | null; departamento: string | null; provincia: string | null; distrito: string | null; publicado_utc: string | null; hechos: { fecha: string; hora: string; descripcion: string | null }[] }[]; resumen: { lluvia_72h: number; lluvia_30d: number; reportes_30d: number; departamentos_lluvia_72h: string[]; por_tipo_30d: Record<string, number> } }
+/** Listas de fuentes/capas que escriben los ETL: lo que aparezca aquí entra solo al contexto, sin tocar este archivo. */
+interface EstadoFuentes { ultima_sincronizacion_utc?: string | null; fuentes?: { id: string; nombre: string; estado: string; ultimo_exito: string | null; registros: number | null }[] }
+interface Manifiesto { generado?: string; capas?: { archivo: string; titulo: string; fuente: string; features: number }[] }
 interface IncResumen { total: number; porAnio: { anio: number; registros: number }[]; porDepartamento: { departamento: string; registros: number }[] }
 
 async function buildContext(): Promise<string> {
   try {
-    const [ind, ejes, faq, der, amz, incE, incR, ninoA, ninoE, ninoAv, ninoEm] = await Promise.all([
+    const [ind, ejes, faq, der, amz, incE, incR, ninoA, ninoE, ninoAv, ninoEm, ninoEst, incEst, manif] = await Promise.all([
       loadJSON<Indicadores>('indicadores.json'),
       loadJSON<Eje[]>('ejes.json'),
       loadJSON<FaqCtx>('faq.json').catch(() => ({ grupos: [] }) as FaqCtx),
@@ -68,6 +71,9 @@ async function buildContext(): Promise<string> {
       loadJSON<NinoEnsoCtx>('nino/enso.json').catch(() => null),
       loadJSON<NinoAvisosCtx>('nino/avisos.json').catch(() => null),
       loadJSON<NinoEmergCtx>('nino/emergencias.json').catch(() => null),
+      loadJSON<EstadoFuentes>('nino/estado.json').catch(() => null),
+      loadJSON<EstadoFuentes>('incendios/estado.json').catch(() => null),
+      loadJSON<Manifiesto>('_manifest.json').catch(() => null),
     ])
     const kpis = ind.kpis
       .map((k) => `- ${k.etiqueta}: ${k.valor.toLocaleString('es-PE')} ${k.unidad} (${k.estado}; ${k.fuente})`)
@@ -121,7 +127,16 @@ async function buildContext(): Promise<string> {
         + lluviaEm.map((x) => `- ${x.publicado_utc?.slice(0, 10) ?? ''} ${x.clase}: ${(x.evento ?? x.tipo).toLowerCase()} en ${x.distrito ?? x.provincia ?? x.departamento ?? 's/d'}${x.distrito || x.provincia ? ` (${x.departamento ?? ''})` : ''}.${x.hechos[0]?.descripcion ? ` ${x.hechos[0].fecha}: ${x.hechos[0].descripcion}` : ''}`).join('\n')
         + '\n- Un reporte complementario es la misma emergencia actualizada; el conteo es de reportes publicados, no de emergencias distintas. No se extraen cifras de damnificados.'
       : ''
-    return `INDICADORES NACIONALES ACTUALES:\n${kpis}\n\nEJES TEMÁTICOS:\n${temas}${hidro}${amazonia}${incendios}${nino}${avisosMet}${emergencias}\n\nPREGUNTAS FRECUENTES:\n${faqs}`
+    // Inventario automático: cada ETL publica su lista de fuentes/capas; una fuente nueva aparece aquí sin editar este archivo.
+    const hace = (iso: string | null | undefined) => (iso ? `${Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 3_600_000))} h` : 's/d')
+    const listaFuentes = (titulo: string, e: EstadoFuentes | null) => e?.fuentes?.length
+      ? `\n- ${titulo} (última sincronización hace ${hace(e.ultima_sincronizacion_utc)}): ` + e.fuentes.map((f) => `${f.nombre} [${f.estado === 'ok' || f.estado === 'sin-cambios' ? 'al día' : f.estado === 'previo' ? `datos de hace ${hace(f.ultimo_exito)}` : 'sin datos'}${f.registros ? `, ${f.registros.toLocaleString('es-PE')} registros` : ''}]`).join('; ')
+      : ''
+    const inventario = '\n\nFUENTES Y CAPAS CONECTADAS AL OBSERVATORIO (inventario automático; si preguntan "qué datos tienen" o "de dónde sale", responde con esto):'
+      + listaFuentes('Módulo El Niño, lluvias y calor [El Niño](#/nino)', ninoEst)
+      + listaFuentes('Módulo Incendios [Incendios](#/incendios)', incEst)
+      + (manif?.capas?.length ? `\n- Capas del [Mapa](#/mapa) (${manif.capas.length}, generadas ${manif.generado?.slice(0, 10) ?? 's/f'}): ` + manif.capas.map((c) => `${c.titulo} (${c.features.toLocaleString('es-PE')} elementos; ${c.fuente})`).join('; ') : '')
+    return `INDICADORES NACIONALES ACTUALES:\n${kpis}\n\nEJES TEMÁTICOS:\n${temas}${hidro}${amazonia}${incendios}${nino}${avisosMet}${emergencias}${inventario}\n\nPREGUNTAS FRECUENTES:\n${faqs}`
   } catch {
     return '(No se pudo cargar el contexto de datos.)'
   }
