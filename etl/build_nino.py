@@ -10,7 +10,9 @@ Fuentes (cada una es una tarea aislada: si falla, se conserva su última versió
   NOAA_MENSUAL     NOAA CPC sstoi.indices — SST y anomalía Niño 1+2 / 3 / 3.4 / 4 mensual (1982–)
   NOAA_SEMANAL     NOAA CPC wksst9120.for — idem semanal (clim. 1991–2020)
   ENFEN            Página de comunicados oficiales del ENFEN (último comunicado: título, fecha, PDF)
-  SENAMHI_AVISO    IDESEP WFS g_aviso:view_aviso(+aux): avisos meteorológicos vigentes
+  SENAMHI_AVISO    web senamhi.gob.pe (tabla de avisos vigentes) + IDESEP WFS g_aviso:view_aviso(+aux)
+                   con viewparams=qry:<nro>_<día>_<año> (sin ese parámetro la vista devuelve 0 filas)
+  INDECI_COEN      RSS portal.indeci.gob.pe/emergencias: reportes del COEN (daños reales) y boletines
   SENAMHI_AVISO24H IDESEP WFS g_prono_pp_24h:view_aviso24h: zonas con pronóstico de lluvia 24 h
   SENAMHI_QUEBRADAS IDESEP WFS g_acti_quebrada:*: aviso de activación de quebradas (centros
                    poblados expuestos con población/viviendas, distritos por nivel)
@@ -26,7 +28,8 @@ Fuentes (cada una es una tarea aislada: si falla, se conserva su última versió
 Salidas (public/data/nino/):
   enso.json        series Niño 1+2 / 3.4 mensual y semanal + proxy del ICEN con categoría ENFEN
   enfen.json       último comunicado oficial
-  avisos.json      avisos meteorológicos, 24 h, hidrológicos, umbrales superados
+  avisos.json      avisos meteorológicos (con días y departamentos), 24 h, hidrológicos, umbrales superados
+  emergencias.json reportes de emergencia del COEN-INDECI (45 días) con sus hechos
   quebradas.json   centros poblados expuestos (columnar) + resúmenes por departamento/nivel
   silvia.json      conteo de cuencas por nivel y día
   sonics.json      conteo de centros poblados por nivel/día/departamento + puntos del día 1
@@ -41,7 +44,7 @@ Garantías: solo biblioteca estándar; ninguna clave; nunca escribe un archivo a
 si una fuente falla, se publica su última versión válida y se marca en estado.json.
 
 Uso:  python etl/build_nino.py
-Variables: NINO_SIN_SENAMHI=1 (omite IDESEP), NINO_SIN_OPEN_METEO=1, NINO_TIMEOUT (seg, def. 90)
+Variables: NINO_SIN_SENAMHI=1 (omite IDESEP), NINO_SIN_OPEN_METEO=1, NINO_SIN_INDECI=1, NINO_TIMEOUT (seg, def. 90)
 """
 import csv
 import html
@@ -80,6 +83,16 @@ WFS = "https://idesep.senamhi.gob.pe/geoserver/wfs"
 WMS = "https://idesep.senamhi.gob.pe/geoserver/wms"
 OPEN_METEO = "https://api.open-meteo.com/v1/forecast"
 OPEN_METEO_FLOOD = "https://flood-api.open-meteo.com/v1/flood"
+# Avisos meteorológicos: la lista vigente vive en la web del SENAMHI (tabla HTML); el GeoServer solo
+# devuelve el polígono de un aviso si se le pasa viewparams=qry:<nro>_<día>_<año> (vista parametrizada).
+AVISOS_MET_URL = "https://www.senamhi.gob.pe/?p=aviso-meteorologico"
+AVISOS_MET_DETALLE = "https://www.senamhi.gob.pe/?p=aviso-meteorologico-vigente&a={anio}&b={id}&c=00&d=SENA"
+MAX_AVISOS_MET = 15     # avisos vigentes/emitidos que se detallan (hoy son ~10)
+MAX_DIAS_AVISO = 6      # días por aviso que se consultan al GeoServer
+COLOR_NIVEL = {"AMARILLO": 2, "NARANJA": 3, "ROJO": 4}
+# Emergencias reales: reportes del COEN (INDECI) publicados como RSS en el portal (sí responde a datacenters)
+INDECI_FEED = "https://portal.indeci.gob.pe/emergencias/feed/"
+EMERGENCIAS_DIAS = 45   # historial que se conserva (el feed solo trae los ~14 últimos)
 
 # Categorías del ICEN según el ENFEN (promedio móvil de 3 meses de la anomalía de la TSM en Niño 1+2)
 ICEN_CATEGORIAS = [
@@ -118,7 +131,7 @@ ARCHIVO_FUENTE = {
     "NOAA_MENSUAL": "enso.json", "NOAA_SEMANAL": "enso.json", "ENFEN": "enfen.json",
     "SENAMHI_AVISO": "avisos.json", "SENAMHI_AVISO24H": "avisos.json", "SENAMHI_HIDRO": "avisos.json", "SENAMHI_UMBRALES": "avisos.json",
     "SENAMHI_QUEBRADAS": "quebradas.json", "SENAMHI_SILVIA": "silvia.json", "SENAMHI_SONICS": "sonics.json", "SENAMHI_ESTACIONAL": "estacional.json",
-    "OPEN_METEO": "pronostico.json", "OPEN_METEO_CAUDAL": "caudales.json",
+    "OPEN_METEO": "pronostico.json", "OPEN_METEO_CAUDAL": "caudales.json", "INDECI_COEN": "emergencias.json",
 }
 CAMPOS_CCPP = ["nombre", "departamento", "provincia", "distrito", "nivel", "poblacion", "viviendas", "lat", "lon"]
 
@@ -417,24 +430,121 @@ def parse_enfen(texto):
 
 
 # ---------------------------------------------------------------------- SENAMHI
-def descargar_avisos_met(fetch=http_get):
-    feats = wfs_json("g_aviso:view_aviso", ["gid", "nro_aviso", "nivel", "fecha_emi", "cod_fen", "cod_even", "fech_ini", "fech_fin", "respons"], fetch=fetch)
-    aux = []
+def clasificar_aviso(titulo):
+    """Tipo de alerta a partir del título del aviso del SENAMHI (mayúsculas)."""
+    t = (titulo or "").upper()
+    if any(k in t for k in ("PRECIPITACI", "LLUVIA", "GRANIZO", "NIEVE", "NEVADA", "TORMENTA")):
+        return "lluvias"
+    if any(k in t for k in ("INCREMENTO DE TEMPERATURA", "TEMPERATURA DIURNA", "CALOR", "ALTAS TEMPERATURAS")):
+        return "calor"
+    if any(k in t for k in ("DESCENSO DE TEMPERATURA", "HELADA", "FRIAJE", "TEMPERATURA NOCTURNA", "FRÍO", "FRIO", "BAJAS TEMPERATURAS")):
+        return "frio"
+    return "otros"
+
+
+def parse_avisos_lista(texto):
+    """Tabla de avisos de www.senamhi.gob.pe/?p=aviso-meteorologico. Solo los `vigente` y `emitido`
+    (emitido = publicado pero aún no empieza). Columnas: título, nro (estado), emisión, inicio, fin,
+    duración, nivel (AMARILLO/NARANJA/ROJO)."""
+    out, vistos = [], set()
+    for fila in re.findall(r"<tr[^>]*>(.*?)</tr>", texto, re.S):
+        celdas = re.findall(r'<td[^>]*class="(vigente|emitido|caducado)"[^>]*>(.*?)</td>', fila, re.S)
+        if len(celdas) < 7 or celdas[0][0] not in ("vigente", "emitido"):
+            continue
+        enlace = re.search(r"a=(\d{4})&(?:amp;)?b=(\d+)", celdas[0][1])
+        numero = re.search(r"\d+", _txt(celdas[1][1]) or "")
+        color = (_txt(celdas[6][1]) or "").upper()
+        if not enlace or not numero or color not in COLOR_NIVEL:
+            continue
+        anio, id_web, nro = int(enlace.group(1)), enlace.group(2), int(numero.group(0))
+        if (anio, nro) in vistos:
+            continue
+        vistos.add((anio, nro))
+        dur = re.search(r"\d+", _txt(celdas[5][1]) or "")
+        titulo = _txt(celdas[0][1], 200)
+        out.append({"numero": str(nro), "anio": anio, "id_web": id_web, "titulo": titulo, "tipo": clasificar_aviso(titulo),
+                    "estado": celdas[0][0], "nivel": COLOR_NIVEL[color], "color": color,
+                    "emision": _fecha(_txt(celdas[2][1])), "inicio": _fecha(_txt(celdas[3][1])), "fin": _fecha(_txt(celdas[4][1])),
+                    "duracion_h": int(dur.group(0)) if dur else None,
+                    "url": AVISOS_MET_DETALLE.format(anio=anio, id=id_web), "departamentos": [], "dias": []})
+    out.sort(key=lambda a: (-a["nivel"], 0 if a["estado"] == "vigente" else 1, -int(a["numero"])))
+    return out
+
+
+def parse_avisos_detalle(texto):
+    """Textos por día de la página de detalle: {(nro, día): descripción}. Cada pestaña trae un <p> y un
+    <iframe src=...index.php?av=<nro>&nl=..&mp=<día>&fc=<año>>."""
+    out = {}
+    for m in re.finditer(r'id="v-pills-tab-\d+-\d+".*?<p[^>]*>(.*?)</p>.*?index\.php\?av=(\d+)&(?:amp;)?nl=\d+&(?:amp;)?mp=(\d+)', texto, re.S):
+        desc = _txt(m.group(1), 700)
+        if desc:
+            out.setdefault((m.group(2), int(m.group(3))), desc)
+    return out
+
+
+def _dias_aviso(av):
     try:
-        aux = wfs_json("g_aviso:view_aviso_aux", ["nro_aviso", "nivel", "nombdep", "nombprov"], fetch=fetch)
+        d0 = datetime.strptime(av["inicio"], "%Y-%m-%d")
+        d1 = datetime.strptime(av["fin"], "%Y-%m-%d")
+        return max(1, min(MAX_DIAS_AVISO, (d1 - d0).days + 1))
+    except (TypeError, ValueError):
+        return 1
+
+
+def _dia_aviso(av, dia, fetch):
+    """Un día de un aviso en el GeoServer: fechas/horas reales, nivel máximo y departamentos/provincias."""
+    vp = {"viewparams": f"qry:{av['numero']}_{dia}_{av['anio']}"}
+    feats = wfs_json("g_aviso:view_aviso", ["gid", "nro_aviso", "nivel", "fech_ini", "fech_fin", "cod_fen", "cod_even"], extra=vp, fetch=fetch)
+    props = [f.get("properties") or {} for f in feats]
+    deps, provs = set(), set()
+    try:
+        for f in wfs_json("g_aviso:view_aviso_aux", ["nombdep", "nombprov"], extra=vp, fetch=fetch):
+            p = f.get("properties") or {}
+            if _txt(p.get("nombdep"), 60):
+                deps.add(_txt(p.get("nombdep"), 60))
+                provs.add((_txt(p.get("nombdep"), 60), _txt(p.get("nombprov"), 60)))
     except Exception as e:  # noqa: BLE001
-        log("aviso", fuente="SENAMHI_AVISO", detalle=f"sin desagregación por departamento: {e}")
-    por_aviso = {}
-    for a in aux:
-        p = a.get("properties") or {}
-        por_aviso.setdefault(str(p.get("nro_aviso")), set()).add(_txt(p.get("nombdep"), 60))
-    avisos = []
-    for f in feats:
-        p = f.get("properties") or {}
-        avisos.append({"numero": _txt(p.get("nro_aviso"), 20), "nivel": _nivel(p.get("nivel")), "emision": _fecha(p.get("fecha_emi")),
-                       "inicio": _fecha(p.get("fech_ini")), "fin": _fecha(p.get("fech_fin")), "fenomeno": _txt(p.get("cod_fen"), 80),
-                       "evento": _txt(p.get("cod_even"), 80), "responsable": _txt(p.get("respons"), 40),
-                       "departamentos": sorted(d for d in por_aviso.get(str(p.get("nro_aviso")), set()) if d)})
+        log("aviso", fuente="SENAMHI_AVISO", aviso=av["numero"], dia=dia, detalle=f"sin departamentos: {str(e)[:120]}")
+    niveles = [n for n in (_nivel(p.get("nivel")) for p in props) if n]
+    return {"dia": dia, "inicio": min((_fecha(p.get("fech_ini")) or "" for p in props), default=None) or None,
+            "fin": max((_fecha(p.get("fech_fin")) or "" for p in props), default=None) or None,
+            "nivel_max": max(niveles) if niveles else None, "poligonos": len(props),
+            "cod_fen": _txt(props[0].get("cod_fen"), 10) if props else None, "cod_even": _txt(props[0].get("cod_even"), 10) if props else None,
+            "departamentos": sorted(deps), "provincias": len(provs)}
+
+
+def descargar_avisos_met(fetch=http_get):
+    """Avisos meteorológicos vigentes: lista en la web del SENAMHI + detalle por día en el GeoServer
+    (viewparams) + texto por día de la página de detalle."""
+    avisos = parse_avisos_lista(fetch(AVISOS_MET_URL))[:MAX_AVISOS_MET]
+    if not avisos:
+        log("aviso", fuente="SENAMHI_AVISO", detalle="la tabla no trae avisos vigentes ni emitidos")
+        return []
+    textos = {}
+    try:
+        textos = parse_avisos_detalle(fetch(avisos[0]["url"]))
+    except Exception as e:  # noqa: BLE001
+        log("aviso", fuente="SENAMHI_AVISO", detalle=f"sin textos por día: {str(e)[:120]}")
+    pares = [(av, d) for av in avisos for d in range(1, _dias_aviso(av) + 1)]
+
+    def uno(par):
+        av, d = par
+        try:
+            return av, _dia_aviso(av, d, fetch)
+        except Exception as e:  # noqa: BLE001
+            log("aviso", fuente="SENAMHI_AVISO", aviso=av["numero"], dia=d, detalle=str(e)[:160])
+            return av, {"dia": d, "inicio": None, "fin": None, "nivel_max": None, "poligonos": 0, "cod_fen": None, "cod_even": None, "departamentos": [], "provincias": 0}
+
+    with ThreadPoolExecutor(max_workers=4) as ex:
+        for av, dia in ex.map(uno, pares):
+            dia["descripcion"] = textos.get((av["numero"], dia["dia"]))
+            av["dias"].append(dia)
+    for av in avisos:
+        av["dias"].sort(key=lambda d: d["dia"])
+        av["departamentos"] = sorted({d for x in av["dias"] for d in x["departamentos"]})
+        av["cod_fen"] = next((x["cod_fen"] for x in av["dias"] if x["cod_fen"]), None)
+        av["cod_even"] = next((x["cod_even"] for x in av["dias"] if x["cod_even"]), None)
+        av["descripcion"] = next((x["descripcion"] for x in av["dias"] if x.get("descripcion")), None)
     return avisos
 
 
@@ -615,7 +725,7 @@ def descargar_pronostico(fetch=http_get, ciudades=CIUDADES):
     return out
 
 
-def descargar_caudales(fetch=http_get, rios=RIOS):
+def descargar_caudales(fetch=http_get, rios=RIOS, hoy=None):
     q = {"latitude": ",".join(str(c[2]) for c in rios), "longitude": ",".join(str(c[3]) for c in rios),
          "daily": "river_discharge,river_discharge_max", "past_days": 30, "forecast_days": 7}
     d = json.loads(fetch(f"{OPEN_METEO_FLOOD}?{urllib.parse.urlencode(q)}"))
@@ -623,7 +733,7 @@ def descargar_caudales(fetch=http_get, rios=RIOS):
         d = [d]
     if not isinstance(d, list) or len(d) != len(rios):
         raise RuntimeError("Open-Meteo flood devolvió un número distinto de series")
-    out, hoy = [], ahora().strftime("%Y-%m-%d")
+    out, hoy = [], hoy or ahora().strftime("%Y-%m-%d")  # inyectable para pruebas reproducibles
     for (nombre, dep, lat, lon), r in zip(rios, d):
         dy = r.get("daily") or {}
         t, q1, q2 = dy.get("time") or [], dy.get("river_discharge") or [], dy.get("river_discharge_max") or []
@@ -637,8 +747,111 @@ def descargar_caudales(fetch=http_get, rios=RIOS):
     return out
 
 
+# ----------------------------------------------------------------------- INDECI
+TIPOS_EMERGENCIA = [
+    ("huaycos", ("HUAYCO", "HUAICO", "ACTIVACI", "QUEBRADA", "FLUJO DE DETRITOS")), ("inundacion", ("INUNDACI", "DESBORDE")),
+    ("deslizamiento", ("DESLIZAMIENTO", "DERRUMBE", "MOVIMIENTO EN MASA", "CAÍDA DE ROCAS", "CAIDA DE ROCAS")),
+    ("lluvias", ("LLUVIA", "PRECIPITACI", "TORMENTA")), ("granizada", ("GRANIZ",)), ("viento", ("VIENTO",)),
+    ("frio", ("HELADA", "FRIAJE", "NEVADA", "BAJAS TEMPERATURAS", "FRÍO", "FRIO")), ("incendio", ("INCENDIO",)),
+    ("sismo", ("SISMO", "TERREMOTO")), ("oleaje", ("OLEAJE", "MAREJADA")),
+]
+EMERGENCIAS_LLUVIA = ("lluvias", "huaycos", "inundacion", "deslizamiento", "granizada")
+
+
+def clasificar_emergencia(titulo):
+    t = (titulo or "").upper()
+    if t.startswith("BOLET"):
+        return "boletin"
+    for tipo, claves in TIPOS_EMERGENCIA:
+        if any(k in t for k in claves):
+            return tipo
+    return "otros"
+
+
+def _rss_campo(item, campo):
+    m = re.search(rf"<{campo}[^>]*>(.*?)</{campo}>", item, re.S)
+    if not m:
+        return None
+    v = re.sub(r"<!\[CDATA\[|\]\]>", "", m.group(1))
+    return _txt(v, 4000)
+
+
+def _fecha_rss(v):
+    """'Wed, 04 Nov 2026 18:22:51 +0000' → ISO UTC."""
+    try:
+        from email.utils import parsedate_to_datetime
+        return ahora_iso(parsedate_to_datetime(v).astimezone(timezone.utc))
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def parse_indeci_feed(texto):
+    """RSS de portal.indeci.gob.pe/emergencias: reportes preliminares/complementarios del COEN y boletines.
+    Cada reporte trae los HECHOS (fecha, hora y descripción del daño)."""
+    items = re.findall(r"<item>(.*?)</item>", texto, re.S)
+    if not items:
+        raise RuntimeError("el feed del INDECI no trae <item>")
+    out = []
+    for it in items:
+        titulo = _rss_campo(it, "title")
+        url = _rss_campo(it, "link")
+        if not titulo or not url or not url.startswith("https://portal.indeci.gob.pe/"):
+            continue
+        cuerpo = _rss_campo(it, "content:encoded") or _rss_campo(it, "description") or ""
+        cuerpo = re.sub(r"The post .*? appeared first on .*$", "", cuerpo).strip()
+        hechos = [{"fecha": f"{int(m.group(3)):04d}-{int(m.group(2)):02d}-{int(m.group(1)):02d}", "hora": m.group(4), "descripcion": _txt(m.group(5), 600)}
+                  for m in re.finditer(r"(\d{1,2})/(\d{1,2})/(\d{4})\s+(\d{2}:\d{2})\s*horas\s+(.*?)(?=\d{1,2}/\d{1,2}/\d{4}\s+\d{2}:\d{2}\s*horas|$)", cuerpo, re.S)]
+        t = titulo.upper()
+        clase = ("preliminar" if "PRELIMINAR" in t else "complementario" if "COMPLEMENTARIO" in t else "informe" if t.startswith("INFORME")
+                 else "boletin" if t.startswith("BOLET") else "otro")
+        nro = re.search(r"N[.°º\s]*(\d{3,6})", titulo)
+        rep = re.search(r"\(\s*(?:REPORTE|INFORME)\s+N[.°º\s]*(\d+)\s*\)", t)
+        # "... EN EL DISTRITO DE X – DEP (3)" | "... EN EL DEPARTAMENTO DE DEP" | "... EN LA PROVINCIA DE X – DEP"
+        dep = re.search(r"DEPARTAMENTO DE ([A-ZÁÉÍÓÚÑ ]+?)\s*(?:[–\-]|\(|$)", t)
+        if not dep:
+            dep = re.search(r"[–\-]\s*([A-ZÁÉÍÓÚÑ ]{3,30}?)\s*(?:\(\d+\))?\s*$", t)
+        dist = re.search(r"DISTRITO DE ([A-ZÁÉÍÓÚÑ ]+?)\s*[–\-]", t)
+        prov = re.search(r"PROVINCIA DE ([A-ZÁÉÍÓÚÑ ]+?)\s*[–\-]", t)
+        evento = (re.search(r"\)\s*([A-ZÁÉÍÓÚÑ ]+?)\s+EN\s+(?:EL|LA)\s+", t) or re.search(r"HORAS\s+([A-ZÁÉÍÓÚÑ ]+?)\s+EN\s+(?:EL|LA)\s+", t)
+                  or re.search(r"[–\-]\s*([A-ZÁÉÍÓÚÑ ]+?)\s+EN\s+(?:EL|LA)\s+", t))
+        out.append({"titulo": titulo[:300], "url": url, "publicado_utc": _fecha_rss(_rss_campo(it, "pubDate") or ""), "clase": clase,
+                    "tipo": clasificar_emergencia(titulo), "evento": _txt(evento.group(1), 60) if evento else None,
+                    "numero": nro.group(1) if nro else None, "reporte_n": int(rep.group(1)) if rep else None,
+                    "departamento": _txt(dep.group(1), 40) if dep else None, "provincia": _txt(prov.group(1), 40) if prov else None,
+                    "distrito": _txt(dist.group(1), 40) if dist else None,
+                    "hechos": hechos[:12], "resumen": _txt(cuerpo, 500) if not hechos else None})
+    return out
+
+
+def construir_emergencias(nuevos, prev, hasta):
+    """Fusiona el feed (solo trae los últimos ~14) con el historial previo, por URL, y conserva
+    EMERGENCIAS_DIAS días. Las emergencias de lluvia se resumen para la alerta."""
+    por_url = {e["url"]: e for e in (prev or {}).get("items", []) if isinstance(e, dict) and e.get("url")}
+    for e in nuevos or []:
+        viejo = por_url.get(e["url"])
+        if not viejo or (e.get("publicado_utc") or "") >= (viejo.get("publicado_utc") or ""):
+            por_url[e["url"]] = e
+    limite = ahora_iso(hasta - timedelta(days=EMERGENCIAS_DIAS))
+    items = sorted((e for e in por_url.values() if (e.get("publicado_utc") or "") >= limite), key=lambda e: e.get("publicado_utc") or "", reverse=True)
+    h72 = ahora_iso(hasta - timedelta(hours=72))
+    d30 = ahora_iso(hasta - timedelta(days=30))
+    lluvia = [e for e in items if e.get("tipo") in EMERGENCIAS_LLUVIA]
+    return {
+        "fuente": "COEN · INDECI (reportes preliminares y complementarios)", "pagina": "https://portal.indeci.gob.pe/emergencias/",
+        "items": items,
+        "resumen": {
+            "total": len(items), "reportes_30d": sum(1 for e in items if (e.get("publicado_utc") or "") >= d30 and e.get("clase") in ("preliminar", "complementario", "informe")),
+            "lluvia_30d": sum(1 for e in lluvia if (e.get("publicado_utc") or "") >= d30),
+            "lluvia_72h": sum(1 for e in lluvia if (e.get("publicado_utc") or "") >= h72),
+            "departamentos_lluvia_72h": sorted({e["departamento"] for e in lluvia if e.get("departamento") and (e.get("publicado_utc") or "") >= h72}),
+            "por_tipo_30d": dict(contar([e for e in items if (e.get("publicado_utc") or "") >= d30], lambda e: e.get("tipo"))),
+            "por_departamento_lluvia_30d": dict(contar([e for e in lluvia if (e.get("publicado_utc") or "") >= d30], lambda e: e.get("departamento"))),
+        },
+    }
+
+
 # ---------------------------------------------------------------------- alertas
-def construir_alertas(enso, enfen, avisos, quebradas, silvia, sonics, pronostico, caudales):
+def construir_alertas(enso, enfen, avisos, quebradas, silvia, sonics, pronostico, caudales, emergencias=None):
     """Síntesis ordenable por nivel (1 bajo … 4 muy alto). 'origen' distingue aviso oficial,
     salida de modelo global o cálculo propio. Nunca inventa: cada alerta cita su dato."""
     al = []
@@ -658,10 +871,21 @@ def construir_alertas(enso, enfen, avisos, quebradas, silvia, sonics, pronostico
                    "fuente": "ENFEN (IMARPE, SENAMHI, IGP, ANA, INDECI, DHN)", "url": enfen.get("url") or enfen.get("pagina")})
     for av in (avisos or {}).get("meteorologicos", []):
         if av.get("nivel"):
-            al.append({"id": f"aviso-met-{av.get('numero')}", "tipo": "lluvias", "nivel": av["nivel"], "origen": "oficial",
-                       "titulo": f"Aviso meteorológico N° {av.get('numero')} · nivel {av['nivel']}" + (f" · {av['evento']}" if av.get("evento") else ""),
-                       "detalle": f"Vigencia {av.get('inicio') or '?'} → {av.get('fin') or '?'}. " + (f"Departamentos: {', '.join(av['departamentos'][:12])}." if av.get("departamentos") else ""),
-                       "fuente": "SENAMHI · aviso meteorológico", "url": "https://www.senamhi.gob.pe/?p=aviso-meteorologico"})
+            tipo = av.get("tipo") if av.get("tipo") in ("lluvias", "calor", "frio") else "otros"
+            vig = f"del {av.get('inicio') or '?'} al {av.get('fin') or '?'}" if av.get("inicio") != av.get("fin") else f"el {av.get('inicio') or '?'}"
+            deps = av.get("departamentos") or []
+            al.append({"id": f"aviso-met-{av.get('anio')}-{av.get('numero')}", "tipo": tipo, "nivel": av["nivel"], "origen": "oficial",
+                       "titulo": f"Aviso N° {av.get('numero')} ({(av.get('color') or '').lower()}): {(av.get('titulo') or '').capitalize()}",
+                       "detalle": (f"{'Vigente' if av.get('estado') == 'vigente' else 'Emitido, rige'} {vig}. " + (f"{len(deps)} departamentos: {', '.join(deps[:10])}{'…' if len(deps) > 10 else ''}. " if deps else "")
+                                   + (av.get("descripcion") or ""))[:MAX_TEXTO + 200].strip(),
+                       "fuente": "SENAMHI · aviso meteorológico", "url": av.get("url") or AVISOS_MET_URL})
+    em = (emergencias or {}).get("resumen") or {}
+    if em.get("lluvia_72h"):
+        n, deps = em["lluvia_72h"], em.get("departamentos_lluvia_72h") or []
+        al.append({"id": "coen-lluvias", "tipo": "lluvias", "nivel": 3 if n >= 5 or len(deps) >= 3 else 2, "origen": "oficial",
+                   "titulo": f"COEN: {n} {'reporte' if n == 1 else 'reportes'} de emergencia por lluvias, huaycos o inundaciones en 72 h",
+                   "detalle": (f"Departamentos con reportes: {', '.join(deps)}. " if deps else "") + f"{em.get('lluvia_30d', 0)} reportes en los últimos 30 días. Daños ya ocurridos, registrados por el COEN-INDECI (no es pronóstico).",
+                   "fuente": "COEN · INDECI", "url": "https://portal.indeci.gob.pe/emergencias/"})
     for h in (avisos or {}).get("hidrologicos", []):
         if h.get("nivel"):
             al.append({"id": f"hidro-{h.get('id')}", "tipo": "rios", "nivel": h["nivel"], "origen": "oficial",
@@ -755,10 +979,12 @@ def ejecutar(fetch=http_get, now=None):
             "SENAMHI_SONICS": ("SENAMHI · SONICS crecidas fluviales", "pronostico", lambda: descargar_sonics(fetch)),
             "SENAMHI_ESTACIONAL": ("SENAMHI · pronóstico estacional", "pronostico", lambda: descargar_estacional(fetch)),
         })
+    if os.environ.get("NINO_SIN_INDECI") != "1":
+        tareas["INDECI_COEN"] = ("COEN · INDECI reportes de emergencia", "reporte", lambda: parse_indeci_feed(fetch(INDECI_FEED)))
     if not sin_om:
         tareas.update({
             "OPEN_METEO": ("Open-Meteo · pronóstico 7 días (30 ciudades)", "modelo", lambda: descargar_pronostico(fetch)),
-            "OPEN_METEO_CAUDAL": ("Open-Meteo · GloFAS caudal (18 ríos)", "modelo", lambda: descargar_caudales(fetch)),
+            "OPEN_METEO_CAUDAL": ("Open-Meteo · GloFAS caudal (18 ríos)", "modelo", lambda: descargar_caudales(fetch, hoy=hasta.strftime("%Y-%m-%d"))),
         })
 
     resultados, fuentes_estado = {}, []
@@ -820,6 +1046,18 @@ def ejecutar(fetch=http_get, now=None):
                  [[h["lon"], h["lat"], h["fecha"], h["nivel"], h["color"], h["titulo"], h["estacion"], h["cuenca"], h["departamento"], h["provincia"], h["distrito"], h["peligro"], h["recomendacion"]]
                   for h in avisos["hidrologicos"]])
 
+    escribir_csv("nino-avisos-met.csv", ["numero", "anio", "estado", "nivel", "color", "tipo", "titulo", "emision", "inicio", "fin", "duracion_h", "departamentos", "url"],
+                 [[a.get("numero"), a.get("anio"), a.get("estado"), a.get("nivel"), a.get("color"), a.get("tipo"), a.get("titulo"), a.get("emision"), a.get("inicio"), a.get("fin"), a.get("duracion_h"), "; ".join(a.get("departamentos") or []), a.get("url")]
+                  for a in avisos["meteorologicos"] if isinstance(a, dict)])
+
+    emerg_prev = leer_json("emergencias.json", {}, tipo=dict)
+    emergencias = construir_emergencias(resultados.get("INDECI_COEN"), emerg_prev, hasta)
+    if emergencias["items"]:
+        escribir("emergencias.json", {**emergencias, "generado_utc": marca("INDECI_COEN", emerg_prev)})
+        escribir_csv("nino-emergencias-coen.csv", ["publicado_utc", "clase", "tipo", "evento", "departamento", "provincia", "distrito", "numero", "reporte_n", "titulo", "url"],
+                     [[e.get("publicado_utc"), e.get("clase"), e.get("tipo"), e.get("evento"), e.get("departamento"), e.get("provincia"), e.get("distrito"), e.get("numero"), e.get("reporte_n"), e.get("titulo"), e.get("url")]
+                      for e in emergencias["items"]])
+
     quebradas_prev = leer_json("quebradas.json", None, tipo=dict)
     quebradas = resultados.get("SENAMHI_QUEBRADAS") or quebradas_prev
     if quebradas:
@@ -849,10 +1087,10 @@ def ejecutar(fetch=http_get, now=None):
     if caud:
         escribir("caudales.json", {"generado_utc": marca("OPEN_METEO_CAUDAL", caud_prev), "atribucion": "GloFAS v4 (Copernicus EMS) vía Open-Meteo (CC BY 4.0)", "rios": caud})
 
-    alertas = construir_alertas(enso, enfen, avisos, quebradas, silvia, sonics, pron, caud)
+    alertas = construir_alertas(enso, enfen, avisos, quebradas, silvia, sonics, pron, caud, emergencias)
     escribir("alertas.json", {"generado_utc": ahora_iso(hasta), "alertas": alertas,
                               "resumen": {"total": len(alertas), "por_nivel": {str(n): sum(1 for a in alertas if a["nivel"] == n) for n in (1, 2, 3, 4)},
-                                          "por_tipo": {t: sum(1 for a in alertas if a["tipo"] == t) for t in ("enso", "lluvias", "huaycos", "rios", "calor")}}})
+                                          "por_tipo": {t: sum(1 for a in alertas if a["tipo"] == t) for t in ("enso", "lluvias", "huaycos", "rios", "calor", "frio", "otros")}}})
 
     hubo_exito = any(f["estado"] == "ok" for f in fuentes_estado if f["id"] in tareas)
     # ¿SENAMHI/ENFEN bloquean esta IP? (datacenters: GitHub Actions, VPS). Se anota para la UI.

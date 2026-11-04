@@ -54,7 +54,7 @@ jobs:
               echo "::notice::sin versión publicada válida de $f; se usa la del repo"
             fi
           done
-          for f in estado enso enfen avisos quebradas silvia sonics estacional pronostico caudales; do
+          for f in estado enso enfen avisos emergencias quebradas silvia sonics estacional pronostico caudales; do
             curl -fsS --max-time 60 "$SITE/nino/$f.json" -o /tmp/prev.json || continue
             python - "$f" <<'PY'
           import json, sys

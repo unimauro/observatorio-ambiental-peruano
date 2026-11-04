@@ -9,10 +9,10 @@ import {
 import { fmt } from '../lib/data'
 import {
   TIPOS, NIVELES, ORIGENES, filtrarAlertas, nivelMaximo, parseCcpp, desdeColumnar, frescura, hace, horaLima, diaCorto,
-  colorLluvia, colorCalor, colorCategoria, serieMensual, episodios,
+  colorLluvia, colorCalor, colorCategoria, serieMensual, episodios, hoyLima, diaVigente, wmsAviso, ordenarAvisos, TIPO_EMERGENCIA, EMERGENCIAS_LLUVIA,
 } from '../lib/nino'
 import type {
-  Alerta, AlertasArchivo, Enso, Enfen, Avisos, Quebradas, Silvia, Sonics, Estacional, Pronostico, Caudales, EstadoNino, TipoAlerta,
+  Alerta, AlertasArchivo, Enso, Enfen, Avisos, AvisoMet, Emergencias, Quebradas, Silvia, Sonics, Estacional, Pronostico, Caudales, EstadoNino, TipoAlerta,
 } from '../lib/nino'
 
 const base = import.meta.env.BASE_URL
@@ -25,7 +25,6 @@ const CAPAS_WMS = [
   { id: 'quebradas', etiqueta: 'Activación de quebradas (distritos)', capa: 'g_acti_quebrada:view_av_activ_qdra', defecto: true },
   { id: 'silvia', etiqueta: 'SILVIA · movimientos en masa, día 1', capa: 'silvia:cuencas_nivel_12_prono1_silvia', defecto: false },
   { id: 'sonics', etiqueta: 'SONICS · crecidas fluviales, día 1', capa: 'dhi-seh-sonics:SONICS-PRONOSTICO-01', defecto: false },
-  { id: 'aviso', etiqueta: 'Aviso meteorológico vigente', capa: 'g_aviso:view_aviso', defecto: false },
   { id: 'pp24', etiqueta: 'Pronóstico de lluvia 24 h', capa: 'g_prono_pp_24h:view_aviso24h', defecto: false },
   { id: 'verano', etiqueta: 'Pronóstico verano 2027 (sectores)', capa: 'spc:prono_verano_poligono', defecto: false },
 ]
@@ -107,6 +106,11 @@ export default function Nino() {
   const [estacional, setEstacional] = useState<Estacional | null>(null)
   const [pron, setPron] = useState<Pronostico | null>(null)
   const [caud, setCaud] = useState<Caudales | null>(null)
+  const [emerg, setEmerg] = useState<Emergencias | null>(null)
+  // Aviso meteorológico dibujado en el mapa (el GeoServer solo devuelve el polígono de un aviso y día concretos)
+  const [avisoOn, setAvisoOn] = useState(true)
+  const [avisoSel, setAvisoSel] = useState<string>('')
+  const [avisoDia, setAvisoDia] = useState(1)
   const [cargando, setCargando] = useState(true)
   const [errorCarga, setErrorCarga] = useState<string | null>(null)
   const [reloj, setReloj] = useState(Date.now())
@@ -124,10 +128,10 @@ export default function Nino() {
       const r = await Promise.allSettled([
         cargar<EstadoNino>('estado.json'), cargar<AlertasArchivo>('alertas.json'), cargar<Enso>('enso.json'), cargar<Enfen>('enfen.json'),
         cargar<Avisos>('avisos.json'), cargar<Quebradas>('quebradas.json'), cargar<Silvia>('silvia.json'), cargar<Sonics>('sonics.json'),
-        cargar<Estacional>('estacional.json'), cargar<Pronostico>('pronostico.json'), cargar<Caudales>('caudales.json'),
+        cargar<Estacional>('estacional.json'), cargar<Pronostico>('pronostico.json'), cargar<Caudales>('caudales.json'), cargar<Emergencias>('emergencias.json'),
       ])
       if (!vivo) return
-      const set = [setEstado, setAlertas, setEnso, setEnfen, setAvisos, setQuebradas, setSilvia, setSonics, setEstacional, setPron, setCaud] as ((v: any) => void)[]
+      const set = [setEstado, setAlertas, setEnso, setEnfen, setAvisos, setQuebradas, setSilvia, setSonics, setEstacional, setPron, setCaud, setEmerg] as ((v: any) => void)[]
       r.forEach((x, i) => { if (x.status === 'fulfilled') set[i](x.value) })
       setErrorCarga(r[1].status === 'rejected' && r[0].status === 'rejected' ? 'No se pudieron cargar los datos. Reintentando automáticamente.' : null)
       setReloj(Date.now())
@@ -146,6 +150,16 @@ export default function Nino() {
   const sonicsPts = useMemo(() => desdeColumnar<{ nombre: string; departamento: string; provincia: string; distrito: string; nivel: number; lat: number; lon: number }>(sonics?.campos_dia1, sonics?.dia1), [sonics])
   const a = enso?.actual
   const deps = useMemo(() => (quebradas?.resumen.departamentos ?? []).map((d) => d.departamento).sort(), [quebradas])
+  const avisosMet = useMemo(() => ordenarAvisos((avisos?.meteorologicos ?? []).filter((x): x is AvisoMet => !!x && typeof x === 'object' && 'numero' in x && Array.isArray((x as AvisoMet).dias))), [avisos])
+  const avisoAct = avisosMet.find((x) => x.numero === avisoSel) ?? avisosMet[0] ?? null
+  const hoy = hoyLima(reloj)
+  const emergLluvia = useMemo(() => (emerg?.items ?? []).filter((e) => EMERGENCIAS_LLUVIA.includes(e.tipo)), [emerg])
+
+  // Al llegar los avisos: seleccionar el más grave y el día que corresponde a hoy
+  useEffect(() => {
+    if (!avisosMet.length) return
+    if (!avisosMet.some((x) => x.numero === avisoSel)) { setAvisoSel(avisosMet[0].numero); setAvisoDia(diaVigente(avisosMet[0], hoyLima(Date.now()))) }
+  }, [avisosMet]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Mapa base
   useEffect(() => {
@@ -173,6 +187,18 @@ export default function Nino() {
       }
     }
   }, [wmsOn])
+
+  // Polígono del aviso meteorológico elegido (WMS con viewparams, como lo hace la web del SENAMHI)
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map) return
+    const k = 'wms:aviso'
+    const existe = capasRef.current[k]
+    if (existe) { map.removeLayer(existe); delete capasRef.current[k] }
+    if (!avisoOn || !avisoAct) return
+    const dia = Math.min(Math.max(1, avisoDia), Math.max(1, avisoAct.dias.length))
+    capasRef.current[k] = L.tileLayer.wms(WMS, { ...wmsAviso(avisoAct, dia), format: 'image/png', transparent: true, opacity: 0.65, attribution: 'SENAMHI' } as L.WMSOptions).addTo(map)
+  }, [avisoOn, avisoAct, avisoDia])
 
   // Capas de puntos (datos propios)
   useEffect(() => {
@@ -260,6 +286,8 @@ export default function Nino() {
     setWmsOn(Object.fromEntries(CAPAS_WMS.map((c) => [c.id, c.defecto])))
     setPtsOn(Object.fromEntries(CAPAS_PUNTOS.map((c) => [c.id, c.defecto])))
     setDepSel(''); setModo('lluvia'); mapRef.current?.fitBounds(PERU_BOUNDS)
+    setAvisoOn(true)
+    if (avisosMet[0]) { setAvisoSel(avisosMet[0].numero); setAvisoDia(diaVigente(avisosMet[0], hoyLima(Date.now()))) }
   }
 
   const ciudadesOrden = useMemo(() => [...(pron?.ciudades ?? [])].sort((x, y) => (modo === 'lluvia' ? (y.pp_7d ?? 0) - (x.pp_7d ?? 0) : (y.tmax_max ?? 0) - (x.tmax_max ?? 0))), [pron, modo])
@@ -303,7 +331,7 @@ export default function Nino() {
         <b>Cómo leer esta página.</b> Las alertas marcadas como <b>aviso oficial</b> provienen del SENAMHI o del ENFEN y son
         las que deben guiar cualquier decisión. Las de <b>modelo global</b> (Open-Meteo, GloFAS) son referenciales y pueden
         fallar en la costa norte y los Andes. El <b>proxy del ICEN</b> es un cálculo de este observatorio sobre datos de la NOAA
-        y no reemplaza el diagnóstico oficial del ENFEN. Ante una emergencia: INDECI 115, Bomberos 116.
+        y no reemplaza el diagnóstico oficial del ENFEN. Las <b>emergencias del COEN</b> son daños ya ocurridos, no pronósticos. Ante una emergencia: INDECI 115, Bomberos 116.
       </div>
 
       {/* Estado de la sincronización */}
@@ -396,6 +424,27 @@ export default function Nino() {
             </label>
           ))}
         </div>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+          <label className="flex items-center gap-1.5 cursor-pointer min-h-[32px] font-medium">
+            <input type="checkbox" className="h-4 w-4 accent-sky-700" checked={avisoOn} onChange={(e) => setAvisoOn(e.target.checked)} disabled={!avisosMet.length} />Aviso meteorológico
+          </label>
+          {avisosMet.length ? (
+            <>
+              <label htmlFor="nino-aviso" className="sr-only">Aviso</label>
+              <select id="nino-aviso" value={avisoAct?.numero ?? ''} onChange={(e) => { const av = avisosMet.find((x) => x.numero === e.target.value); setAvisoSel(e.target.value); if (av) setAvisoDia(diaVigente(av, hoy)) }}
+                className="min-h-[36px] border border-slate-300 rounded-lg px-2 py-1.5 bg-white max-w-full text-sm">
+                {avisosMet.map((x) => <option key={`${x.anio}-${x.numero}`} value={x.numero}>N° {x.numero} · {x.color.toLowerCase()} · {(x.titulo ?? '').toLowerCase()}{x.estado === 'emitido' ? ' (aún no empieza)' : ''}</option>)}
+              </select>
+              {avisoAct && avisoAct.dias.length > 1 && (
+                <span className="flex flex-wrap items-center gap-1" role="group" aria-label="Día del aviso">
+                  {avisoAct.dias.map((d) => (
+                    <Chip key={d.dia} activo={avisoDia === d.dia} onClick={() => setAvisoDia(d.dia)} color="slate">{d.inicio ? diaCorto(d.inicio.slice(0, 10)) : `día ${d.dia}`}{d.nivel_max ? ` · n${d.nivel_max}` : ''}</Chip>
+                  ))}
+                </span>
+              )}
+            </>
+          ) : <span className="text-slate-400 text-xs">{cargando ? 'cargando…' : 'sin avisos meteorológicos vigentes'}</span>}
+        </div>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
           <span className="font-medium">Puntos</span>
           {CAPAS_PUNTOS.map((c) => (
@@ -422,6 +471,64 @@ export default function Nino() {
         {[1, 2, 3, 4].map((n) => <span key={n} className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full ring-1 ring-white" style={{ background: NIVELES[n].color }} /> {NIVELES[n].etiqueta}</span>)}
         <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full border-2" style={{ background: '#60a5fa', borderColor: '#1e3a8a' }} /> estación sobre umbral</span>
         <span className="text-slate-400">Las capas "imagen" se dibujan desde el GeoServer del SENAMHI y pueden tardar.</span>
+      </div>
+
+      {/* Avisos meteorológicos y emergencias reales */}
+      <h2 className="text-xl font-bold pt-1">Avisos meteorológicos y emergencias</h2>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Tarjeta titulo="Avisos meteorológicos vigentes (SENAMHI)" nota="Avisos oficiales por lluvias, temperatura o viento. Pulsa uno para verlo en el mapa; cada aviso enlaza a su página en senamhi.gob.pe.">
+          {avisosMet.length ? (
+            <ul className="space-y-2.5 text-sm">
+              {avisosMet.map((x) => {
+                const n = NIVELES[x.nivel]
+                const activo = avisoAct?.numero === x.numero
+                return (
+                  <li key={`${x.anio}-${x.numero}`} className={`border-l-4 pl-3 rounded-r-lg ${activo ? 'bg-slate-50' : ''}`} style={{ borderLeftColor: n.color }}>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <Badge color={n.color}>{x.color}</Badge>
+                      {x.estado === 'emitido' && <span className="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded border border-slate-300 text-slate-600">aún no empieza</span>}
+                      <button type="button" onClick={() => { setAvisoSel(x.numero); setAvisoDia(diaVigente(x, hoy)); setAvisoOn(true); mapRef.current?.getContainer().scrollIntoView({ behavior: 'smooth', block: 'center' }) }}
+                        className="font-medium leading-snug text-left hover:text-sky-700 underline-offset-2 hover:underline">
+                        N° {x.numero}: {(x.titulo ?? '').toLowerCase().replace(/^./, (c) => c.toUpperCase())}
+                      </button>
+                    </div>
+                    <div className="text-xs text-slate-500 mt-0.5">
+                      {x.inicio && x.fin ? (x.inicio === x.fin ? diaCorto(x.inicio) : `${diaCorto(x.inicio)} → ${diaCorto(x.fin)}`) : ''}{x.duracion_h ? ` · ${x.duracion_h} h` : ''}
+                      {x.departamentos.length ? ` · ${x.departamentos.length} dep.: ${x.departamentos.slice(0, 8).map((d) => d.toLowerCase()).join(', ')}${x.departamentos.length > 8 ? '…' : ''}` : ''}
+                    </div>
+                    {x.descripcion && <p className="text-xs text-slate-600 mt-0.5">{x.descripcion}</p>}
+                    <a className="text-[11px] text-slate-400 underline hover:text-sky-700" href={x.url} target="_blank" rel="noreferrer noopener">ver aviso en senamhi.gob.pe ↗</a>
+                  </li>
+                )
+              })}
+            </ul>
+          ) : <p className="text-sm text-slate-400">{cargando ? 'Cargando…' : 'Sin avisos meteorológicos vigentes ni emitidos.'}</p>}
+        </Tarjeta>
+        <Tarjeta titulo="Emergencias por lluvias reportadas por el COEN (INDECI)" nota={`Daños ya ocurridos (no pronóstico): reportes preliminares y complementarios del Centro de Operaciones de Emergencia Nacional. ${emerg ? `${emerg.resumen.lluvia_72h} en 72 h · ${emerg.resumen.lluvia_30d} en 30 días.` : ''}`}>
+          {emergLluvia.length ? (
+            <ul className="space-y-2.5 text-sm max-h-[520px] overflow-y-auto pr-1">
+              {emergLluvia.slice(0, 40).map((e) => {
+                const t = TIPO_EMERGENCIA[e.tipo] ?? TIPO_EMERGENCIA.otros
+                return (
+                  <li key={e.url} className="border-l-4 border-l-orange-400 pl-3">
+                    <div className="font-medium leading-snug">
+                      {t.icono} {(e.evento ?? t.etiqueta).toLowerCase().replace(/^./, (c) => c.toUpperCase())}
+                      {e.distrito ? ` en ${e.distrito.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase())}` : e.provincia ? ` en ${e.provincia.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase())}` : ''}
+                      {e.departamento ? ` · ${e.departamento}` : ''}
+                    </div>
+                    <div className="text-xs text-slate-500">{e.publicado_utc ? horaLima(e.publicado_utc) : ''} · {e.clase === 'complementario' ? `reporte complementario${e.reporte_n ? ` N° ${e.reporte_n}` : ''}` : e.clase === 'informe' ? 'informe de emergencia' : e.clase === 'preliminar' ? 'reporte preliminar' : e.clase}</div>
+                    {e.hechos[0]?.descripcion && <p className="text-xs text-slate-600 mt-0.5">{e.hechos[0].fecha} {e.hechos[0].hora}: {e.hechos[0].descripcion}{e.hechos.length > 1 ? ` (+${e.hechos.length - 1} hechos más)` : ''}</p>}
+                    {!e.hechos.length && e.resumen && <p className="text-xs text-slate-600 mt-0.5">{e.resumen}</p>}
+                    <a className="text-[11px] text-slate-400 underline hover:text-sky-700" href={e.url} target="_blank" rel="noreferrer noopener">ver reporte en INDECI ↗</a>
+                  </li>
+                )
+              })}
+            </ul>
+          ) : <p className="text-sm text-slate-400">{cargando ? 'Cargando…' : 'Sin reportes del COEN por lluvias en los últimos 45 días.'}</p>}
+          {emerg && Object.keys(emerg.resumen.por_tipo_30d).length > 0 && (
+            <p className="text-xs text-slate-500 mt-3">Todos los reportes del COEN en 30 días: {Object.entries(emerg.resumen.por_tipo_30d).map(([k, v]) => `${(TIPO_EMERGENCIA[k] ?? TIPO_EMERGENCIA.otros).etiqueta.toLowerCase()} ${v}`).join(' · ')}. <a className="underline" href={emerg.pagina} target="_blank" rel="noreferrer noopener">Ver todos ↗</a></p>
+          )}
+        </Tarjeta>
       </div>
 
       {/* Pronóstico 7 días */}
@@ -670,7 +777,8 @@ export default function Nino() {
           Diagnóstico oficial: <a className="underline" href="https://enfen.imarpe.gob.pe/comunicados/" target="_blank" rel="noreferrer noopener">Comunicados ENFEN</a>.
           Avisos meteorológicos, hidrológicos, activación de quebradas, SILVIA, SONICS, umbrales y pronóstico estacional:{' '}
           <a className="underline" href="https://idesep.senamhi.gob.pe/" target="_blank" rel="noreferrer noopener">SENAMHI IDESEP (GeoServer WFS/WMS)</a>{' '}
-          y <a className="underline" href="https://www.senamhi.gob.pe/" target="_blank" rel="noreferrer noopener">senamhi.gob.pe</a>.
+          y <a className="underline" href="https://www.senamhi.gob.pe/?p=aviso-meteorologico" target="_blank" rel="noreferrer noopener">senamhi.gob.pe</a>.
+          Emergencias: <a className="underline" href="https://portal.indeci.gob.pe/emergencias/" target="_blank" rel="noreferrer noopener">COEN · INDECI (reportes de emergencia)</a>.
           Pronóstico por ciudad y caudales: <a className="underline" href="https://open-meteo.com/" target="_blank" rel="noreferrer noopener">Open-Meteo</a> (CC BY 4.0; caudal de GloFAS/Copernicus).
           Límites: departamentos INEI. Metodología y límites en <code>docs/NINO.md</code>.
         </p>
@@ -679,6 +787,8 @@ export default function Nino() {
           <a className="underline hover:text-sky-700" download href={`${base}data/csv/nino-quebradas-ccpp.csv`}>centros poblados con aviso de quebradas (CSV)</a>{' · '}
           <a className="underline hover:text-sky-700" download href={`${base}data/csv/nino-pronostico-ciudades.csv`}>pronóstico 7 días por ciudad (CSV)</a>{' · '}
           <a className="underline hover:text-sky-700" download href={`${base}data/csv/nino-avisos-hidro.csv`}>avisos hidrológicos (CSV)</a>{' · '}
+          <a className="underline hover:text-sky-700" download href={`${base}data/csv/nino-avisos-met.csv`}>avisos meteorológicos (CSV)</a>{' · '}
+          <a className="underline hover:text-sky-700" download href={`${base}data/csv/nino-emergencias-coen.csv`}>emergencias COEN (CSV)</a>{' · '}
           <a className="underline hover:text-sky-700" href={`${base}data/nino/enso.json`} target="_blank" rel="noreferrer noopener">series Niño 1+2 / 3.4 (JSON)</a>{' · '}
           <a className="underline hover:text-sky-700" href={`${base}data/nino/alertas.json`} target="_blank" rel="noreferrer noopener">alertas (JSON)</a>{' · '}
           <a className="underline hover:text-sky-700" href={`${base}data/nino/estado.json`} target="_blank" rel="noreferrer noopener">estado de la ingesta (JSON)</a>

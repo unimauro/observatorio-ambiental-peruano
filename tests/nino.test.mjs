@@ -4,7 +4,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
   categoriaIcen, colorCategoria, filtrarAlertas, nivelMaximo, desdeColumnar, parseCcpp, frescura, hace, diaCorto,
-  colorLluvia, colorCalor, serieMensual, episodios,
+  colorLluvia, colorCalor, serieMensual, episodios, hoyLima, diaVigente, wmsAviso, ordenarAvisos, TIPOS,
 } from '../.test-build/nino.js'
 
 const AHORA = Date.parse('2026-10-28T15:00:00Z')
@@ -100,4 +100,37 @@ test('serieMensual y episodios agrupan meses consecutivos sobre el umbral', () =
     { inicio: '2017-02', fin: '2017-02', maximo: 1.8, categoria: 'cálida fuerte' },
   ])
   assert.deepEqual(episodios(null), [])
+})
+
+const aviso = (numero, estado, nivel, inicio, fin, nDias) => ({
+  numero, anio: 2026, id_web: 'x', titulo: 'T', tipo: 'lluvias', estado, nivel, color: 'ROJO', emision: null, inicio, fin, duracion_h: null, url: '', departamentos: [],
+  dias: Array.from({ length: nDias }, (_, i) => ({ dia: i + 1, inicio: null, fin: null, nivel_max: null, poligonos: 0, cod_fen: null, cod_even: null, departamentos: [], provincias: 0, descripcion: null })),
+})
+
+test('hoyLima y diaVigente eligen el día del aviso que corresponde a hoy', () => {
+  assert.equal(hoyLima(Date.parse('2026-11-05T03:00:00Z')), '2026-11-04') // 22:00 del 4 en Lima
+  assert.equal(hoyLima(Date.parse('2026-11-05T05:00:00Z')), '2026-11-05')
+  const av = aviso('451', 'vigente', 4, '2026-11-04', '2026-11-06', 3)
+  assert.equal(diaVigente(av, '2026-11-03'), 1) // aún no empieza
+  assert.equal(diaVigente(av, '2026-11-04'), 1)
+  assert.equal(diaVigente(av, '2026-11-05'), 2)
+  assert.equal(diaVigente(av, '2026-11-09'), 3) // ya pasó: último día
+  assert.equal(diaVigente({ ...av, inicio: null }, '2026-11-05'), 1)
+  assert.equal(diaVigente({ ...av, dias: [] }, '2026-11-05'), 1)
+})
+
+test('wmsAviso arma la vista parametrizada igual que la web del SENAMHI', () => {
+  assert.deepEqual(wmsAviso(aviso('451', 'vigente', 4, '2026-11-04', '2026-11-06', 3), 2), { layers: 'g_aviso:view_aviso', viewparams: 'qry:451_2_2026', cql_filter: 'cod_even <> 13' })
+})
+
+test('ordenarAvisos: vigentes primero, luego nivel y número', () => {
+  const xs = [aviso('453', 'emitido', 4, null, null, 1), aviso('450', 'vigente', 3, null, null, 1), aviso('451', 'vigente', 4, null, null, 1), aviso('452', 'vigente', 3, null, null, 1)]
+  assert.deepEqual(ordenarAvisos(xs).map((x) => x.numero), ['451', '452', '450', '453'])
+  assert.deepEqual(xs.map((x) => x.numero), ['453', '450', '451', '452']) // no muta
+})
+
+test('los tipos de alerta nuevos (frío, otros) tienen chip', () => {
+  assert.ok(TIPOS.some((t) => t.id === 'frio'))
+  assert.ok(TIPOS.some((t) => t.id === 'otros'))
+  assert.equal(filtrarAlertas([{ id: 'v', tipo: 'otros', nivel: 3, origen: 'oficial', titulo: 'Viento', detalle: '', fuente: '', url: null }], 'otros', true).length, 1)
 })

@@ -2,7 +2,7 @@
 // Los datos los genera etl/build_nino.py en public/data/nino/.
 
 export type Origen = 'oficial' | 'modelo' | 'calculado'
-export type TipoAlerta = 'enso' | 'lluvias' | 'huaycos' | 'rios' | 'calor'
+export type TipoAlerta = 'enso' | 'lluvias' | 'huaycos' | 'rios' | 'calor' | 'frio' | 'otros'
 
 export interface Alerta {
   id: string
@@ -46,7 +46,24 @@ export interface Enso {
 
 export interface Enfen { numero: string; fecha: string | null; titulo: string; url: string | null; pagina: string; estado_alerta: string | null }
 
-export interface AvisoMet { numero: string | null; nivel: number | null; emision: string | null; inicio: string | null; fin: string | null; fenomeno: string | null; evento: string | null; departamentos: string[] }
+export interface DiaAviso { dia: number; inicio: string | null; fin: string | null; nivel_max: number | null; poligonos: number; cod_fen: string | null; cod_even: string | null; departamentos: string[]; provincias: number; descripcion: string | null }
+/** Aviso meteorológico del SENAMHI (lista web + GeoServer por día). `estado`: vigente | emitido (aún no empieza). */
+export interface AvisoMet {
+  numero: string; anio: number; id_web: string; titulo: string | null; tipo: 'lluvias' | 'calor' | 'frio' | 'otros'
+  estado: 'vigente' | 'emitido'; nivel: number; color: string; emision: string | null; inicio: string | null; fin: string | null; duracion_h: number | null
+  url: string; departamentos: string[]; dias: DiaAviso[]; cod_fen?: string | null; cod_even?: string | null; descripcion?: string | null
+}
+export interface Hecho { fecha: string; hora: string; descripcion: string | null }
+/** Reporte de emergencia del COEN-INDECI (daño ya ocurrido, no pronóstico). */
+export interface Emergencia {
+  titulo: string; url: string; publicado_utc: string | null; clase: 'preliminar' | 'complementario' | 'informe' | 'boletin' | 'otro'
+  tipo: string; evento: string | null; numero: string | null; reporte_n: number | null; departamento: string | null; provincia: string | null; distrito: string | null
+  hechos: Hecho[]; resumen: string | null
+}
+export interface Emergencias {
+  generado_utc: string; fuente: string; pagina: string; items: Emergencia[]
+  resumen: { total: number; reportes_30d: number; lluvia_30d: number; lluvia_72h: number; departamentos_lluvia_72h: string[]; por_tipo_30d: Record<string, number>; por_departamento_lluvia_30d: Record<string, number> }
+}
 export interface AvisoHidro {
   id: string | null; numero: string | null; nivel: number | null; color: string | null; fecha: string | null; titulo: string | null
   estacion: string | null; cuenca: string | null; region_hidrografica: string | null; departamento: string | null; provincia: string | null; distrito: string | null
@@ -113,7 +130,41 @@ export const TIPOS: { id: TipoAlerta | 'todas'; etiqueta: string; icono: string 
   { id: 'huaycos', etiqueta: 'Huaycos', icono: '⛰️' },
   { id: 'rios', etiqueta: 'Ríos', icono: '🏞️' },
   { id: 'calor', etiqueta: 'Calor', icono: '🌡️' },
+  { id: 'frio', etiqueta: 'Frío', icono: '🥶' },
+  { id: 'otros', etiqueta: 'Otros avisos', icono: '💨' },
 ]
+
+/** Tipos de emergencia del COEN relacionados con la temporada de lluvias. */
+export const EMERGENCIAS_LLUVIA = ['lluvias', 'huaycos', 'inundacion', 'deslizamiento', 'granizada']
+export const TIPO_EMERGENCIA: Record<string, { etiqueta: string; icono: string }> = {
+  lluvias: { etiqueta: 'Lluvias intensas', icono: '🌧️' }, huaycos: { etiqueta: 'Huayco / quebrada', icono: '⛰️' }, inundacion: { etiqueta: 'Inundación', icono: '🌊' },
+  deslizamiento: { etiqueta: 'Deslizamiento', icono: '🪨' }, granizada: { etiqueta: 'Granizada', icono: '🧊' }, viento: { etiqueta: 'Vientos fuertes', icono: '💨' },
+  frio: { etiqueta: 'Frío / helada', icono: '🥶' }, incendio: { etiqueta: 'Incendio', icono: '🔥' }, sismo: { etiqueta: 'Sismo', icono: '🌍' }, oleaje: { etiqueta: 'Oleaje', icono: '🌊' },
+  boletin: { etiqueta: 'Boletín', icono: '📄' }, otros: { etiqueta: 'Otro', icono: '⚠️' },
+}
+
+/** 'YYYY-MM-DD' de hoy en Lima. */
+export function hoyLima(ahora: number): string {
+  return new Date(ahora - 5 * 3_600_000).toISOString().slice(0, 10)
+}
+
+/** Día (1-based) del aviso que corresponde a `hoy`; 1 si aún no empieza, el último si ya pasó. */
+export function diaVigente(av: AvisoMet, hoy: string): number {
+  const n = Math.max(1, av.dias.length)
+  if (!av.inicio) return 1
+  const d = Math.floor((Date.parse(hoy + 'T00:00:00Z') - Date.parse(av.inicio + 'T00:00:00Z')) / 86_400_000) + 1
+  return Math.min(n, Math.max(1, d))
+}
+
+/** Parámetros del WMS del SENAMHI para dibujar un día de un aviso (vista SQL parametrizada). */
+export function wmsAviso(av: AvisoMet, dia: number) {
+  return { layers: 'g_aviso:view_aviso', viewparams: `qry:${av.numero}_${dia}_${av.anio}`, cql_filter: 'cod_even <> 13' }
+}
+
+/** Avisos ordenados para el selector: vigentes primero, luego por nivel y número. */
+export function ordenarAvisos(avisos: AvisoMet[]): AvisoMet[] {
+  return [...avisos].sort((a, b) => (a.estado === 'vigente' ? 0 : 1) - (b.estado === 'vigente' ? 0 : 1) || b.nivel - a.nivel || Number(b.numero) - Number(a.numero))
+}
 
 /** Colores de nivel (1 bajo … 4 muy alto), alineados con la escala amarillo/naranja/rojo del SENAMHI. */
 export const NIVELES: Record<number, { color: string; fondo: string; etiqueta: string }> = {

@@ -57,8 +57,48 @@ def _n_puntos(url):
     return urllib.parse.parse_qs(urllib.parse.urlparse(url).query)["latitude"][0].count(",") + 1
 
 
+AVISOS_HTML = """<table><tr><th>Aviso</th></tr>
+<tr><td class="vigente"><a href="./?p=aviso-meteorologico-vigente&a=2026&b=29348&c=00&d=SENA">PRECIPITACIONES EN LA COSTA NORTE Y SIERRA</td>
+<td class="vigente"><a href="./?p=aviso-meteorologico-vigente&a=2026&b=29348&c=00&d=SENA">451 (vigente) </td>
+<td class="vigente">2026-11-02</td><td class="vigente">2026-11-04</td><td class="vigente">2026-11-06</td><td class="vigente">59 Hrs. </td>
+<td class="vigente"><span class="cuatro">ROJO</span></td></tr>
+<tr><td class="emitido"><a href="./?p=aviso-meteorologico-vigente&a=2026&b=29350&c=00&d=SENA">INCREMENTO DE TEMPERATURA DIURNA EN LA COSTA</td>
+<td class="emitido"><a href="./?p=aviso-meteorologico-vigente&a=2026&b=29350&c=00&d=SENA">453 (emitido) </td>
+<td class="emitido">2026-11-03</td><td class="emitido">2026-11-05</td><td class="emitido">2026-11-05</td><td class="emitido">19 Hrs. </td>
+<td class="emitido"><span class="tres">NARANJA</span></td></tr>
+<tr><td class="caducado"><a href="./?p=aviso-meteorologico-detalle&a=2026&b=29300&c=00&d=SENA">VIEJO</td><td class="caducado"><a href="#">440 (caducado) </td>
+<td class="caducado">2026-10-20</td><td class="caducado">2026-10-21</td><td class="caducado">2026-10-22</td><td class="caducado">40 Hrs. </td><td class="caducado"><span class="dos">AMARILLO</span></td></tr>
+<tr><td class="vigente"><a href="./?p=x&a=2026&b=1">SIN NIVEL</td><td class="vigente">9 (vigente)</td><td class="vigente">x</td><td class="vigente">x</td><td class="vigente">x</td><td class="vigente">x</td><td class="vigente">?</td></tr>
+</table>"""
+DETALLE_HTML = """<div class="tab-pane fade show active" id="v-pills-tab-1-293482026" role="tabpanel">
+<p align="justify">El mi&eacute;rcoles 4 se esperan <b>lluvias</b> de 5 a 55 mm/día.</p><br><!--<p align="justify"></p>-->
+<iframe src="mapas/mapa-avisos-meteorologicos/index.php?av=451&nl=4&mp=1&fc=2026"></iframe></div>
+<div class="tab-pane fade" id="v-pills-tab-2-293482026"><p align="justify">El jueves 5 continúan.</p>
+<iframe src="mapas/mapa-avisos-meteorologicos/index.php?av=451&nl=4&mp=2&fc=2026"></iframe></div>"""
+INDECI_RSS = """<?xml version="1.0"?><rss><channel><item>
+<title><![CDATA[REPORTE COMPLEMENTARIO N.º 15463 &#8211; 4/11/2026 / COEN &#8211; INDECI / 06:00 HORAS  (Reporte N.º 14)  LLUVIAS INTENSAS EN EL DEPARTAMENTO DE PIURA]]></title>
+<link>https://portal.indeci.gob.pe/emergencias/reporte-15463/</link><pubDate>Wed, 04 Nov 2026 12:17:13 +0000</pubDate>
+<content:encoded><![CDATA[<p>HECHOS:</p><table><tr><td>25/10/2026 17:00 horas</td><td>Se registraron lluvias intensas que causaron daños materiales (viviendas) en Ayabaca.</td></tr>
+<tr><td>20/10/2026 15:06 horas</td><td>Se registraron lluvias intensas en Sicchez.</td></tr></table><p>The post REPORTE ... appeared first on INDECI.</p>]]></content:encoded></item>
+<item><title><![CDATA[REPORTE COMPLEMENTARIO N.º 15457 – 3NOV2026 – DESLIZAMIENTO EN EL DISTRITO DE SAN NICOLAS – ÁNCASH (3)]]></title>
+<link>https://portal.indeci.gob.pe/emergencias/reporte-15457/</link><pubDate>Wed, 04 Nov 2026 12:04:07 +0000</pubDate>
+<description><![CDATA[HECHOS: 2/11/2026 08:00 horas Se produjo un deslizamiento.]]></description></item>
+<item><title><![CDATA[BOLETÍN INFORMATIVO DE AVISO DE CORTO PLAZO ANTE LLUVIAS INTENSAS N307-2026 DEL 04-11-2026]]></title>
+<link>https://portal.indeci.gob.pe/emergencias/boletin-307/</link><pubDate>Wed, 04 Nov 2026 18:22:51 +0000</pubDate><description><![CDATA[BOLETÍN]]></description></item>
+<item><title><![CDATA[INFORME DE EMERGENCIA N.° 2545 – 1/09/2026 / COEN – INDECI / 06:00 HORAS (Informe N.° 1) INCENDIO FORESTAL EN EL DISTRITO DE MARCAVELICA – PIURA]]></title>
+<link>https://portal.indeci.gob.pe/emergencias/informe-2545/</link><pubDate>Tue, 01 Sep 2026 11:00:00 +0000</pubDate><description><![CDATA[x]]></description></item>
+<item><title><![CDATA[MALICIOSO]]></title><link>https://evil.example/x</link><pubDate>Wed, 04 Nov 2026 12:00:00 +0000</pubDate></item>
+</channel></rss>"""
+
+
 def fetch_falso(url, **kw):
     """Simula todas las fuentes. Las capas se reconocen por el typeName de la URL."""
+    if url == bn.AVISOS_MET_URL:
+        return AVISOS_HTML
+    if url.startswith("https://www.senamhi.gob.pe/?p=aviso-meteorologico-vigente"):
+        return DETALLE_HTML
+    if url == bn.INDECI_FEED:
+        return INDECI_RSS
     if url.startswith(bn.NOAA_MENSUAL):
         return NOAA_MENSUAL
     if url.startswith(bn.NOAA_SEMANAL):
@@ -75,10 +115,16 @@ def fetch_falso(url, **kw):
     if "resultType=hits" in url:
         return '<wfs:FeatureCollection numberMatched="42" numberReturned="0"/>'
     if "view_aviso_aux" in url:
-        return fc([pr({"nro_aviso": 300, "nivel": "Nivel 3", "nombdep": "PIURA", "nombprov": "SULLANA"}), pr({"nro_aviso": 300, "nivel": "Nivel 3", "nombdep": "TUMBES", "nombprov": "TUMBES"})])
+        # la vista parametrizada devuelve filas solo con viewparams=qry:<nro>_<día>_<año>
+        if "viewparams=qry%3A451_" not in url and "viewparams=qry%3A453_" not in url:
+            return fc([])
+        return fc([pr({"nombdep": "PIURA", "nombprov": "SULLANA"}), pr({"nombdep": "TUMBES", "nombprov": "TUMBES"})]) if "451_1_" in url or "453_" in url \
+            else fc([pr({"nombdep": "PIURA", "nombprov": "PIURA"}), pr({"nombdep": "LAMBAYEQUE", "nombprov": "CHICLAYO"})])
     if "g_aviso%3Aview_aviso" in url:
-        return fc([pr({"gid": 1, "nro_aviso": 300, "nivel": "Nivel 3", "fecha_emi": "2026-10-27Z", "cod_fen": "Lluvia", "cod_even": "Lluvias intensas",
-                       "fech_ini": "2026-10-28T05:00:00Z", "fech_fin": "2026-10-30T23:59:00Z", "respons": "DMA"})])
+        if "viewparams=" not in url:
+            return fc([])
+        return fc([pr({"gid": 1, "nro_aviso": 451, "nivel": "Nivel 2", "cod_fen": "1", "cod_even": "01", "fech_ini": "2026-11-04T17:00:00Z", "fech_fin": "2026-11-05T04:59:59Z"}),
+                   pr({"gid": 2, "nro_aviso": 451, "nivel": "Nivel 4", "cod_fen": "1", "cod_even": "01", "fech_ini": "2026-11-04T17:00:00Z", "fech_fin": "2026-11-05T04:59:59Z"})])
     if "view_aviso24h" in url:
         return fc([pr({"gid": 1, "nivel": "Nivel 2", "fecha": "2026-10-27Z", "descripcio": "<b>Lluvias</b> moderadas", "recomendac": "Atentos", "respons": "HCAST"})])
     if "aviso_hidro_pub" in url:
@@ -164,6 +210,57 @@ class Unitarias(unittest.TestCase):
         self.assertEqual(bn.construir_alertas(None, None, None, None, None, None, None, None), [])
 
 
+    def test_avisos_lista_solo_vigentes_y_emitidos(self):
+        lista = bn.parse_avisos_lista(AVISOS_HTML)
+        self.assertEqual([(a["numero"], a["estado"], a["color"], a["nivel"]) for a in lista], [("451", "vigente", "ROJO", 4), ("453", "emitido", "NARANJA", 3)])
+        a = lista[0]
+        self.assertEqual((a["anio"], a["id_web"], a["emision"], a["inicio"], a["fin"], a["duracion_h"]), (2026, "29348", "2026-11-02", "2026-11-04", "2026-11-06", 59))
+        self.assertEqual(bn._dias_aviso(a), 3)
+        self.assertEqual(bn._dias_aviso({"inicio": "2026-11-01", "fin": "2026-11-30"}), bn.MAX_DIAS_AVISO)
+        self.assertEqual(bn._dias_aviso({"inicio": None, "fin": None}), 1)
+        self.assertEqual(bn.parse_avisos_lista("<html>sin tabla</html>"), [])
+
+    def test_clasificar_aviso(self):
+        self.assertEqual(bn.clasificar_aviso("PRECIPITACIONES EN LA SIERRA"), "lluvias")
+        self.assertEqual(bn.clasificar_aviso("INCREMENTO DE TEMPERATURA DIURNA EN LA SELVA"), "calor")
+        self.assertEqual(bn.clasificar_aviso("DESCENSO DE TEMPERATURA NOCTURNA EN LA SIERRA"), "frio")
+        self.assertEqual(bn.clasificar_aviso("INCREMENTO DE VIENTO EN LA COSTA"), "otros")
+
+    def test_avisos_detalle_textos_por_dia(self):
+        d = bn.parse_avisos_detalle(DETALLE_HTML)
+        self.assertEqual(d[("451", 1)], "El miércoles 4 se esperan lluvias de 5 a 55 mm/día.")
+        self.assertEqual(d[("451", 2)], "El jueves 5 continúan.")
+
+    def test_indeci_feed(self):
+        items = bn.parse_indeci_feed(INDECI_RSS)
+        self.assertEqual(len(items), 4)  # el dominio ajeno se descarta
+        piura = items[0]
+        self.assertEqual((piura["clase"], piura["tipo"], piura["evento"], piura["departamento"], piura["numero"], piura["reporte_n"]), ("complementario", "lluvias", "LLUVIAS INTENSAS", "PIURA", "15463", 14))
+        self.assertEqual(piura["publicado_utc"], "2026-11-04T12:17:13Z")
+        self.assertEqual([h["fecha"] for h in piura["hechos"]], ["2026-10-25", "2026-10-20"])
+        self.assertEqual(piura["hechos"][0]["descripcion"], "Se registraron lluvias intensas que causaron daños materiales (viviendas) en Ayabaca.")
+        anc = items[1]
+        self.assertEqual((anc["tipo"], anc["evento"], anc["departamento"], anc["distrito"]), ("deslizamiento", "DESLIZAMIENTO", "ÁNCASH", "SAN NICOLAS"))
+        self.assertEqual(items[2]["clase"], "boletin")
+        self.assertEqual((items[3]["clase"], items[3]["tipo"], items[3]["reporte_n"]), ("informe", "incendio", 1))
+        with self.assertRaises(RuntimeError):
+            bn.parse_indeci_feed("<rss></rss>")
+
+    def test_emergencias_fusiona_historial(self):
+        ahora = datetime(2026, 11, 4, 19, tzinfo=timezone.utc)
+        nuevos = bn.parse_indeci_feed(INDECI_RSS)
+        prev = {"items": [{"url": "https://portal.indeci.gob.pe/emergencias/viejo/", "publicado_utc": "2026-10-01T00:00:00Z", "tipo": "lluvias", "clase": "preliminar"},
+                          {"url": "https://portal.indeci.gob.pe/emergencias/reporte-15463/", "publicado_utc": "2026-11-03T00:00:00Z", "tipo": "lluvias", "clase": "preliminar", "titulo": "VERSIÓN VIEJA"},
+                          {"url": "https://portal.indeci.gob.pe/emergencias/antiguo/", "publicado_utc": "2026-09-01T00:00:00Z", "tipo": "lluvias", "clase": "preliminar"}]}
+        r = bn.construir_emergencias(nuevos, prev, ahora)
+        urls = [e["url"] for e in r["items"]]
+        self.assertIn("https://portal.indeci.gob.pe/emergencias/viejo/", urls)        # historial conservado (34 días)
+        self.assertNotIn("https://portal.indeci.gob.pe/emergencias/antiguo/", urls)   # > 45 días
+        self.assertNotIn("https://portal.indeci.gob.pe/emergencias/informe-2545/", urls)
+        self.assertEqual(next(e for e in r["items"] if e["url"].endswith("reporte-15463/"))["clase"], "complementario")  # la versión nueva pisa a la vieja
+        self.assertEqual(r["resumen"]["lluvia_72h"], 2)
+        self.assertEqual(r["resumen"]["lluvia_30d"], 2)  # "viejo" tiene 34 días: cuenta en el historial, no en 30 d
+
 class EntornoTemporal(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -200,7 +297,27 @@ class Integracion(EntornoTemporal):
         self.assertEqual(q["resumen"]["distritos_por_nivel"]["4"], 1)
         self.assertEqual(q["resumen"]["expuestos"]["eess"], 42)
         av = self.leer("avisos.json")
-        self.assertEqual(av["meteorologicos"][0]["departamentos"], ["PIURA", "TUMBES"])
+        met = av["meteorologicos"]
+        self.assertEqual([(m["numero"], m["estado"], m["nivel"], m["tipo"]) for m in met], [("451", "vigente", 4, "lluvias"), ("453", "emitido", 3, "calor")])
+        self.assertEqual(len(met[0]["dias"]), 3)  # 4, 5 y 6 de noviembre
+        self.assertEqual(met[0]["departamentos"], ["LAMBAYEQUE", "PIURA", "TUMBES"])  # unión de los días
+        self.assertEqual(met[0]["dias"][0]["nivel_max"], 4)
+        self.assertEqual(met[0]["dias"][0]["descripcion"], "El miércoles 4 se esperan lluvias de 5 a 55 mm/día.")
+        self.assertIsNone(met[0]["dias"][2]["descripcion"])
+        self.assertEqual(met[0]["url"], "https://www.senamhi.gob.pe/?p=aviso-meteorologico-vigente&a=2026&b=29348&c=00&d=SENA")
+        em = self.leer("emergencias.json")
+        self.assertEqual([e["url"] for e in em["items"]], ["https://portal.indeci.gob.pe/emergencias/boletin-307/", "https://portal.indeci.gob.pe/emergencias/reporte-15463/",
+                                                           "https://portal.indeci.gob.pe/emergencias/reporte-15457/"])  # sin el dominio ajeno ni el de hace 2 meses
+        self.assertEqual(em["resumen"]["lluvia_72h"], 2)
+        self.assertEqual(em["resumen"]["departamentos_lluvia_72h"], ["PIURA", "ÁNCASH"])
+        alertas = self.leer("alertas.json")["alertas"]
+        ids = [a["id"] for a in alertas]
+        self.assertIn("aviso-met-2026-451", ids)
+        self.assertIn("coen-lluvias", ids)
+        self.assertEqual(next(a for a in alertas if a["id"] == "aviso-met-2026-453")["tipo"], "calor")
+        self.assertTrue(next(a for a in alertas if a["id"] == "aviso-met-2026-451")["detalle"].startswith("Vigente del 2026-11-04 al 2026-11-06. 3 departamentos: LAMBAYEQUE, PIURA, TUMBES. El miércoles"))
+        self.assertTrue(os.path.exists(os.path.join(bn.CSV_DIR, "nino-avisos-met.csv")))
+        self.assertTrue(os.path.exists(os.path.join(bn.CSV_DIR, "nino-emergencias-coen.csv")))
         self.assertEqual(av["lluvia_24h"][0]["descripcion"], "Lluvias moderadas")
         self.assertEqual(sum(1 for u in av["umbrales"] if u["supera"]), 1)
         self.assertEqual(av["hidrologicos"][0]["lat"], -3.5)
@@ -222,7 +339,8 @@ class Integracion(EntornoTemporal):
         self.assertEqual(ids["quebradas"]["nivel"], 4)
         self.assertEqual(ids["enso-icen"]["nivel"], 4)
         self.assertEqual(ids["enfen"]["nivel"], 3)
-        self.assertEqual(ids["aviso-met-300"]["nivel"], 3)
+        self.assertEqual(ids["aviso-met-2026-451"]["nivel"], 4)
+        self.assertEqual(ids["aviso-met-2026-453"]["nivel"], 3)
         self.assertEqual(ids["glofas"]["nivel"], 3)
         self.assertEqual(ids["om-calor"]["origen"], "modelo")
         self.assertIn("estación con lluvia", ids["umbrales"]["titulo"])
@@ -308,6 +426,7 @@ class Integracion(EntornoTemporal):
     def test_senamhi_bloqueado_conserva_todo_y_lo_marca(self):
         """Caso GitHub Actions / VPS: SENAMHI y ENFEN no responden pero hay datos previos."""
         self.correr()
+        alertas_antes = len(self.leer("alertas.json")["alertas"])
 
         def fetch_bloqueado(url, **kw):
             if "senamhi" in url or "imarpe" in url:
@@ -320,7 +439,7 @@ class Integracion(EntornoTemporal):
         self.assertEqual({f["estado"] for f in estado["fuentes"] if f["id"].startswith("SENAMHI")}, {"previo"})
         self.assertEqual(self.leer("quebradas.json")["resumen"]["ccpp"], 3)
         self.assertEqual(self.leer("quebradas.json")["generado_utc"], "2026-10-28T15:00:00Z")  # marca de los datos reales, no de esta corrida
-        self.assertEqual(len(self.leer("alertas.json")["alertas"]), 11)
+        self.assertEqual(len(self.leer("alertas.json")["alertas"]), alertas_antes)  # ninguna alerta se pierde por el bloqueo
         self.assertEqual(estado["ultima_sincronizacion_utc"], "2026-10-28T16:00:00Z")  # NOAA/Open-Meteo sí sincronizaron
 
     def test_escritura_atomica_sin_tmp_residuales(self):

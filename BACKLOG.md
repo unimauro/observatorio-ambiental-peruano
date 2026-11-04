@@ -1,13 +1,20 @@
 # Backlog — Observatorio Ambiental Peruano
 
-Punto de retomada rápido. Estado al **2026-10-28**. Live: https://unimauro.github.io/observatorio-ambiental-peruano/
+Punto de retomada rápido. Estado al **2026-11-04**. Live: https://unimauro.github.io/observatorio-ambiental-peruano/
+
+## ✅ Hecho (El Niño: avisos reales + emergencias COEN, 2026-11-04 — empezaron las lluvias)
+- **Avisos meteorológicos del SENAMHI** por fin conectados: la vista `g_aviso:view_aviso` del GeoServer exige `viewparams=qry:<nro>_<día>_<año>` (sin eso devuelve 0 filas; por eso "estaba vacía"). El ETL lee la tabla de avisos vigentes/emitidos de senamhi.gob.pe, consulta cada día en el GeoServer (nivel, fechas, departamentos, provincias) y toma el texto por día de la página de detalle. En la UI: selector de aviso + chips por día que dibujan el polígono vía WMS, tarjeta con la lista y una alerta por aviso (tipo lluvias/calor/frío/otros). Hoy: 6 avisos (3 rojos: lluvias costa norte y sierra N° 451, calor N° 447/453).
+- **Emergencias reales**: RSS del COEN-INDECI (`portal.indeci.gob.pe/emergencias/feed/`, **sí responde desde datacenter**, se refresca en CI cada hora). Reportes preliminares/complementarios e informes con sus HECHOS; historial de 45 días; tarjeta "Emergencias por lluvias" y alerta "COEN: N reportes en 72 h". Hoy: 7 reportes por lluvias en 72 h (Piura, Tumbes, Amazonas, Cajamarca, Áncash).
+- Pruebas: 21 Python + 12 Node. Docs: `docs/NINO.md` §1, §2, §4, §5, §7.
+- [ ] Extraer cifras de daños (damnificados, viviendas, vías) del cuerpo de cada reporte del COEN y deduplicar por emergencia.
+- [ ] Geolocalizar reportes del COEN (distrito → centroide) para el mapa.
 
 ## ✅ Hecho (módulo El Niño, lluvias y calor, 2026-10-28)
 - Nueva sección **El Niño** (`#/nino`, en el menú y tarjeta en el Dashboard): semáforo (proxy del ICEN con categoría ENFEN, anomalías Niño 1+2 / 3.4), último comunicado ENFEN, **alertas** nivel 1–4 con origen oficial/modelo/calculado y filtros por tipo, mapa con capas WMS del SENAMHI (quebradas, SILVIA, SONICS, aviso meteorológico, lluvia 24 h, verano) + puntos propios, tabla de pronóstico 7 días para 30 ciudades (lluvia/calor), bloque de huaycos (centros poblados, población y viviendas expuestas, distritos nivel 4, EESS/IIEE/vías), ríos (SONICS 7 días, avisos hidrológicos, caudal GloFAS 18 ríos), series NOAA desde 1982 con episodios, pronóstico estacional por sector.
 - ETL `etl/build_nino.py` (stdlib, 13 fuentes en paralelo, ~100 s, última versión válida por fuente) dentro de `deploy.yml` cada hora. Contexto del Asistente y FAQ actualizados; 3 docs nuevos en Biblioteca. Pruebas: 44 Python + 18 Node. Doc: [`docs/NINO.md`](docs/NINO.md).
 - ⚠️ **SENAMHI bloquea IPs de datacenter** (GitHub Actions y VPS: timeout; ENFEN no resuelve DNS en el runner). En CI esas fuentes quedan en `previo` (última versión válida, con su fecha). Refresco real: `etl/sync_nino_local.sh` desde la Mac (IP residencial) + `docs/launchd/pe.tunky.oap-nino.plist` para cada hora. **Carlos decide si instalar el launchd.**
-- [ ] Daños reales por lluvias (INDECI/COEN) — no hay fuente accesible por script; evaluar boletines COEN.
-- [ ] Validar campos de `g_aviso:view_aviso` con un aviso meteorológico real (la capa estaba vacía el 28-oct).
+- [x] ~~Daños reales por lluvias (INDECI/COEN)~~ → hecho 2026-11-04 (RSS del COEN).
+- [x] ~~Validar campos de `g_aviso:view_aviso`~~ → hecho 2026-11-04 (vista parametrizada).
 - [ ] Notificaciones cuando aparezca una alerta nivel 4 nueva (WhatsApp vía Zernio / email).
 - [ ] Capa "El Niño" en el Mapa general; choropleth distrital de quebradas con geometría propia.
 
