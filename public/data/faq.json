@@ -22,7 +22,7 @@
         },
         {
           "q": "¿Qué muestra la sección El Niño y de dónde salen las alertas?",
-          "a": "Reúne cada hora el estado del Fenómeno El Niño (temperatura del mar NOAA y el último comunicado oficial del ENFEN) con los avisos del SENAMHI: meteorológicos, hidrológicos (ríos), activación de quebradas (huaycos), SILVIA (movimientos en masa) y SONICS (crecidas), más el pronóstico a 7 días de Open-Meteo para 30 ciudades y el caudal GloFAS en 18 ríos. Cada alerta indica su origen: 'oficial' (SENAMHI/ENFEN), 'modelo global' (referencial) o 'cálculo propio' (el proxy del ICEN). Las decisiones deben basarse en los avisos oficiales; ante una emergencia llama al 115 (INDECI)."
+          "a": "Reúne cada hora el estado del Fenómeno El Niño (temperatura del mar NOAA y el último comunicado oficial del ENFEN) con los avisos del SENAMHI: meteorológicos (lluvias, calor, frío, viento, con su polígono por día en el mapa), hidrológicos (ríos), activación de quebradas (huaycos), SILVIA (movimientos en masa) y SONICS (crecidas), más las emergencias ya ocurridas que reporta el COEN-INDECI (lluvias intensas, huaycos, inundaciones, deslizamientos), el pronóstico a 7 días de Open-Meteo para 30 ciudades y el caudal GloFAS en 18 ríos. Cada alerta indica su origen: 'oficial' (SENAMHI/ENFEN/COEN), 'modelo global' (referencial) o 'cálculo propio' (el proxy del ICEN). Un aviso es pronóstico; una emergencia del COEN es daño ya registrado. Las decisiones deben basarse en los avisos oficiales; ante una emergencia llama al 115 (INDECI)."
         }
       ]
     },

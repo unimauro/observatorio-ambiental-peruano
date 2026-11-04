@@ -50,11 +50,13 @@ interface HidroAmz {
 interface IncEstado { dias: number; total_focos: number; ultima_sincronizacion_utc: string | null }
 interface NinoCtx { generado_utc: string; alertas: { tipo: string; nivel: number; origen: string; titulo: string; detalle: string; fuente: string }[] }
 interface NinoEnsoCtx { actual: { icen_proxy: number | null; icen_categoria: string | null; icen_proxy_mes: string | null; n12_anomalia_semanal: number | null; n34_anomalia_semanal: number | null; semana: string | null } }
+interface NinoAvisosCtx { generado_utc: string; meteorologicos: { numero: string; estado: string; color: string; tipo: string; titulo: string | null; inicio: string | null; fin: string | null; departamentos: string[]; descripcion?: string | null }[]; hidrologicos: { titulo: string | null; nivel: number | null; departamento: string | null; fecha: string | null }[] }
+interface NinoEmergCtx { generado_utc: string; items: { titulo: string; tipo: string; clase: string; evento: string | null; departamento: string | null; provincia: string | null; distrito: string | null; publicado_utc: string | null; hechos: { fecha: string; hora: string; descripcion: string | null }[] }[]; resumen: { lluvia_72h: number; lluvia_30d: number; reportes_30d: number; departamentos_lluvia_72h: string[]; por_tipo_30d: Record<string, number> } }
 interface IncResumen { total: number; porAnio: { anio: number; registros: number }[]; porDepartamento: { departamento: string; registros: number }[] }
 
 async function buildContext(): Promise<string> {
   try {
-    const [ind, ejes, faq, der, amz, incE, incR, ninoA, ninoE] = await Promise.all([
+    const [ind, ejes, faq, der, amz, incE, incR, ninoA, ninoE, ninoAv, ninoEm] = await Promise.all([
       loadJSON<Indicadores>('indicadores.json'),
       loadJSON<Eje[]>('ejes.json'),
       loadJSON<FaqCtx>('faq.json').catch(() => ({ grupos: [] }) as FaqCtx),
@@ -64,6 +66,8 @@ async function buildContext(): Promise<string> {
       loadJSON<IncResumen>('incendios/minam-resumen.json').catch(() => null),
       loadJSON<NinoCtx>('nino/alertas.json').catch(() => null),
       loadJSON<NinoEnsoCtx>('nino/enso.json').catch(() => null),
+      loadJSON<NinoAvisosCtx>('nino/avisos.json').catch(() => null),
+      loadJSON<NinoEmergCtx>('nino/emergencias.json').catch(() => null),
     ])
     const kpis = ind.kpis
       .map((k) => `- ${k.etiqueta}: ${k.valor.toLocaleString('es-PE')} ${k.unidad} (${k.estado}; ${k.fuente})`)
@@ -101,9 +105,23 @@ async function buildContext(): Promise<string> {
       ? '\n\nEL NIÑO, LLUVIAS Y CALOR (actualizado cada hora; detalle en [El Niño](#/nino)):\n'
         + (e ? `- Temperatura del mar: proxy del ICEN ${e.icen_proxy !== null ? e.icen_proxy.toFixed(2) : 's/d'} °C (${e.icen_categoria ?? 's/d'}, ${e.icen_proxy_mes ?? ''}); anomalía semanal Niño 1+2 ${e.n12_anomalia_semanal ?? 's/d'} °C y Niño 3.4 ${e.n34_anomalia_semanal ?? 's/d'} °C (semana ${e.semana ?? 's/d'}, NOAA). El proxy es un cálculo del observatorio, NO el ICEN oficial del ENFEN.\n` : '')
         + (ninoA ? ninoA.alertas.map((a) => `- [nivel ${a.nivel}/4, ${a.origen}] ${a.titulo}. ${a.detalle} (${a.fuente})`).join('\n') : '')
-        + '\n- Regla: los avisos "oficial" son del SENAMHI/ENFEN; los de "modelo" (Open-Meteo, GloFAS) son referenciales. Ante emergencias: INDECI 115.'
+        + '\n- Regla: los avisos "oficial" son del SENAMHI/ENFEN/COEN; los de "modelo" (Open-Meteo, GloFAS) son referenciales. Ante emergencias: INDECI 115.'
       : ''
-    return `INDICADORES NACIONALES ACTUALES:\n${kpis}\n\nEJES TEMÁTICOS:\n${temas}${hidro}${amazonia}${incendios}${nino}\n\nPREGUNTAS FRECUENTES:\n${faqs}`
+    const met = ninoAv?.meteorologicos?.filter((a) => a && typeof a === 'object' && 'numero' in a) ?? []
+    const avisosMet = met.length
+      ? `\n\nAVISOS METEOROLÓGICOS VIGENTES DEL SENAMHI (oficiales; ${met.length} avisos; datos del ${ninoAv!.generado_utc} UTC):\n`
+        + met.map((a) => `- Aviso N° ${a.numero} (${a.color.toLowerCase()}, ${a.estado === 'emitido' ? 'aún no empieza' : 'vigente'}, ${a.tipo}): ${(a.titulo ?? '').toLowerCase()}. Del ${a.inicio ?? '?'} al ${a.fin ?? '?'}. Departamentos: ${a.departamentos.length ? a.departamentos.join(', ') : 's/d'}.${a.descripcion ? ` ${a.descripcion}` : ''}`).join('\n')
+        + (ninoAv!.hidrologicos?.length ? `\n- Avisos hidrológicos (ríos): ${ninoAv!.hidrologicos.map((h) => `${h.titulo ?? 'aviso'} (nivel ${h.nivel ?? '?'}, ${h.departamento ?? ''}, ${h.fecha ?? ''})`).join('; ')}` : '')
+        + '\n- Cada aviso enlaza a su página oficial en senamhi.gob.pe/?p=aviso-meteorologico; el nivel rojo es el máximo (4), naranja 3, amarillo 2.'
+      : ''
+    const lluviaEm = (ninoEm?.items ?? []).filter((x) => ['lluvias', 'huaycos', 'inundacion', 'deslizamiento', 'granizada'].includes(x.tipo)).slice(0, 15)
+    const emergencias = ninoEm
+      ? `\n\nEMERGENCIAS REPORTADAS POR EL COEN-INDECI (daños YA OCURRIDOS, no pronóstico; fuente portal.indeci.gob.pe/emergencias; datos del ${ninoEm.generado_utc} UTC):\n`
+        + `- Reportes por lluvias, huaycos, inundaciones, deslizamientos o granizadas: ${ninoEm.resumen.lluvia_72h} en las últimas 72 h (${ninoEm.resumen.departamentos_lluvia_72h.join(', ') || 'sin departamento'}), ${ninoEm.resumen.lluvia_30d} en 30 días. Todos los reportes en 30 días por tipo: ${Object.entries(ninoEm.resumen.por_tipo_30d).map(([k, v]) => `${k} ${v}`).join(', ')}.\n`
+        + lluviaEm.map((x) => `- ${x.publicado_utc?.slice(0, 10) ?? ''} ${x.clase}: ${(x.evento ?? x.tipo).toLowerCase()} en ${x.distrito ?? x.provincia ?? x.departamento ?? 's/d'}${x.distrito || x.provincia ? ` (${x.departamento ?? ''})` : ''}.${x.hechos[0]?.descripcion ? ` ${x.hechos[0].fecha}: ${x.hechos[0].descripcion}` : ''}`).join('\n')
+        + '\n- Un reporte complementario es la misma emergencia actualizada; el conteo es de reportes publicados, no de emergencias distintas. No se extraen cifras de damnificados.'
+      : ''
+    return `INDICADORES NACIONALES ACTUALES:\n${kpis}\n\nEJES TEMÁTICOS:\n${temas}${hidro}${amazonia}${incendios}${nino}${avisosMet}${emergencias}\n\nPREGUNTAS FRECUENTES:\n${faqs}`
   } catch {
     return '(No se pudo cargar el contexto de datos.)'
   }
@@ -121,10 +139,13 @@ function systemPrompt(ctx: string): string {
     '- Temas por eje (gráficos): [Temas](#/temas)',
     '- Biblioteca documental: [Biblioteca](#/biblioteca)',
     '- Preguntas frecuentes: [FAQ](#/faq)',
+    '- Incendios forestales (focos de calor en vivo): [Incendios](#/incendios)',
+    '- El Niño, lluvias, huaycos, ríos y calor (avisos del SENAMHI, emergencias del COEN, pronósticos): [El Niño](#/nino)',
     'Ej.: "…Mira el detalle en [Temas](#/temas)."',
     '',
     'REGLAS: responde solo sobre el ambiente del Perú y los datos de este observatorio. Si preguntan otra cosa, redirige amablemente.',
-    'Usa los datos del contexto y cita la fuente brevemente. NO inventes cifras: si no está, dilo y nombra la fuente oficial (OEFA, MINAM, SERNANP, ANA). Sin alarmismos.',
+    'Usa los datos del contexto y cita la fuente brevemente. NO inventes cifras: si no está, dilo y nombra la fuente oficial (OEFA, MINAM, SERNANP, ANA, SENAMHI, INDECI). Sin alarmismos.',
+    'LLUVIAS Y EL NIÑO: distingue siempre AVISO (pronóstico oficial del SENAMHI, con nivel y vigencia) de EMERGENCIA (daño ya ocurrido, reportado por el COEN-INDECI). Si preguntan por un departamento, revisa qué avisos lo incluyen y qué reportes del COEN lo mencionan. El proxy del ICEN es un cálculo del observatorio, no el ICEN oficial.',
     '',
     'CONTEXTO DE DATOS:',
     ctx,
