@@ -435,10 +435,11 @@ def clasificar_aviso(titulo):
     t = (titulo or "").upper()
     if any(k in t for k in ("PRECIPITACI", "LLUVIA", "GRANIZO", "NIEVE", "NEVADA", "TORMENTA")):
         return "lluvias"
-    if any(k in t for k in ("INCREMENTO DE TEMPERATURA", "TEMPERATURA DIURNA", "CALOR", "ALTAS TEMPERATURAS")):
-        return "calor"
+    # frío antes que calor: "DESCENSO DE TEMPERATURA DIURNA" contiene "TEMPERATURA DIURNA"
     if any(k in t for k in ("DESCENSO DE TEMPERATURA", "HELADA", "FRIAJE", "TEMPERATURA NOCTURNA", "FRÍO", "FRIO", "BAJAS TEMPERATURAS")):
         return "frio"
+    if any(k in t for k in ("INCREMENTO DE TEMPERATURA", "TEMPERATURA DIURNA", "CALOR", "ALTAS TEMPERATURAS")):
+        return "calor"
     return "otros"
 
 
