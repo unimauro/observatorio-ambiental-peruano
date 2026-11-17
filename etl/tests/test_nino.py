@@ -227,6 +227,7 @@ class Unitarias(unittest.TestCase):
         self.assertEqual(bn.clasificar_aviso("INCREMENTO DE VIENTO EN LA COSTA"), "otros")
         self.assertEqual(bn.clasificar_aviso("DESCENSO DE TEMPERATURA DIURNA EN LA SELVA CENTRO Y SUR - DECIMO QUINTO FRIAJE"), "frio")
         self.assertEqual(bn.clasificar_aviso("LLUVIA EN LA SELVA - DÉCIMO QUINTO FRIAJE"), "lluvias")
+        self.assertEqual(bn.clasificar_aviso("LLOVIZNA EN LA COSTA CENTRO Y SUR"), "lluvias")
 
     def test_avisos_detalle_textos_por_dia(self):
         d = bn.parse_avisos_detalle(DETALLE_HTML)

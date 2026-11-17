@@ -433,7 +433,7 @@ def parse_enfen(texto):
 def clasificar_aviso(titulo):
     """Tipo de alerta a partir del título del aviso del SENAMHI (mayúsculas)."""
     t = (titulo or "").upper()
-    if any(k in t for k in ("PRECIPITACI", "LLUVIA", "GRANIZO", "NIEVE", "NEVADA", "TORMENTA")):
+    if any(k in t for k in ("PRECIPITACI", "LLUVIA", "LLOVIZNA", "GRANIZO", "NIEVE", "NEVADA", "TORMENTA")):
         return "lluvias"
     # frío antes que calor: "DESCENSO DE TEMPERATURA DIURNA" contiene "TEMPERATURA DIURNA"
     if any(k in t for k in ("DESCENSO DE TEMPERATURA", "HELADA", "FRIAJE", "TEMPERATURA NOCTURNA", "FRÍO", "FRIO", "BAJAS TEMPERATURAS")):
